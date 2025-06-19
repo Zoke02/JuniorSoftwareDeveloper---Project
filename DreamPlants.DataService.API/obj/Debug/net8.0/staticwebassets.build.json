@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "EC8TFVDyNKtL3o6XzOnDMJtSOBVBa2t8Xpo9WIyKnJs=",
+  "Source": "DreamPlants.DataService.API",
+  "BasePath": "_content/DreamPlants.DataService.API",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

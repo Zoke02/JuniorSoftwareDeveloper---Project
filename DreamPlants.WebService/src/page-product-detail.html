@@ -1,0 +1,273 @@
+<div class="container container-min-height py-4">
+	<div class="row border-bottom border-2">
+		<div class="col-12">
+			<h1>Product Detail</h1>
+		</div>
+	</div>
+	<div class="row mt-3">
+		<div class="row">
+			<!-- Category Tree -->
+			<div class="col-3 d-none d-lg-inline">
+				<div class="mt-2" id="tableCategorieTree"></div>
+			</div>
+			<!-- Product -->
+			<div class="col-12 col-lg-9">
+				<div class="accordion accordion-flush" id="accordionArtikel">
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button
+								class="accordion-button text-uppercase"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#collapseOne"
+								aria-expanded="true"
+								aria-controls="collapseOne"
+							>
+								Product
+							</button>
+						</h2>
+						<div
+							id="collapseOne"
+							class="accordion-collapse collapse show"
+							data-bs-parent="#accordionProduct"
+						>
+							<div class="accordion-body">
+								<div class="row">
+									<div
+										class="col-12 col-md-4 col-lg-3 pt-md-2 text-md-end"
+									>
+										<label for="textNumber"
+											>Product Number:</label
+										>
+									</div>
+									<div class="col-12 col-md-8 col-lg-6">
+										<input
+											type="text"
+											id="textNumber"
+											class="form-control"
+										/>
+									</div>
+								</div>
+
+								<div class="row mt-2">
+									<div
+										class="col-12 col-md-4 col-lg-3 pt-md-2 text-md-end"
+									>
+										<label for="textName">Name:</label>
+									</div>
+									<div class="col-12 col-md-8 col-lg-9">
+										<input
+											type="text"
+											id="textName"
+											class="form-control"
+										/>
+									</div>
+								</div>
+								<div class="row mt-2">
+									<div
+										class="col-12 col-md-4 col-lg-3 pt-md-2 text-md-end"
+									>
+										<label for="textVariantSize"
+											>Variant - Size:</label
+										>
+									</div>
+									<div class="col-12 col-md-8 col-lg-9">
+										<input
+											type="text"
+											id="textVariantSize"
+											class="form-control"
+										/>
+									</div>
+								</div>
+								<div class="row mt-2">
+									<div
+										class="col-12 col-md-4 col-lg-3 pt-md-2 text-md-end"
+									>
+										<label for="textVariantColor"
+											>Variant - Color:</label
+										>
+									</div>
+									<div class="col-12 col-md-8 col-lg-9">
+										<input
+											type="text"
+											id="textVariantColor"
+											class="form-control"
+										/>
+									</div>
+								</div>
+								<div class="row mt-2">
+									<div
+										class="col-12 col-md-4 col-lg-3 pt-md-2 text-md-end"
+									>
+										<label for="textPrice">Price:</label>
+									</div>
+									<div class="col-12 col-md-8 col-lg-9">
+										<input
+											type="text"
+											id="textPrice"
+											class="form-control"
+										/>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="accordion-item" id="accordionItem2">
+						<h2 class="accordion-header">
+							<button
+								class="accordion-button collapsed text-uppercase"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#collapseTwo"
+								aria-expanded="false"
+								aria-controls="collapseTwo"
+							>
+								Stock History
+							</button>
+						</h2>
+						<div
+							id="collapseTwo"
+							class="accordion-collapse collapse"
+							data-bs-parent="#accordionArtikel"
+						>
+							<div class="accordion-body">
+								<div class="row">
+									<div class="col-6">
+										<button
+											type="button"
+											class="btn btn-success w-100"
+											id="buttonAddStock"
+										>
+											<i class="bi-plus-circle me-2"></i
+											>Add Stock
+										</button>
+									</div>
+									<div class="col-6">
+										<button
+											type="button"
+											class="btn btn-danger w-100"
+											id="buttonRemoveStock"
+										>
+											<i class="bi-dash-circle me-2"></i
+											>Remove Stock
+										</button>
+									</div>
+								</div>
+
+								<div
+									class="overflow-y-scroll"
+									style="max-height: 18rem"
+								>
+									<table
+										class="table table-striped table-hover"
+										id="tableStock"
+									>
+										<thead>
+											<tr>
+												<th class="sticky-top">Date</th>
+												<th class="sticky-top">
+													Ammount
+												</th>
+												<th class="sticky-top">
+													Remarks
+												</th>
+												<th class="sticky-top">User</th>
+											</tr>
+										</thead>
+										<tbody></tbody>
+									</table>
+								</div>
+
+								<div class="row mt-2">
+									<div
+										class="col-12 border-top border-2 border-wifi"
+									>
+										<span>Current Ammount:</span>
+										<span
+											class="fs-5"
+											id="infoCurrentAmmount"
+										></span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="accordion-item" id="accordionItem3">
+						<h2 class="accordion-header">
+							<button
+								class="accordion-button collapsed text-uppercase"
+								type="button"
+								data-bs-toggle="collapse"
+								data-bs-target="#collapseThree"
+								aria-expanded="false"
+								aria-controls="collapseThree"
+							>
+								File(s)
+							</button>
+						</h2>
+						<div
+							id="collapseThree"
+							class="accordion-collapse collapse"
+							data-bs-parent="#accordionProduct"
+						>
+							<div class="accordion-body">
+								<!-- Display None Chose File -->
+								<input
+									type="file"
+									class="d-none"
+									id="inputFile"
+									multiple
+									accept="application/pdf, image/jpeg, image/png"
+								/>
+								<div class="row element-clickable" id="rowFile">
+									<div
+										class="col-12 text-center p-3"
+										style="
+											border: 2px dashed lightgreen;
+											border-radius: 2rem;
+										"
+									>
+										<i class="bi bi-upload me-2">
+											Upload file(s) with Drag & Drop or
+											click.</i
+										>
+									</div>
+								</div>
+
+								<!-- Images Here -->
+								<div class="row mt-3">
+									<div class="col-12">
+										<div id="containerFiles">
+											<!-- Some Data -->
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="container-save-bar fixed-bottom py-2 bg-wifi">
+		<div class="position-relative">
+			<div class="container">
+				<div class="d-flex align-items-center">
+					<button
+						type="button"
+						class="btn btn-secondary"
+						id="buttonSpeichern"
+					>
+						<i class="bi-floppy me-2"></i>Speichern
+					</button>
+					<div
+						class="alert alert-success ms-4 mb-0 px-4 py-1 d-none"
+						id="alertMessage"
+					>
+						Erfolgreich gespeichert
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

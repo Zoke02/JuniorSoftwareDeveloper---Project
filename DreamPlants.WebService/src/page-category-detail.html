@@ -1,0 +1,105 @@
+<div class="border-bottom-gold container-min-height">
+	<div class="container" id="pageCategoryDetail">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="border-bottom border-2 py-2">
+					Categories Management
+				</h1>
+			</div>
+		</div>
+
+		<div class="d-lg-inline list-group py-2" id="containerCategory">
+			<div class="col mb-3 mt-2">
+				<i class="bi bi-plus pe-2 border p-2" data-action="add-cat"
+					>Add Category</i
+				>
+			</div>
+			<!-- START -->
+			<div class="list-group" id="containerCategory">
+				<!-- Category row with actions -->
+				<div
+					class="list-group-item d-flex justify-content-between align-items-center"
+				>
+					<div
+						data-bs-target="#multiCollapseCategorie1"
+						data-bs-toggle="collapse"
+						aria-expanded="false"
+						aria-controls="multiCollapseCategorie1"
+						class="hover-effect text-decoration-none flex-grow-1 py-3"
+					>
+						<i class="bi bi-caret-up-square pe-2"></i>Plants
+					</div>
+					<div class="d-flex gap-2 ms-2">
+						<i
+							class="bi bi-plus border p-2"
+							data-action="add-subcat"
+							data-id="1"
+							title="Add Subcategory"
+						></i>
+						<i
+							class="bi bi-pencil border p-2"
+							data-action="rename-cat"
+							data-id="1"
+							title="Rename Category"
+						></i>
+						<i
+							class="bi bi-trash3 border p-2"
+							data-action="delete-cat"
+							data-id="1"
+							title="Delete Category"
+						></i>
+					</div>
+				</div>
+
+				<!-- Subcategories (inside collapse) -->
+				<div
+					class="collapse multi-collapse ps-3"
+					id="multiCollapseCategorie1"
+				>
+					<!-- Subcategory 1 -->
+					<div
+						class="list-group-item d-flex justify-content-between align-items-center ps-4"
+					>
+						<span>Alocasia</span>
+						<div class="d-flex gap-2">
+							<i
+								class="bi bi-pencil border p-2"
+								data-action="rename-subcat"
+								data-id="101"
+								title="Rename Subcategory"
+							></i>
+							<i
+								class="bi bi-trash3 border p-2"
+								data-action="delete-subcat"
+								data-id="101"
+								title="Delete Subcategory"
+							></i>
+						</div>
+					</div>
+
+					<!-- Subcategory 2 -->
+					<div
+						class="list-group-item d-flex justify-content-between align-items-center ps-4"
+					>
+						<span>Monstera</span>
+						<div class="d-flex gap-2">
+							<i
+								class="bi bi-pencil border p-2"
+								data-action="rename-subcat"
+								data-id="102"
+								title="Rename Subcategory"
+							></i>
+							<i
+								class="bi bi-trash3 border p-2"
+								data-action="delete-subcat"
+								data-id="102"
+								title="Delete Subcategory"
+							></i>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- END -->
+		</div>
+	</div>
+</div>

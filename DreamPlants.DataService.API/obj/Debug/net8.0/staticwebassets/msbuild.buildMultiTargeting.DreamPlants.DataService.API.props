@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\DreamPlants.DataService.API.props" />
+</Project>

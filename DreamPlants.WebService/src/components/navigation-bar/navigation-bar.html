@@ -1,0 +1,125 @@
+<nav class="navbar navbar-expand bg-dark-green border-accent-bottom py-2">
+	<div
+		class="container d-flex justify-content-between align-items-center position-relative"
+	>
+		<!-- LEFT -->
+		<div class="d-flex align-items-center">
+			<div class="nav-item">
+				<i class="bi bi-list fs-1"></i>
+			</div>
+			<div class="nav-item ps-3" id="lightDarkMode">
+				<i class="bi bi-moon-stars-fill fs-5"></i>
+			</div>
+		</div>
+
+		<!-- CENTER (absolute logo) -->
+		<a
+			href="#home"
+			class="position-absolute top-50 start-50 translate-middle"
+		>
+			<img
+				class="navbar-logo"
+				src="./../../images/Logo (DarkMode).svg"
+				alt="Dream Plants Logo"
+			/>
+		</a>
+
+		<!-- RIGHT -->
+		<div class="d-flex align-items-center">
+			<div class="d-none d-lg-flex pe-3" id="userName">UserName</div>
+
+			<div class="dropdown-center">
+				<div
+					class="nav-item pe-3"
+					data-bs-toggle="dropdown"
+					aria-expanded="true"
+					id="loginMenu"
+				>
+					<i class="bi bi-person-lock fs-1" id="userIcon"></i>
+				</div>
+				<ul
+					class="dropdown-menu dropdown-menu-end d-none"
+					id="userDropdown"
+				>
+					<li>
+						<button
+							class="dropdown-item"
+							type="button"
+							id="userProfile"
+						>
+							User Profile
+						</button>
+					</li>
+					<li>
+						<button
+							class="dropdown-item"
+							type="button"
+							id="userOrders"
+						>
+							User Orders History
+						</button>
+					</li>
+					<li>
+						<button
+							class="dropdown-item d-none"
+							type="button"
+							id="usersManagement"
+						>
+							Users Management
+						</button>
+					</li>
+					<li>
+						<button
+							class="dropdown-item d-none"
+							type="button"
+							id="userCategories"
+						>
+							Categories Management
+						</button>
+					</li>
+					<li>
+						<button
+							class="dropdown-item d-none"
+							type="button"
+							id="userProducts"
+						>
+							Products Management
+						</button>
+					</li>
+					<li>
+						<button
+							class="dropdown-item d-none"
+							type="button"
+							id="userSummary"
+						>
+							DreamPlants Summary
+						</button>
+					</li>
+					<li><hr class="dropdown-divider" /></li>
+					<li>
+						<button
+							class="dropdown-item"
+							type="button"
+							id="userLogOut"
+						>
+							Log out
+						</button>
+					</li>
+				</ul>
+			</div>
+
+			<a
+				href="#shopcart"
+				class="nav-item position-relative d-inline-block"
+			>
+				<i class="bi bi-cart2 fs-1"></i>
+				<span
+					class="badge badge-position bg-danger position-absolute rounded-pill"
+					style="font-size: 0.75rem"
+				>
+					22
+				</span>
+			</a>
+		</div>
+	</div>
+</nav>

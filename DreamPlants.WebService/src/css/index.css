@@ -1,0 +1,333 @@
+@font-face {
+	font-family: Montserrat;
+	src: url(./../fonts/Montserrat-VariableFont_wght.ttf);
+}
+
+@font-face {
+	font-family: 'Montserrat-Italic';
+	src: url(./../fonts/Montserrat-Italic-VariableFont_wght.ttf);
+}
+
+@font-face {
+	font-family: Limelight;
+	src: url(./../fonts/Limelight-Regular.ttf);
+}
+
+:root {
+	--darkGreen: #053336;
+	--lightGreen: #577550;
+	--white: #f5f0eb;
+	--gold: #a9a084;
+	--goldTransparent: hsla(45, 18%, 59%, 0.5);
+	--silver: #e8e8e8;
+	--bs-dark: #053336;
+}
+
+* {
+	font-family: Montserrat, system-ui, -apple-system, BlinkMacSystemFont,
+		'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+		'Helvetica Neue', sans-serif;
+}
+/* ---------------------------- */
+/* Background					*/
+/* ---------------------------- */
+
+.bg-dark-green {
+	background-color: var(--darkGreen);
+	color: var(--gold);
+}
+
+.bg-light-green {
+	background-color: var(--darkGreen);
+	color: var(--gold);
+}
+
+/* ---------------------------- */
+/* Table					*/
+/* ---------------------------- */
+
+.dreamPlantsTableRow {
+	text-align: center;
+}
+
+.dreamPlantsTableHead1 {
+	width: 12rem;
+}
+
+th {
+	justify-content: center;
+	align-items: center;
+}
+
+/* ---------------------------- */
+/* Icons and Logos 				*/
+/* ---------------------------- */
+
+.bi:hover {
+	cursor: pointer;
+}
+.icon-s {
+	color: var(--gold);
+}
+
+.separator-vertical-gold {
+	color: var(--gold);
+	border: 1px solid var(--gold);
+	height: 40px;
+}
+
+a i {
+	color: var(--gold);
+}
+
+/* ---------------------------- */
+/* Border		 				*/
+/* ---------------------------- */
+
+.border-accent-bottom {
+	border-bottom: 5px solid var(--gold);
+}
+
+.form-control:focus {
+	border: none;
+	box-shadow: 0 0 0 0.25rem var(--goldTransparent);
+}
+
+/* ---------------------------- */
+/* Buttons		 				*/
+/* ---------------------------- */
+.btn-primary {
+	background-color: var(--gold);
+	border-color: var(--gold);
+}
+
+.btn-primary:hover {
+	background-color: var(--silver);
+	border-color: var(--gold);
+	color: var(--darkGreen);
+}
+
+.btn-secondary {
+	background-color: var(--lightGreen);
+	border-color: var(--gold);
+}
+
+/* DEV */
+
+/* Custom Light/Dark Toogle */
+[data-bs-theme='dark'] {
+	--bs-body-bg: var(--darkGreen);
+	--bs-body-color: #d5f5d5;
+}
+[data-bs-theme='light'] {
+	--bs-body-bg: var(--white);
+	--bs-body-color: var() var(--darkGreen); /* optional: text color on your green bg */
+}
+
+/* Hero Section */
+.hero-img {
+	width: 100%;
+	height: 75dvh;
+	object-fit: cover;
+	display: block;
+}
+@media screen and (max-width: 768px) {
+	.hero-img {
+		object-position: 16% center;
+	}
+}
+
+.hero-search-bar {
+	width: 100%;
+	max-width: 600px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	background-color: var(--lightGreen);
+}
+
+@media screen and (max-width: 768px) {
+	.navbar-logo {
+		max-width: 70%;
+		display: block;
+		margin: 0 auto;
+	}
+	.navbar-nav {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+	}
+}
+
+/* Hero Secttion - Search Bar */
+
+.card-header {
+	border-bottom: 3px solid var(--gold);
+}
+
+.card-body {
+	background-color: var(--bs-body-bg);
+	color: var(--gold);
+}
+/* 
+.form-control {
+	border-color: transparent;
+}
+
+.input-group > .form-control:focus {
+	border-color: transparent;
+	box-shadow: inset 0 0 0 1px transparent;
+} */
+
+.btn-outline-info {
+	border-color: var(--gold);
+	color: var(--gold);
+}
+
+.text-info-self {
+	color: var(--gold);
+}
+
+/* Site is in LIGHT mode → make cards DARK */
+[data-bs-theme='light'] .cards-section-wrapper .card-body,
+[data-bs-theme='light'] .cards-section-wrapper .card-header {
+	background-color: var(--bs-dark);
+	color: var(--bs-light);
+}
+
+/* Site is in DARK mode → make cards LIGHT */
+[data-bs-theme='dark'] .cards-section-wrapper .card-body,
+[data-bs-theme='dark'] .cards-section-wrapper .card-header {
+	background-color: var(--bs-light);
+	color: var(--bs-dark);
+}
+
+/* Match background color of span to input */
+.input-group .input-group-text {
+	background-color: var(--bs-body-bg);
+}
+
+.btn-link {
+	color: var(--bs-body-bg);
+}
+
+/* Cards-Section */
+
+.card-wrapper .card {
+	max-width: 20rem;
+}
+
+/* Plant Care Section */
+.plant-care-wrapper {
+	width: 100%;
+	background-color: var(--bs-body-bg);
+}
+
+/* Site is in LIGHT mode → make cards DARK */
+[data-bs-theme='light'] #plantCareSection {
+	background-color: var(--bs-dark);
+	color: var(--bs-light);
+}
+
+/* Site is in DARK mode → make cards LIGHT */
+[data-bs-theme='dark'] #plantCareSection {
+	background-color: var(--bs-light);
+	color: var(--bs-dark);
+}
+
+#plantCareSection .card {
+	border: none;
+	background: none;
+}
+
+#plantCareSection .card-body {
+	background: none;
+}
+
+#plantCareSection .bi {
+	font-size: 5rem;
+	color: var(--gold);
+}
+#plantCareSection .bi:hover {
+	cursor: default;
+}
+
+/* Footer */
+[data-bs-theme='light'] footer a {
+	color: var(--bs-dark);
+}
+
+[data-bs-theme='dark'] footer a {
+	color: var(--bs-light);
+}
+
+.container-min-height {
+	min-height: 95dvh;
+}
+
+.border-bottom-gold {
+	border-bottom: 5px solid var(--gold);
+}
+
+.container-save-bar {
+	border-top: 5px solid var(--gold);
+}
+/* Site is in LIGHT mode → make cards DARK */
+[data-bs-theme='light'] .container-save-bar {
+	background-color: var(--bs-dark);
+	color: var(--bs-light);
+}
+
+/* Site is in DARK mode → make cards LIGHT */
+[data-bs-theme='dark'] .container-save-bar {
+	background-color: var(--bs-light);
+	color: var(--bs-dark);
+}
+
+/* Hover */
+.hover-effect {
+	cursor: pointer;
+}
+
+.active {
+	background-color: #41583c !important;
+	border-color: var(--gold) !important;
+}
+
+/* SHOPCART */
+@media (min-width: 1025px) {
+	.h-custom {
+		min-height: 100vh !important;
+	}
+}
+
+.card-registration .select-input.form-control[readonly]:not([disabled]) {
+	font-size: 1rem;
+	line-height: 2.15;
+	padding-left: 0.75em;
+	padding-right: 0.75em;
+}
+
+.card-registration .select-arrow {
+	top: 13px;
+}
+
+.badge-position {
+	bottom: -5px;
+	right: 0;
+}
+
+/* ORDER INFO */
+
+/* Site is in LIGHT mode → make cards DARK */
+[data-bs-theme='light'] .text-color {
+	color: black;
+}
+
+/* Site is in DARK mode → make cards LIGHT */
+[data-bs-theme='dark'] .text-color {
+	color: whitesmoke;
+}

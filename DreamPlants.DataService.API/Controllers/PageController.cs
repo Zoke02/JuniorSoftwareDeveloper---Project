@@ -1,0 +1,233 @@
+﻿using DreamPlants.DataService.API.Data;
+using DreamPlants.DataService.API.Models.DTO;
+using DreamPlants.DataService.API.Models.Generated;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace DreamPlants.DataService.API.Controllers
+{
+  [Route("[controller]")]
+  [ApiController]
+
+  public class PageController : ControllerBase
+  {
+    private readonly DreamPlantsContext _context;
+
+    public PageController(DreamPlantsContext context)
+    {
+      _context = context;
+    }
+
+    [HttpGet("init")]
+    public async Task<ActionResult<User>> PageInitUser()
+    {
+      try
+      {
+        // Check later why u dont need a Uri escape string here? wtf does the enitty framework do it for you?
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+        {
+          return Unauthorized();
+        }
+
+        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+
+        if (user == null)
+        {
+          return Unauthorized();
+        }
+        // Dara Transfer Object - 
+        UserDTO userDTO = new UserDTO
+        {
+          FirstName = user.FirstName,
+          LastName = user.LastName,
+          Email = user.Email,
+          PhoneNumber = user.PhoneNumber,
+          RoleId = user.RoleId,
+        };
+
+        return Ok(userDTO);
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { message = ex.Message });
+#else
+        return StatusCode(500);
+#endif
+      }
+    } // ApiGet (Init)
+    
+    [HttpGet("product&categorieslist")]
+    public async Task<ActionResult<User>> PageProdCatList()
+    {
+      try
+      {
+        // Check later why u dont need a Uri escape string here? wtf does the enitty framework do it for you?
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+        {
+          return Unauthorized();
+        }
+        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null)
+        {
+          return Unauthorized();
+        }
+        // Dara Transfer Object - 
+        var categoriesList = await _context.Categories
+        .Include(sc => sc.Subcategories).Select(c => new CategoryDTO {
+          CategoryId = c.CategoryId,
+          CategoryName = c.CategoryName,
+          Subcategories = c.Subcategories.Select(sc => new SubcategoryDTO
+          {
+            SubcategoryId = sc.SubcategoryId,
+            SubcategoryName = sc.SubcategoryName
+          }).ToList()
+        })
+        .ToListAsync();
+
+        var productsList = await _context.Products
+        .Include(sc => sc.Subcategory)
+        .ThenInclude(c => c.Category)
+        .Include(s => s.Stocks)
+        .Select(p => new ProductDTO
+        {
+          ProductNumber = p.ProductNumber,
+          Name = p.Name,
+          SubcategoryName = p.Subcategory.SubcategoryName,
+          CategoryName = p.Subcategory.Category.CategoryName,
+          Stocks = p.Stocks.Select(s => new StockDTO
+          {
+            StockUid = s.StockUid,
+            StockNumber = s.StockNumber,
+            VariantSize = s.VariantSize,
+            Price = s.Price,
+            Quantity = s.Quantity
+          }).ToList()
+        })
+        .ToListAsync();
+        return Ok(new
+        {
+          productsList,
+          categoriesList
+        });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { message = ex.Message });
+#else
+        return StatusCode(500);
+#endif
+      }
+    } // apiGet (product&categorieslist)
+
+    [HttpGet("product&categorieslist/Filter")]
+    public async Task<ActionResult<List<ProductDTO>>> FilterProducts([FromQuery] string catIds = "", [FromQuery] string subcatIds = "")
+    {
+      try
+      {
+        // Security check
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+          return Unauthorized();
+
+        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null)
+          return Unauthorized();
+
+        // Parse query params into ID lists
+        var catIdList = catIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(int.Parse)
+                    .ToList();
+
+        var subcatIdList = subcatIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                       .Select(int.Parse)
+                       .ToList();
+
+        var query = _context.Products
+          .Include(p => p.Subcategory)
+            .ThenInclude(c => c.Category)
+          .Include(p => p.Stocks)
+          .AsQueryable();
+
+        // Logic:
+        // - If only categories selected → match by category
+        // - If only subcats selected → match by subcat
+        // - If both:
+        //   - Match by subcats
+        //   - Also include products from categories where **no subcats were selected**
+
+        if (catIdList.Any() && !subcatIdList.Any())
+        {
+          query = query.Where(p =>
+            catIdList.Contains(p.Subcategory.Category.CategoryId));
+        }
+        else if (!catIdList.Any() && subcatIdList.Any())
+        {
+          query = query.Where(p =>
+            subcatIdList.Contains(p.Subcategory.SubcategoryId));
+        }
+        else if (catIdList.Any() && subcatIdList.Any())
+        {
+          // Get subcats grouped by category
+          var catToSubcatMap = _context.Categories
+            .Include(c => c.Subcategories)
+            .Where(c => catIdList.Contains(c.CategoryId))
+            .ToDictionary(
+              c => c.CategoryId,
+              c => c.Subcategories.Select(s => s.SubcategoryId).ToList()
+            );
+
+          // Find subcategories that belong to selected categories but have NONE selected
+          var includeFullCats = new List<int>();
+
+          foreach (var catId in catIdList)
+          {
+            if (catToSubcatMap.TryGetValue(catId, out var subcatListInCat))
+            {
+              bool hasSelectedSubcat = subcatListInCat.Any(sid => subcatIdList.Contains(sid));
+              if (!hasSelectedSubcat)
+              {
+                includeFullCats.Add(catId);
+              }
+            }
+          }
+
+          query = query.Where(p =>
+            subcatIdList.Contains(p.Subcategory.SubcategoryId) ||
+            includeFullCats.Contains(p.Subcategory.Category.CategoryId));
+        }
+
+        var products = await query
+          .Select(p => new ProductDTO
+          {
+            Name = p.Name,
+            CategoryName = p.Subcategory.Category.CategoryName,
+            SubcategoryName = p.Subcategory.SubcategoryName,
+            SubcategoryId = p.Subcategory.SubcategoryId,
+            Stocks = p.Stocks.Select(s => new StockDTO
+            {
+              StockUid = s.StockUid,
+              VariantSize = s.VariantSize,
+              Price = s.Price,
+              Quantity = s.Quantity,
+              StockNumber = s.StockNumber
+            }).ToList()
+          })
+          .ToListAsync();
+
+        return products;
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { message = ex.Message });
+#else
+		return StatusCode(500);
+#endif
+      }
+    } // apiGet (product&categorieslist/Filter)
+  } // Class
+} // Namespace

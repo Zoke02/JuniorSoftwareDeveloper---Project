@@ -1,0 +1,434 @@
+<section class="container-min-height border-bottom-gold">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="border-bottom border-2 py-2 m-0 mb-3">
+					User Profile
+				</h1>
+			</div>
+		</div>
+		<div class="row g-3 mb-5">
+			<!-- Profile Avatar Card -->
+			<div class="col-lg-4 d-flex align-items-stretch">
+				<div class="card w-100 rounded-0">
+					<div
+						class="card-body text-center d-flex justify-content-center align-items-center"
+					>
+						<img
+							src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
+							alt="avatar"
+							class="rounded-circle img-fluid mb-3"
+							style="width: 200px"
+						/>
+					</div>
+				</div>
+			</div>
+
+			<!-- Profile Info Card -->
+			<div class="col-lg-8 d-flex align-items-stretch">
+				<div class="card w-100 rounded-0">
+					<div class="card-body d-flex flex-column">
+						<div
+							class="row mb-3 border-bottom pb-2 align-items-center"
+						>
+							<div class="col-sm-3 fw-bold">First Name</div>
+							<div
+								class="col-sm-9 d-flex justify-content-between align-items-center"
+							>
+								<input
+									type="text"
+									class="form-control form-control-md"
+									value="Johnatan Smith"
+									id="inputFirstName"
+									readonly
+								/>
+								<button
+									class="btn btn-sm border ms-2 py-2 px-3"
+									data-field="firstname"
+									title="Edit First Name"
+								>
+									<i class="bi bi-pencil"></i>
+								</button>
+							</div>
+						</div>
+						<div
+							class="row mb-3 border-bottom pb-2 align-items-center"
+						>
+							<div class="col-sm-3 fw-bold">Last Name</div>
+							<div
+								class="col-sm-9 d-flex justify-content-between align-items-center"
+							>
+								<input
+									type="text"
+									class="form-control form-control-md"
+									value="Johnatan Smith"
+									id="inputLastName"
+									readonly
+								/>
+								<button
+									class="btn btn-sm border ms-2 py-2 px-3"
+									data-field="lastname"
+									title="Edit Last Name"
+								>
+									<i class="bi bi-pencil"></i>
+								</button>
+							</div>
+						</div>
+
+						<div
+							class="row mb-3 border-bottom pb-2 align-items-center"
+						>
+							<div class="col-sm-3 fw-bold">Email</div>
+							<div
+								class="col-sm-9 d-flex justify-content-between align-items-center"
+							>
+								<input
+									type="email"
+									class="form-control form-control-md"
+									value=""
+									id="inputEmail"
+									readonly
+								/>
+								<button
+									class="btn btn-sm border ms-2 py-2 px-3"
+									data-field="email"
+									title="Edit Email"
+								>
+									<i class="bi bi-pencil"></i>
+								</button>
+							</div>
+						</div>
+
+						<div
+							class="row mb-3 border-bottom pb-2 align-items-center"
+						>
+							<div class="col-sm-3 fw-bold">Password</div>
+							<div
+								class="col-sm-9 d-flex justify-content-between align-items-center"
+							>
+								<input
+									type="password"
+									class="form-control form-control-md"
+									value=""
+									placeholder="**********"
+									id="inputPassword"
+									readonly
+								/>
+								<button
+									class="btn btn-sm border ms-2 py-2 px-3"
+									data-field="password"
+									title="Edit Password"
+								>
+									<i class="bi bi-pencil"></i>
+								</button>
+							</div>
+						</div>
+
+						<div class="row mb-3 pb-2 align-items-center">
+							<div class="col-sm-3 fw-bold">Phone Number</div>
+							<div
+								class="col-sm-9 d-flex justify-content-between align-items-center"
+							>
+								<input
+									type="text"
+									class="form-control form-control-md"
+									value=""
+									id="inputPhone"
+									readonly
+								/>
+								<button
+									class="btn btn-sm border ms-2 py-2 px-3"
+									data-field="phone"
+									title="Edit Mobile"
+								>
+									<i class="bi bi-pencil"></i>
+								</button>
+							</div>
+						</div>
+
+						<!-- Save Button -->
+						<div class="mt-auto">
+							<button
+								class="btn btn-primary btn-lg w-100"
+								id="savePersonalInfo"
+							>
+								Save
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Delivery Info -->
+			<div class="col-xl-6 d-flex align-items-stretch">
+				<div class="card w-100 rounded-0">
+					<div class="card-body p-4 d-flex flex-column">
+						<h3 class="mb-4 text-uppercase">Delivery Info</h3>
+
+						<p class="fw-bold mb-3">Saved addresses:</p>
+
+						<div class="row" id="targetAddresses">
+							<!-- Show Addresses Here -->
+						</div>
+
+						<!-- Add New Address -->
+						<p class="fw-bold mb-3">Add new address:</p>
+
+						<div class="row mb-3 flex-grow-0">
+							<div class="col-md-6 border-end mb-3">
+								<input
+									type="text"
+									id="addressFirstName"
+									class="form-control form-control-md"
+									placeholder="First name"
+								/>
+							</div>
+							<div class="col-md-6">
+								<input
+									type="text"
+									id="addressLastName"
+									class="form-control form-control-md"
+									placeholder="Last name"
+								/>
+							</div>
+						</div>
+
+						<div class="row mb-3 flex-grow-0">
+							<div class="col-md-6 border-end mb-3">
+								<input
+									type="text"
+									id="addressStreet"
+									class="form-control form-control-md"
+									placeholder="Street"
+								/>
+							</div>
+							<div class="col-md-4 border-end mb-3">
+								<input
+									type="text"
+									id="addressHouseNr"
+									class="form-control form-control-md"
+									placeholder="House Nr"
+								/>
+							</div>
+							<div class="col-md-2">
+								<input
+									type="text"
+									id="addressDoor"
+									class="form-control form-control-md"
+									placeholder="Door"
+								/>
+							</div>
+						</div>
+
+						<div class="mb-3 flex-grow-0">
+							<input
+								type="text"
+								id="addressCity"
+								class="form-control form-control-md"
+								placeholder="City"
+							/>
+						</div>
+
+						<div class="mb-4 flex-grow-0">
+							<input
+								type="text"
+								id="addressPostalCode"
+								class="form-control form-control-md"
+								placeholder="Zip"
+							/>
+						</div>
+
+						<div class="mt-auto d-flex justify-content-end">
+							<button
+								type="button"
+								id="saveDeliveryAdress"
+								class="btn btn-primary btn-lg w-100"
+							>
+								Add delivery address
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Payment Settings -->
+			<div class="col-xl-6 d-flex align-items-stretch">
+				<div class="card w-100 rounded-0">
+					<div class="card-body p-4 d-flex flex-column">
+						<h3 class="mb-4 text-uppercase">Payment Info</h3>
+
+						<p class="fw-bold mb-4">Saved cards:</p>
+
+						<div class="d-flex align-items-center mb-3">
+							<img
+								src="https://img.icons8.com/color/48/000000/mastercard-logo.png"
+								alt=""
+							/>
+							<input
+								type="text"
+								class="form-control form-control-lg mx-3"
+								value="**** **** **** 3193"
+								readonly
+							/>
+							<a href="#">Remove card</a>
+						</div>
+
+						<div class="d-flex align-items-center mb-4">
+							<img
+								src="https://img.icons8.com/color/48/000000/visa.png"
+								alt=""
+							/>
+							<input
+								type="text"
+								class="form-control form-control-lg mx-3"
+								value="**** **** **** 4296"
+								readonly
+							/>
+							<a href="#">Remove card</a>
+						</div>
+
+						<!-- Grouped Add Card Section at Bottom -->
+						<div class="mt-auto">
+							<p class="fw-bold mb-3">Add new card:</p>
+
+							<div class="mb-3">
+								<input
+									type="text"
+									class="form-control form-control-md"
+									placeholder="Cardholder's Name"
+								/>
+							</div>
+
+							<div class="row mb-3">
+								<div class="col-7">
+									<input
+										type="text"
+										class="form-control form-control-md"
+										placeholder="Card Number"
+									/>
+								</div>
+								<div class="col-3">
+									<input
+										type="text"
+										class="form-control form-control-md"
+										placeholder="MM/YYYY"
+									/>
+								</div>
+								<div class="col-2">
+									<input
+										type="text"
+										class="form-control form-control-md"
+										placeholder="CVV"
+									/>
+								</div>
+							</div>
+
+							<button class="btn btn-primary btn-lg w-100">
+								Add card
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Reusable Edit Modal -->
+	<div
+		class="modal fade"
+		id="modalEditFullName"
+		tabindex="-1"
+		aria-hidden="true"
+	>
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content rounded-0">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalEditTitle"></h5>
+					<button
+						type="button"
+						class="btn-close"
+						data-bs-dismiss="modal"
+					></button>
+				</div>
+				<div class="modal-body">
+					<div class="d-none" id="modalGroup1">
+						<label
+							for="modalFirstInput"
+							class="form-label me-2"
+							id="modalFirstLabel"
+						></label>
+						<div class="mb-2 input-group">
+							<input
+								type="text"
+								id="modalFirstInput"
+								class="form-control"
+							/>
+							<i
+								class="btn btn-secondary bi bi-eye-fill d-none"
+								id="togglePasswordVisibility"
+							></i>
+						</div>
+					</div>
+
+					<div class="d-none" id="modalGroup2">
+						<label
+							for="modalSecondInput"
+							class="form-label me-2"
+							id="modalSecondLabel"
+						></label>
+						<div class="mb-2 input-group">
+							<input
+								type="text"
+								id="modalSecondInput"
+								class="form-control"
+							/>
+						</div>
+					</div>
+
+					<div class="d-none" id="modalGroup3">
+						<label
+							for="modalThirdInput"
+							class="form-label me-2"
+							id="modalThirdLabel"
+						></label>
+						<div class="mb-2 input-group">
+							<input
+								type="text"
+								id="modalThirdInput"
+								class="form-control"
+							/>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-secondary" data-bs-dismiss="modal">
+						Cancel
+					</button>
+					<button class="btn btn-primary" id="confirmEdit">OK</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Reusable Toast -->
+	<div class="toast-container position-fixed bottom-0 end-0 p-3">
+		<div
+			id="liveToast"
+			class="toast"
+			role="alert"
+			aria-live="assertive"
+			aria-atomic="true"
+		>
+			<div class="toast-header">
+				<strong class="me-auto" id="toastTitle">Bootstrap</strong>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="toast"
+					aria-label="Close"
+				></button>
+			</div>
+			<div class="toast-body" id="toastBody">
+				Hello, world! This is a toast message.
+			</div>
+		</div>
+	</div>
+</section>

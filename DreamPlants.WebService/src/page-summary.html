@@ -1,0 +1,83 @@
+<section class="container-min-height border-bottom-gold py-5">
+	<div class="container">
+		<h1 class="border-bottom border-2 py-2 mb-4">
+			Income / Expense Overview
+		</h1>
+
+		<!-- Year Selector -->
+		<div class="row mb-4">
+			<div class="col-md-4">
+				<label class="form-label fw-bold">Select Year</label>
+				<select id="yearSelect" class="form-select">
+					<option>2025</option>
+					<option>2024</option>
+					<option>2023</option>
+				</select>
+			</div>
+		</div>
+
+		<!-- Summary Table -->
+		<div class="table-responsive mb-3">
+			<table class="table table-bordered table-hover">
+				<thead class="table-light">
+					<tr>
+						<th>Month</th>
+						<th>Orders</th>
+						<th>Total Income</th>
+						<th>Total Expenses</th>
+						<th>Net</th>
+					</tr>
+				</thead>
+				<tbody id="summaryTableBody">
+					<!-- Example rows -->
+					<tr>
+						<td>January</td>
+						<td>45</td>
+						<td>€4,230.00</td>
+						<td>
+							<input
+								type="number"
+								step="0.01"
+								class="form-control form-control-sm expense-input"
+								value="1100.00"
+								data-month="1"
+							/>
+						</td>
+						<td class="net-cell">€3,130.00</td>
+					</tr>
+					<tr>
+						<td>February</td>
+						<td>38</td>
+						<td>€3,850.00</td>
+						<td>
+							<input
+								type="number"
+								step="0.01"
+								class="form-control form-control-sm expense-input"
+								value="900.00"
+								data-month="2"
+							/>
+						</td>
+						<td class="net-cell">€2,950.00</td>
+					</tr>
+				</tbody>
+				<tfoot>
+					<tr class="fw-bold">
+						<td>Total</td>
+						<td id="totalOrders">83</td>
+						<td id="totalIncome">€8,080.00</td>
+						<td id="totalExpenses">€2,000.00</td>
+						<td id="totalNet">€6,080.00</td>
+					</tr>
+				</tfoot>
+			</table>
+		</div>
+
+		<!-- Save Button -->
+		<div class="d-flex justify-content-end">
+			<button class="btn btn-success" id="saveExpensesBtn">
+				Save Expenses
+			</button>
+		</div>
+	</div>
+</section>
