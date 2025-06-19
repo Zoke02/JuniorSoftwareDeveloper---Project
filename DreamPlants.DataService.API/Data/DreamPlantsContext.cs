@@ -4,6 +4,7 @@ using DreamPlants.DataService.API.Models.Generated;
 using Microsoft.EntityFrameworkCore;
 using File = DreamPlants.DataService.API.Models.Generated.File;
 
+
 namespace DreamPlants.DataService.API.Data;
 
 public partial class DreamPlantsContext : DbContext
@@ -17,9 +18,11 @@ public partial class DreamPlantsContext : DbContext
     {
     }
 
-    public virtual DbSet<Addresses> Addresses { get; set; }
+    public virtual DbSet<Address> Addresses { get; set; }
 
     public virtual DbSet<Category> Categories { get; set; }
+
+    public virtual DbSet<CreditCard> CreditCards { get; set; }
 
     public virtual DbSet<File> Files { get; set; }
 
@@ -39,13 +42,9 @@ public partial class DreamPlantsContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=dreamPlants;User ID=dreamPlants;Password=dreamPlants");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Addresses>(entity =>
+        modelBuilder.Entity<Address>(entity =>
         {
             entity.HasKey(e => e.AddressId).HasName("addresses_pkey");
 
@@ -99,6 +98,36 @@ public partial class DreamPlantsContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .HasColumnName("category_name");
+        });
+
+        modelBuilder.Entity<CreditCard>(entity =>
+        {
+            entity.HasKey(e => e.CardId).HasName("credit_cards_pkey");
+
+            entity.ToTable("credit_cards", "dreamplants");
+
+            entity.Property(e => e.CardId).HasColumnName("card_id");
+            entity.Property(e => e.CardCVV)
+              .IsRequired()
+              .HasMaxLength(4)
+              .HasColumnName("card_cvv");
+            entity.Property(e => e.CardExpiry)
+                .IsRequired()
+                .HasMaxLength(5)
+                .HasColumnName("card_expiry");
+            entity.Property(e => e.CardNumber)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasColumnName("card_number");
+            entity.Property(e => e.CardholderName)
+                .IsRequired()
+                .HasMaxLength(100)
+                .HasColumnName("cardholder_name");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.User).WithMany(p => p.CreditCards)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("credit_cards_user_id_fkey");
         });
 
         modelBuilder.Entity<File>(entity =>

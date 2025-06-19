@@ -36,6 +36,42 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CreditCardsController",
+    "Method": "DelCard",
+    "RelativePath": "CreditCards/DelCard/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CreditCardsController",
+    "Method": "GetCards",
+    "RelativePath": "CreditCards/GetCards",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CreditCardsController",
+    "Method": "NewCard",
+    "RelativePath": "CreditCards/NewCard",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "DreamPlants.DataService.API.Controllers.PageController",
     "Method": "PageInitUser",
     "RelativePath": "Page/init",

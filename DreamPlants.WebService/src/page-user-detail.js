@@ -11,6 +11,7 @@ export default class PageUserDetail {
 	#inputPhone = '';
 
 	#adresses = [];
+	#cards = [];
 
 	constructor(args) {
 		this.#args = args;
@@ -24,6 +25,7 @@ export default class PageUserDetail {
 		const saveDeliveryAdress = document.querySelector(
 			'#saveDeliveryAdress'
 		);
+		const saveCard = document.querySelector('#saveCard');
 
 		this.#inputFirstName = inputFirstName;
 		this.#inputLastName = inputLastName;
@@ -31,13 +33,15 @@ export default class PageUserDetail {
 		this.#inputPhone = inputPhone;
 
 		// Toastie
-
 		const toastLiveExample = document.getElementById('liveToast');
 		const toastTitle = document.getElementById('toastTitle');
 		const toastBody = document.getElementById('toastBody');
 
 		// DEV
 
+		const cardExpiry = document.getElementById('cardExpiry');
+		const cardNumber = document.getElementById('cardNumber');
+		const cardCVV = document.getElementById('cardCVV');
 		// Get User Data - INITIAL INSERT
 		// ------------------------------
 		this.#refreshUserFields();
@@ -259,22 +263,108 @@ export default class PageUserDetail {
 
 			console.log(addressId);
 		});
+
+		// Get Card Data - INITIAL INSERT
+		// ----------------------------------
+		// Get Card Data
+		this.#getAndInsertCards();
+		// Handle Card
+		cardNumber.addEventListener('input', (e) => {
+			let val = e.target.value.replace(/\D/g, '');
+			val = val.match(/.{1,4}/g)?.join(' ') || ''; // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match
+			if (val.length > 19) {
+				val = val.slice(0, 19); // Splice stops the number there. This works fine for visa and mastercard.
+			}
+
+			e.target.value = val;
+		});
+		cardExpiry.addEventListener('input', (e) => {
+			let val = e.target.value.replace(/\D/g, ''); // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp
+			if (val.length > 2) {
+				val = val.slice(0, 2) + '/' + val.slice(2, 4);
+			}
+			e.target.value = val;
+		});
+		cardCVV.addEventListener('input', (e) => {
+			let val = e.target.value.replace(/\D/g, ''); // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp
+			if (val.length > 4) {
+				val = val.slice(0, 4);
+			}
+			e.target.value = val;
+		});
+		// Save Card Data
+		saveCard.addEventListener('click', () => {
+			if (!this.#validateFieldsCard()) return;
+
+			// If all valid save.
+			const fields = [
+				'cardholderName',
+				'cardNumber',
+				'cardExpiry',
+				'cardCVV',
+			];
+
+			const creditCardInfoData = new FormData();
+			const toastBootstrap =
+				bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+
+			fields.forEach((id) => {
+				const input = document.getElementById(id);
+				creditCardInfoData.append(id, input.value.trim());
+			});
+
+			console.log(creditCardInfoData);
+
+			this.#args.app.apiNewCard(
+				(successCallback) => {
+					if (successCallback.success) {
+						// Sucsess Code
+						this.#cards = successCallback.creditCardsDTO;
+						toastTitle.innerText = 'Credit Card';
+						toastBody.innerText = successCallback.message;
+						toastBootstrap.show();
+
+						// Get Delivery Data
+						this.#getAndInsertCards();
+					}
+				},
+				(errorCallback) => {
+					console.error('API error:', errorCallback);
+				},
+				creditCardInfoData
+			);
+		});
+		// Del Card Data
+		document.addEventListener('click', (e) => {
+			if (!e.target.classList.contains('removeCard')) return;
+			const cardId = e.target.dataset.setId;
+			const toastBootstrapDelete =
+				bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+
+			this.#args.app.apiDelCard(
+				(successCallback) => {
+					if (successCallback.success) {
+						// Sucsess Code
+						toastTitle.innerText = 'Credit Card';
+						toastBody.innerText = successCallback.message;
+						toastBootstrapDelete.show();
+						this.#getAndInsertCards();
+					} else {
+						console.warn('Delete failed:', successCallback.message);
+					}
+				},
+				(errorCallback) => {
+					console.error('API error:', errorCallback);
+				},
+				cardId
+			);
+		});
 	} // Constructor
 
 	#setupEditModal(field, value, callback) {
 		const modalEl = document.getElementById('modalEditFullName');
 		const modal = new bootstrap.Modal(modalEl);
 		const confirmBtn = document.getElementById('confirmEdit');
-
-		document.body.classList.remove('modal-open'); // remove modal-open class if stuck
-		const oldBackdrop = document.querySelector('.modal-backdrop');
-		if (oldBackdrop) oldBackdrop.remove(); // remove leftover backdrop
-
-		modalEl.addEventListener('hidden.bs.modal', () => {
-			document.body.classList.remove('modal-open');
-			const stuckBackdrop = document.querySelector('.modal-backdrop');
-			if (stuckBackdrop) stuckBackdrop.remove();
-		});
 
 		const group1 = document.getElementById('modalGroup1');
 		const group2 = document.getElementById('modalGroup2');
@@ -502,12 +592,13 @@ export default class PageUserDetail {
 		this.#inputPhone.value = user.phoneNumber;
 	}
 
+	// Adresses
 	#getAndInsertAddresses() {
 		this.#args.app.apiGetAddresses(
 			(successCallback) => {
 				if (successCallback.success) {
 					// Scucess Code
-					this.#adresses = successCallback.addresses;
+					this.#adresses = successCallback.addressesDTO;
 					this.#insertAddresses(this.#adresses);
 				}
 			},
@@ -529,16 +620,147 @@ export default class PageUserDetail {
 		addresses.forEach((address) => {
 			html += `
 			<div class="d-flex align-items-center mb-3">
+				<i
+					class="bi bi-truck d-flex justify-content-center align-items-center h-100 me-3"
+					style="font-size: 2.5rem"
+				></i>
 				<input
 					type="text"
 					class="form-control form-control-lg me-3"
-					value="${address.street} ${address.houseNr} / ${address.door} , ${address.postalCode} ${address.city}" 
+					value="${address.firstName} ${address.lastName}: ${address.street} ${address.houseNr} / ${address.door} , ${address.postalCode} ${address.city}" 
 					readonly
 				/>
 				<i class="btn btn-secondary bi bi-trash3 d-flex justify-content-center align-items-center border h-100 px-3 removeAddress"
 				data-set-id="${address.addressId}"
 				
 				></i>			
+			</div>
+		`;
+		});
+		target.innerHTML = html;
+	}
+
+	#validateFieldsCard() {
+		const fields = [
+			'cardholderName',
+			'cardNumber',
+			'cardExpiry',
+			'cardCVV',
+		];
+
+		let allValid = true;
+
+		fields.forEach((id) => {
+			const input = document.getElementById(id);
+			input.classList.remove('is-invalid');
+
+			if (!input.value.trim()) {
+				input.classList.add('is-invalid');
+				input.placeholder = 'Field cannot be empty';
+				allValid = false;
+			} else if (id === 'cardExpiry') {
+				let date = input.value.trim();
+				let month = '';
+				if (date.length > 2) {
+					month = date.slice(0, 2);
+				}
+				if (month !== '' && +month > 12) {
+					input.classList.add('is-invalid');
+					input.setAttribute('data-bs-content', 'Max Month: 12');
+					const popover = bootstrap.Popover.getOrCreateInstance(
+						input,
+						{
+							trigger: 'manual',
+							placement: 'top',
+						}
+					);
+					popover.show();
+					setTimeout(() => popover.hide(), 1500);
+					allValid = false;
+				}
+			} else if (id === 'cardNumber') {
+				let cardNumber = input.value.replace(/\s/g, '').trim(); // Remove ALL the spaces
+				if (cardNumber.length < 13 || cardNumber.length > 19) {
+					input.classList.add('is-invalid');
+					input.setAttribute(
+						'data-bs-content',
+						'Must be 13–19 digits'
+					);
+					const popover = bootstrap.Popover.getOrCreateInstance(
+						input,
+						{
+							trigger: 'manual',
+							placement: 'top',
+						}
+					);
+					popover.show();
+					setTimeout(() => popover.hide(), 1500);
+					allValid = false;
+				}
+			} else if (id !== 'cardholderName') {
+				if (!/^[0-9 ]+$/.test(input.value.trim())) {
+					input.classList.add('is-invalid');
+					input.setAttribute(
+						'data-bs-content',
+						'Only numbers allowed!'
+					);
+					const popover = bootstrap.Popover.getOrCreateInstance(
+						input,
+						{
+							trigger: 'manual',
+							placement: 'top',
+						}
+					);
+					popover.show();
+					setTimeout(() => popover.hide(), 1500);
+					allValid = false;
+				}
+			}
+		});
+	}
+
+	// Cards
+	#getAndInsertCards() {
+		this.#args.app.apiGetCards(
+			(successCallback) => {
+				if (successCallback.success) {
+					// Scucess Code
+					this.#cards = successCallback.creditCardsDTO;
+					this.#insertCards(this.#cards);
+				}
+			},
+			(errorCallback) => {
+				console.error('API error:', errorCallback);
+			}
+		);
+	}
+
+	#insertCards(cards) {
+		const target = document.querySelector('#targetCards');
+		let html = '';
+
+		if (!cards || cards.length === 0) {
+			target.innerHTML = `<div class="text-muted mb-3">No cards saved.</div>`;
+			return;
+		}
+
+		cards.forEach((card) => {
+			html += `
+			<div class="d-flex align-items-center mb-3">
+				<i
+					class="bi bi-credit-card d-flex justify-content-center align-items-center h-100"
+					style="font-size: 2.5rem"
+				></i>
+				<input
+					type="text"
+					class="form-control form-control-lg mx-3"
+					value="**** **** **** ${card.cardNumberLastDigits}"
+					readonly
+				/>
+				<i
+					class="btn btn-secondary bi bi-trash3 d-flex justify-content-center align-items-center border h-100 px-3 removeCard"
+					data-set-id="${card.cardId}"
+				></i>
 			</div>
 		`;
 		});

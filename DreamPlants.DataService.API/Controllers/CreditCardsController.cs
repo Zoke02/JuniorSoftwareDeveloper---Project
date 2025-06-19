@@ -3,25 +3,23 @@ using DreamPlants.DataService.API.Models.DTO;
 using DreamPlants.DataService.API.Models.Generated;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
-using System.Security.Cryptography;
-using System.Text;
+using System.IO;
 
 namespace DreamPlants.DataService.API.Controllers
 {
   [Route("[controller]")]
   [ApiController]
-  public class AddressController : ControllerBase
+  public class CreditCardsController : Controller
   {
     private readonly DreamPlantsContext _context;
 
-    public AddressController(DreamPlantsContext context)
+    public CreditCardsController(DreamPlantsContext context)
     {
       _context = context;
     }
 
-    [HttpGet("GetAddresses")]
-    public async Task<ActionResult> GetAddresses()
+    [HttpGet("GetCards")]
+    public async Task<ActionResult> GetCards()
     {
       try
       {
@@ -34,27 +32,21 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null)
           return Unauthorized(new { success = false, message = "Unauthorized" });
         // 3 - with user.UserId find user adresses
-        List<AddressDTO> addressesDTO = await _context.Addresses
+        List<CreditCardDTO> creditCardsDTO = await _context.CreditCards
             .Where(a => a.UserId == user.UserId)
-            .Select(a => new AddressDTO
+            .Select(a => new CreditCardDTO
             {
-              AddressId = a.AddressId,
-              Street = a.Street,
-              HouseNr = a.HouseNr,
-              Door = a.Door,
-              City = a.City,
-              PostalCode = a.PostalCode,
-              FirstName = a.FirstName,
-              LastName = a.LastName
+              CardId = a.CardId,
+              CardNumberLastDigits = a.CardNumber.Substring(Math.Max(0, a.CardNumber.Length - 4))
             })
             .ToListAsync();
 
         // 4 - if no adresses send ok with a message (Check if you need to send notfound) 
-        if (addressesDTO == null || addressesDTO.Count == 0)
+        if (creditCardsDTO == null || creditCardsDTO.Count == 0)
           return Ok(new { success = true, message = "User doesnt have any adresses saved." });
 
         // Last - Return Adresses
-        return Ok(new { success = true, message = "Address saved!", addressesDTO });
+        return Ok(new { success = true, message = "Address saved!", creditCardsDTO });
       }
       catch (Exception ex)
       {
@@ -64,54 +56,46 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // GetAddresses
+    } // GetCards
 
-    [HttpPost("NewAddress")]
-    public async Task<ActionResult> NewAddress()
+    [HttpPost("NewCard")]
+    public async Task<ActionResult> NewCard()
     {
       try
       {
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
-          return Unauthorized(new { success = false, message = "Unauthorized" });
+          return Unauthorized(new { success = false, message = "Unauthorized - No Token" });
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
         if (user == null)
-          return Unauthorized(new { success = false, message = "Unauthorized" });
+          return Unauthorized(new { success = false, message = "Unauthorized - False Token" });
 
-        var firstName = Request.Form["addressFirstName"].ToString();
-        var lastName = Request.Form["addressLastName"].ToString();
-        var street = Request.Form["addressStreet"].ToString();
-        var houseNr = Request.Form["addressHouseNr"].ToString();
-        var door = Request.Form["addressDoor"].ToString();
-        var city = Request.Form["addressCity"].ToString();
-        var postalCode = Request.Form["addressPostalCode"].ToString();
+        var cardholderName = Request.Form["cardholderName"].ToString();
+        var cardNumber = Request.Form["cardNumber"].ToString();
+        var cardExpiry = Request.Form["cardExpiry"].ToString();
+        var cardCVV = Request.Form["cardCVV"].ToString();
 
-        if (string.IsNullOrWhiteSpace(firstName) ||
-        string.IsNullOrWhiteSpace(lastName) ||
-        string.IsNullOrWhiteSpace(street) ||
-        string.IsNullOrWhiteSpace(houseNr) ||
-        string.IsNullOrWhiteSpace(door) ||
-        string.IsNullOrWhiteSpace(city) ||
-        string.IsNullOrWhiteSpace(postalCode))
+
+        if (string.IsNullOrWhiteSpace(cardholderName) ||
+        string.IsNullOrWhiteSpace(cardNumber) ||
+        string.IsNullOrWhiteSpace(cardExpiry) ||
+        string.IsNullOrWhiteSpace(cardCVV))
         {
           return Ok(new { success = false, message = "All fields are required." });
         }
 
-        Address newAddress = new Address
+        CreditCard newCreditCard = new CreditCard
         {
           UserId = user.UserId,
-          FirstName = firstName,
-          LastName = lastName,
-          Street = street,
-          HouseNr = houseNr,
-          Door = door,
-          City = city,
-          PostalCode = postalCode,
+          CardholderName = cardholderName,
+          CardNumber = cardNumber,
+          CardExpiry = cardExpiry,
+          CardCVV = cardCVV,
         };
 
         // Add user to the database
-        _context.Addresses.Add(newAddress);
+        _context.CreditCards.Add(newCreditCard);
         await _context.SaveChangesAsync();
 
         return Ok(new { success = true, message = "Address saved!"});
@@ -126,8 +110,8 @@ namespace DreamPlants.DataService.API.Controllers
       }
     } // NewAddress
 
-    [HttpDelete("DelAddress/{id}")]
-    public async Task<ActionResult> DelAddress(int id)
+    [HttpDelete("DelCard/{id}")]
+    public async Task<ActionResult> DelCard(int id)
     {
       try
       {
@@ -139,14 +123,14 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null)
           return Unauthorized(new { success = false, message = "Unauthorized" });
 
-        var address = await _context.Addresses.FirstOrDefaultAsync(a => a.UserId == user.UserId && a.AddressId == id);
-        if (address == null)
-          return Ok(new { success = false, message = "Address not found or does not belong to user." });
+        var card = await _context.CreditCards.FirstOrDefaultAsync(a => a.UserId == user.UserId && a.CardId == id);
+        if (card == null)
+          return Ok(new { success = false, message = "Card not found or does not belong to user." });
 
-        _context.Addresses.Remove(address);
+        _context.CreditCards.Remove(card);
         await _context.SaveChangesAsync();
 
-        return Ok(new { success = true, message = "Address deleted!" });
+        return Ok(new { success = true, message = "Card deleted!" });
       }
       catch (Exception ex)
       {

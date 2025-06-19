@@ -315,6 +315,54 @@ export default class Application {
 			.catch(errorCallback);
 	}
 
+	apiGetCards(successCallback, errorCallback) {
+		fetch(this.#apiUrl + '/CreditCards/GetCards', {
+			method: 'GET',
+			cache: 'no-cache',
+			credentials: 'include',
+		})
+			.then((r) => {
+				if (r.status == 200) return r.json();
+				throw new Error(r.status + ' ' + r.statusText);
+			})
+			.then(successCallback)
+			.catch(errorCallback);
+	}
+
+	apiNewCard(successCallback, errorCallback, formData) {
+		fetch(this.#apiUrl + '/CreditCards/NewCard', {
+			method: 'POST',
+			body: formData,
+			cache: 'no-cache',
+			credentials: 'include',
+		})
+			.then((r) => {
+				if (r.status == 200 || r.status == 401) {
+					return r.json();
+				} else {
+					throw new Error(r.status + ' ' + r.statusText);
+				}
+			})
+			.then(successCallback)
+			.catch(errorCallback);
+	}
+
+	apiDelCard(successCallback, errorCallback, id) {
+		fetch(this.#apiUrl + `/CreditCards/DelCard/${id}`, {
+			method: 'DELETE',
+			cache: 'no-cache',
+			credentials: 'include',
+		})
+			.then((r) => {
+				if (r.status == 200 || r.status == 401) {
+					return r.json();
+				} else {
+					throw new Error(r.status + ' ' + r.statusText);
+				}
+			})
+			.then(successCallback)
+			.catch(errorCallback);
+	}
 	//-----------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------
 

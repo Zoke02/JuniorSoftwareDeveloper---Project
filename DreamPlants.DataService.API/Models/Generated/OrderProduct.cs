@@ -17,7 +17,7 @@ public partial class OrderProduct
 
     public decimal TotalPrice { get; set; }
 
-    public virtual Addresses Address { get; set; }
+    public virtual Address Address { get; set; }
 
     public virtual Order Order { get; set; }
 

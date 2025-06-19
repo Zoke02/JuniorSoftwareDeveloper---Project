@@ -29,7 +29,9 @@ public partial class User
 
     public bool UserStatus { get; set; }
 
-    public virtual ICollection<Addresses> Addresses { get; set; } = new List<Addresses>();
+    public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
+
+    public virtual ICollection<CreditCard> CreditCards { get; set; } = new List<CreditCard>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
