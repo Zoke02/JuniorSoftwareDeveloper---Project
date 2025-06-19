@@ -24,18 +24,26 @@ namespace DreamPlants.DataService.API.Controllers
       try
       {
         // Check later why u dont need a Uri escape string here? wtf does the enitty framework do it for you?
+        // 1. Auth check
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
-        {
-          return Unauthorized();
-        }
+          return BadRequest(new { success = false, message = "Unauthorized Token" });
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-
         if (user == null)
+          return BadRequest(new { success = false, message = "Unauthorized User" });
+
+        if (user.LoginTokenTimeout < DateTime.Now)
         {
-          return Unauthorized();
+          return Ok(new { success = false, message = "Token Timeout" });
         }
+
+        if (!user.UserStatus)
+        {
+          this.Response.Cookies.Delete("LoginToken");
+          return Ok(new { success = false, message = "User Status: Disabled" });
+        }
+
         // Dara Transfer Object - 
         UserDTO userDTO = new UserDTO
         {
@@ -44,6 +52,8 @@ namespace DreamPlants.DataService.API.Controllers
           Email = user.Email,
           PhoneNumber = user.PhoneNumber,
           RoleId = user.RoleId,
+          AvatarBase64 = user.AvatarBase64 != null ? Convert.ToBase64String(user.AvatarBase64) : null,
+          AvatarFileType = user.AvatarFileType != null ? user.AvatarFileType : null
         };
 
         return Ok(userDTO);

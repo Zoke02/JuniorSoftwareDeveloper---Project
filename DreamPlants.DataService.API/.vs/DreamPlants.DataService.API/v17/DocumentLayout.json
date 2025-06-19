@@ -1,22 +1,46 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\DreamPlants\\DreamPlants.DataService.API\\",
+  "WorkspaceRootPath": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\dreamplants.dataservice.api\\controllers\\addresscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\controllers\\pagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\pagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\controllers\\addresscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\addresscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\dreamplants.dataservice.api\\controllers\\creditcardscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\creditcardscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\dreamplants.dataservice.api\\models\\generated\\creditcard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\models\\generated\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:models\\generated\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\data\\dreamplantscontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:data\\dreamplantscontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:models\\user.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\models\\dto\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:models\\dto\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\models\\dto\\creditcarddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:models\\dto\\creditcarddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\models\\generated\\creditcard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:models\\generated\\creditcard.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\dreamplants.dataservice.api\\models\\dto\\creditcarddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:models\\dto\\creditcarddto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\old\\dreamplants.dataservice.api\\controllers\\creditcardscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\creditcardscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -35,54 +59,125 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "PageController.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Controllers\\PageController.cs",
+              "RelativeDocumentMoniker": "Controllers\\PageController.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Controllers\\PageController.cs",
+              "RelativeToolTip": "Controllers\\PageController.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAxwCwAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T15:28:29.853Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\Generated\\User.cs",
+              "RelativeDocumentMoniker": "Models\\Generated\\User.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\Generated\\User.cs",
+              "RelativeToolTip": "Models\\Generated\\User.cs",
+              "ViewState": "AgIAABAAAAAAAAAAAAAkwBcAAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T14:56:27.423Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "UserDTO.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\DTO\\UserDTO.cs",
+              "RelativeDocumentMoniker": "Models\\DTO\\UserDTO.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\DTO\\UserDTO.cs",
+              "RelativeToolTip": "Models\\DTO\\UserDTO.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T14:56:12.062Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "User.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\User.cs",
+              "RelativeDocumentMoniker": "Models\\User.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\User.cs",
+              "RelativeToolTip": "Models\\User.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T14:56:08.014Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "DreamPlantsContext.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Data\\DreamPlantsContext.cs",
+              "RelativeDocumentMoniker": "Data\\DreamPlantsContext.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Data\\DreamPlantsContext.cs",
+              "RelativeToolTip": "Data\\DreamPlantsContext.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAcwC0AAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T14:40:33.957Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "UsersController.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Controllers\\UsersController.cs",
+              "RelativeDocumentMoniker": "Controllers\\UsersController.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Controllers\\UsersController.cs",
+              "RelativeToolTip": "Controllers\\UsersController.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAcwDcAAAA+AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-19T14:25:24.059Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "AddressController.cs",
-              "DocumentMoniker": "C:\\DreamPlants\\DreamPlants.DataService.API\\Controllers\\AddressController.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Controllers\\AddressController.cs",
               "RelativeDocumentMoniker": "Controllers\\AddressController.cs",
-              "ToolTip": "C:\\DreamPlants\\DreamPlants.DataService.API\\Controllers\\AddressController.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Controllers\\AddressController.cs",
               "RelativeToolTip": "Controllers\\AddressController.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAYwBUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAAIAAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-19T08:56:21.351Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 9,
               "Title": "CreditCardsController.cs",
-              "DocumentMoniker": "C:\\DreamPlants\\DreamPlants.DataService.API\\Controllers\\CreditCardsController.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Controllers\\CreditCardsController.cs",
               "RelativeDocumentMoniker": "Controllers\\CreditCardsController.cs",
-              "ToolTip": "C:\\DreamPlants\\DreamPlants.DataService.API\\Controllers\\CreditCardsController.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Controllers\\CreditCardsController.cs",
               "RelativeToolTip": "Controllers\\CreditCardsController.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAA2wIMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAF8AAAAAAAAAAAAwwHIAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-19T08:38:32.259Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-19T08:38:32.259Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 8,
               "Title": "CreditCard.cs",
-              "DocumentMoniker": "C:\\DreamPlants\\DreamPlants.DataService.API\\Models\\Generated\\CreditCard.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\Generated\\CreditCard.cs",
               "RelativeDocumentMoniker": "Models\\Generated\\CreditCard.cs",
-              "ToolTip": "C:\\DreamPlants\\DreamPlants.DataService.API\\Models\\Generated\\CreditCard.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\Generated\\CreditCard.cs",
               "RelativeToolTip": "Models\\Generated\\CreditCard.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-19T08:41:37.616Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-19T08:41:37.616Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 7,
               "Title": "CreditCardDTO.cs",
-              "DocumentMoniker": "C:\\DreamPlants\\DreamPlants.DataService.API\\Models\\DTO\\CreditCardDTO.cs",
+              "DocumentMoniker": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\DTO\\CreditCardDTO.cs",
               "RelativeDocumentMoniker": "Models\\DTO\\CreditCardDTO.cs",
-              "ToolTip": "C:\\DreamPlants\\DreamPlants.DataService.API\\Models\\DTO\\CreditCardDTO.cs",
+              "ToolTip": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\Models\\DTO\\CreditCardDTO.cs",
               "RelativeToolTip": "Models\\DTO\\CreditCardDTO.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAmAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-19T08:53:59.404Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-19T08:53:59.404Z"
             }
           ]
         }

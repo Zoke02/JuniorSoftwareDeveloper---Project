@@ -29,6 +29,10 @@ public partial class User
 
     public bool UserStatus { get; set; }
 
+    public byte[] AvatarBase64 { get; set; }
+
+    public string AvatarFileType { get; set; }
+
     public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
 
     public virtual ICollection<CreditCard> CreditCards { get; set; } = new List<CreditCard>();

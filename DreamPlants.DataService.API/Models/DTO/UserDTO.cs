@@ -14,5 +14,9 @@
     public string? NewPassword { get; set; }
 
     public int RoleId { get; set; }
+
+    public string AvatarBase64 { get; set; }
+
+    public string AvatarFileType { get; set; }
   }
 }

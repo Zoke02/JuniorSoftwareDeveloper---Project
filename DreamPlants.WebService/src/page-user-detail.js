@@ -9,9 +9,14 @@ export default class PageUserDetail {
 	#inputLastName = '';
 	#inputEmail = '';
 	#inputPhone = '';
+	#avatarImage = '';
 
 	#adresses = [];
 	#cards = [];
+
+	//DEV
+	#image64Bit = '';
+	#imageType = '';
 
 	constructor(args) {
 		this.#args = args;
@@ -37,11 +42,150 @@ export default class PageUserDetail {
 		const toastTitle = document.getElementById('toastTitle');
 		const toastBody = document.getElementById('toastBody');
 
-		// DEV
-
+		// LiveReplace
 		const cardExpiry = document.getElementById('cardExpiry');
 		const cardNumber = document.getElementById('cardNumber');
 		const cardCVV = document.getElementById('cardCVV');
+
+		// ------------------------------
+		// DEV
+		// ------------------------------
+
+		const avatarButton = document.getElementById('avatarButton');
+		const avatarImage = document.getElementById('avatarImage');
+		this.#avatarImage = avatarImage;
+		const avatarFileInput = document.getElementById('avatarFileInput');
+
+		avatarButton.addEventListener('click', () => {
+			avatarFileInput.click();
+		});
+
+		avatarFileInput.addEventListener('change', (e) => {
+			const file = e.target.files[0];
+			if (!file) return;
+
+			if (!file.type.match(/^image\/(jpeg|png)$/)) {
+				alert('Only JPG and PNG files are allowed.');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const result = e.target.result;
+				avatarImage.src = result;
+
+				// Extract data
+				const userAvatarBase64 = result.split(',')[1]; // Raw base64
+				const extension = file.name.split('.').pop().toLowerCase(); // "png" or "jpeg"
+
+				// Save to private vars
+				this.#image64Bit = userAvatarBase64;
+				this.#imageType = extension;
+
+				// Upload AFTER data is ready
+				const formData = new FormData();
+				formData.append('image64Bit', this.#image64Bit);
+				formData.append('imageType', this.#imageType);
+
+				this.#args.app.apiUploadPicture(
+					(successCallback) => {
+						if (successCallback.success) {
+							toastTitle.innerText = 'User Profile';
+							toastBody.innerText = successCallback.message;
+							const toastBootstrap =
+								bootstrap.Toast.getOrCreateInstance(
+									toastLiveExample
+								);
+							toastBootstrap.show();
+							//  refresh user data here?
+						}
+					},
+					(errorCallback) => {
+						console.error('API error:', errorCallback);
+					},
+					formData
+				);
+			}.bind(this); // bind 'this' so private fields work
+
+			reader.readAsDataURL(file);
+		});
+
+		// ------------------------------
+		// ------------------------------
+
+		['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+			avatarImage.addEventListener(eventName, (e) => {
+				e.preventDefault();
+				e.stopPropagation();
+			});
+		});
+
+		avatarImage.addEventListener('dragover', () => {
+			avatarImage.classList.add('border', 'border-primary');
+		});
+
+		avatarImage.addEventListener('dragleave', () => {
+			avatarImage.classList.remove('border', 'border-primary');
+		});
+
+		avatarImage.addEventListener('drop', (e) => {
+			e.preventDefault();
+			avatarImage.classList.remove('border', 'border-primary');
+
+			const file = e.dataTransfer.files[0];
+			if (!file) return;
+
+			if (!file.type.match(/^image\/(jpeg|png)$/)) {
+				alert('Only JPG and PNG files are allowed.');
+				return;
+			}
+
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const result = e.target.result;
+				avatarImage.src = result;
+
+				// Extract and store image data
+				const base64 = result.split(',')[1];
+				const extension = file.name.split('.').pop().toLowerCase(); // "png" or "jpeg"
+
+				this.#image64Bit = base64;
+				this.#imageType = extension;
+
+				// Upload AFTER data is ready
+				const formData = new FormData();
+				formData.append('image64Bit', this.#image64Bit);
+				formData.append('imageType', this.#imageType);
+
+				this.#args.app.apiUploadPicture(
+					(successCallback) => {
+						if (successCallback.success) {
+							toastTitle.innerText = 'User Profile';
+							toastBody.innerText = successCallback.message;
+							const toastBootstrap =
+								bootstrap.Toast.getOrCreateInstance(
+									toastLiveExample
+								);
+							toastBootstrap.show();
+							//  refresh user data here?
+						}
+					},
+					(errorCallback) => {
+						console.error('API error:', errorCallback);
+					},
+					formData
+				);
+			}.bind(this); //
+
+			reader.readAsDataURL(file);
+		});
+
+		// ------------------------------
+		// ------------------------------
+		// DEV
+		// ------------------------------
+		// ------------------------------
+
 		// Get User Data - INITIAL INSERT
 		// ------------------------------
 		this.#refreshUserFields();
@@ -294,8 +438,10 @@ export default class PageUserDetail {
 		});
 		// Save Card Data
 		saveCard.addEventListener('click', () => {
-			if (!this.#validateFieldsCard()) return;
+			console.log('Befor VAl');
 
+			if (!this.#validateFieldsCard()) return;
+			console.log('After VAl');
 			// If all valid save.
 			const fields = [
 				'cardholderName',
@@ -590,6 +736,8 @@ export default class PageUserDetail {
 		this.#inputLastName.value = user.lastName;
 		this.#inputEmail.value = user.email;
 		this.#inputPhone.value = user.phoneNumber;
+		if (user.avatarBase64 && user.avatarFileType)
+			this.#avatarImage.src = `data:image/${user.avatarFileType};base64,${user.avatarBase64}`;
 	}
 
 	// Adresses
@@ -640,6 +788,7 @@ export default class PageUserDetail {
 		target.innerHTML = html;
 	}
 
+	// Cards
 	#validateFieldsCard() {
 		const fields = [
 			'cardholderName',
@@ -658,15 +807,17 @@ export default class PageUserDetail {
 				input.classList.add('is-invalid');
 				input.placeholder = 'Field cannot be empty';
 				allValid = false;
-			} else if (id === 'cardExpiry') {
-				let date = input.value.trim();
-				let month = '';
-				if (date.length > 2) {
-					month = date.slice(0, 2);
-				}
-				if (month !== '' && +month > 12) {
+			}
+
+			if (id === 'cardExpiry') {
+				const date = input.value.trim();
+				const month = date.slice(0, 2);
+				if (+month > 12 || +month < 1) {
 					input.classList.add('is-invalid');
-					input.setAttribute('data-bs-content', 'Max Month: 12');
+					input.setAttribute(
+						'data-bs-content',
+						+month > 12 ? 'Max Month: 12' : 'Min Month: 01'
+					);
 					const popover = bootstrap.Popover.getOrCreateInstance(
 						input,
 						{
@@ -678,8 +829,10 @@ export default class PageUserDetail {
 					setTimeout(() => popover.hide(), 1500);
 					allValid = false;
 				}
-			} else if (id === 'cardNumber') {
-				let cardNumber = input.value.replace(/\s/g, '').trim(); // Remove ALL the spaces
+			}
+
+			if (id === 'cardNumber') {
+				const cardNumber = input.value.replace(/\s/g, '').trim();
 				if (cardNumber.length < 13 || cardNumber.length > 19) {
 					input.classList.add('is-invalid');
 					input.setAttribute(
@@ -697,7 +850,13 @@ export default class PageUserDetail {
 					setTimeout(() => popover.hide(), 1500);
 					allValid = false;
 				}
-			} else if (id !== 'cardholderName') {
+			}
+
+			if (
+				id !== 'cardholderName' &&
+				id !== 'cardExpiry' &&
+				id !== 'cardNumber'
+			) {
 				if (!/^[0-9 ]+$/.test(input.value.trim())) {
 					input.classList.add('is-invalid');
 					input.setAttribute(
@@ -717,9 +876,9 @@ export default class PageUserDetail {
 				}
 			}
 		});
+		return allValid;
 	}
 
-	// Cards
 	#getAndInsertCards() {
 		this.#args.app.apiGetCards(
 			(successCallback) => {

@@ -4,7 +4,6 @@ using DreamPlants.DataService.API.Models.Generated;
 using Microsoft.EntityFrameworkCore;
 using File = DreamPlants.DataService.API.Models.Generated.File;
 
-
 namespace DreamPlants.DataService.API.Data;
 
 public partial class DreamPlantsContext : DbContext
@@ -41,6 +40,10 @@ public partial class DreamPlantsContext : DbContext
     public virtual DbSet<Subcategory> Subcategories { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=dreamPlants;User ID=dreamPlants;Password=dreamPlants");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -107,10 +110,10 @@ public partial class DreamPlantsContext : DbContext
             entity.ToTable("credit_cards", "dreamplants");
 
             entity.Property(e => e.CardId).HasColumnName("card_id");
-            entity.Property(e => e.CardCVV)
-              .IsRequired()
-              .HasMaxLength(4)
-              .HasColumnName("card_cvv");
+            entity.Property(e => e.CardCvv)
+                .IsRequired()
+                .HasMaxLength(4)
+                .HasColumnName("card_cvv");
             entity.Property(e => e.CardExpiry)
                 .IsRequired()
                 .HasMaxLength(5)
@@ -391,6 +394,10 @@ public partial class DreamPlantsContext : DbContext
             entity.HasIndex(e => e.PhoneNumber, "users_phone_number_key").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.AvatarBase64).HasColumnName("avatar_base64");
+            entity.Property(e => e.AvatarFileType)
+                .HasMaxLength(10)
+                .HasColumnName("avatar_file_type");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")

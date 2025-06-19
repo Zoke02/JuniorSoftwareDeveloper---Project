@@ -39,8 +39,15 @@ namespace DreamPlants.DataService.API.Controllers
 
         User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == this.Request.Form["email"].ToString());
 
+        if (!user.UserStatus)
+        {
+          this.Response.Cookies.Delete("LoginToken");
+          return Ok(new { success = false, message = "User Status: Disabled" });
+        }
+
         if (user != null && user.CheckPassword(this.Request.Form["password"]))
         {
+
           // First save changers then send the DataTransferObject you dumbass.
           user.LoginTokenLastLog = DateTime.Now;
           // Remember me if statement.
@@ -62,12 +69,15 @@ namespace DreamPlants.DataService.API.Controllers
             Secure = true
           });
           // Dara Transfer Object
-          UserDTO userDTO = new UserDTO{
+          UserDTO userDTO = new UserDTO
+          {
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
             RoleId = user.RoleId,
+            AvatarBase64 = user.AvatarBase64 != null ? Convert.ToBase64String(user.AvatarBase64) : null,
+            AvatarFileType = user.AvatarFileType != null ? user.AvatarFileType : null
             //LoginToken = user.LoginToken,
           };
 
@@ -85,6 +95,41 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     } // Login
+
+    [HttpPost("Logout")]
+    public async Task<ActionResult> Logout()
+    {
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+
+        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user != null)
+        {
+          user.LoginToken = null;
+          user.LoginTokenTimeout = null;
+
+          // DSouble Check? ...why sometimes gives error only the entity god knows
+          _context.Entry(user).Property(u => u.LoginToken).IsModified = true;
+          _context.Entry(user).Property(u => u.LoginTokenTimeout).IsModified = true;
+        // save
+          await _context.SaveChangesAsync();
+        }
+
+        this.Response.Cookies.Delete("LoginToken");
+
+        return Ok(new { success = true, message = "Logout successful!" });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+    return StatusCode(500, new { success = false, message = "An error occurred." });
+#endif
+      }
+    }
+    // Logout
 
     [HttpPost("Register")]
     public async Task<ActionResult<User>> Register()
@@ -120,7 +165,8 @@ namespace DreamPlants.DataService.API.Controllers
           PhoneNumber = phone,
           RoleId = 3, // Customer
           LoginTokenLastLog = DateTime.Now,
-          LoginTokenTimeout = DateTime.Now.AddDays(days)
+          LoginTokenTimeout = DateTime.Now.AddDays(days),
+          UserStatus = true
         };
 
         // SetPassword new Method
@@ -227,7 +273,10 @@ namespace DreamPlants.DataService.API.Controllers
             LastName = user.LastName,
             Email = user.Email,
             PhoneNumber = user.PhoneNumber,
-            RoleId = user.RoleId
+            RoleId = user.RoleId,
+            AvatarBase64 = user.AvatarBase64 != null ? Convert.ToBase64String(user.AvatarBase64) : null,
+            AvatarFileType = user.AvatarFileType != null ? user.AvatarFileType : null
+
           };
 
           return Ok(new { success = true, message = "User Profile Updated!", user = updatedUser });
@@ -245,6 +294,73 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     } // UpdateUser
+
+    [HttpPost("UploadPicture")]
+    public async Task<ActionResult> UploadPicture()
+    {
+      try
+      {
+        // 1. Auth check
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+          return BadRequest(new { success = false, message = "Unauthorized Token" });
+
+        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null)
+          return BadRequest(new { success = false, message = "Unauthorized User" });
+
+        // 2. Extract form data
+        var imageBase64 = Request.Form["image64Bit"].ToString();
+        var imageType = Request.Form["imageType"].ToString();
+
+        // 3. Validate size like 3 mb
+        int estimatedBytes = (int)(imageBase64.Length * 0.75);
+        if (estimatedBytes > 3 * 1024 * 1024) 
+        {
+          return BadRequest(new { success = false, message = "Image is too large. Max 3MB allowed." });
+        }
+
+        // 4. Validate file extension
+        if (imageType != "png" && imageType != "jpg" && imageType != "jpeg")
+        {
+          return BadRequest(new { success = false, message = "Only .png, .jpg, or .jpeg allowed." });
+        }
+
+        // 5. Convert base64 to byte[]
+        byte[] imageBytes;
+        try
+        {
+          imageBytes = Convert.FromBase64String(imageBase64);
+        }
+        catch
+        {
+          return BadRequest(new { success = false, message = "Invalid base64 image data." });
+        }
+
+        // 6. Check if replacing existing image
+        bool isReplacing = user.AvatarBase64 != null;
+
+        // 7. Save to DB
+        user.AvatarBase64 = imageBytes;
+        user.AvatarFileType = imageType;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+          success = true,
+          message = isReplacing ? "Profile image updated." : "Profile image uploaded." // is it upload or new add?
+        });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+    return StatusCode(500, new { success = false, message = "An error occurred." });
+#endif
+      }
+    } // UploadPicture
 
   }
 }

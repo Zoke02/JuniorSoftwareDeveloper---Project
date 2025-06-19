@@ -216,6 +216,23 @@ export default class Application {
 			.catch(errorCallback);
 	}
 
+	apiLogout(successCallback, errorCallback) {
+		fetch(this.#apiUrl + '/Users/Logout', {
+			method: 'POST', // POST? or DEL?
+			cache: 'no-cache',
+			credentials: 'include',
+		})
+			.then((r) => {
+				if (r.status == 200 || r.status == 401) {
+					return r.json();
+				} else {
+					throw new Error(r.status + ' ' + r.statusText);
+				}
+			})
+			.then(successCallback)
+			.catch(errorCallback);
+	}
+
 	apiRegister(successCallback, errorCallback, registerData) {
 		fetch(this.#apiUrl + '/Users/Register', {
 			method: 'POST',
@@ -251,6 +268,24 @@ export default class Application {
 	apiUpdateUser(successCallback, errorCallback, formData) {
 		fetch(this.#apiUrl + '/Users/UpdateUser', {
 			method: 'PUT', // I changed to put in DataBase if it doesnt work go back to POST
+			body: formData,
+			cache: 'no-cache',
+			credentials: 'include',
+		})
+			.then((r) => {
+				if (r.status == 200 || r.status == 401) {
+					return r.json();
+				} else {
+					throw new Error(r.status + ' ' + r.statusText);
+				}
+			})
+			.then(successCallback)
+			.catch(errorCallback);
+	}
+
+	apiUploadPicture(successCallback, errorCallback, formData) {
+		fetch(this.#apiUrl + '/Users/UploadPicture', {
+			method: 'POST', // I changed to put in DataBase if it doesnt work go back to POST
 			body: formData,
 			cache: 'no-cache',
 			credentials: 'include',
@@ -363,6 +398,7 @@ export default class Application {
 			.then(successCallback)
 			.catch(errorCallback);
 	}
+
 	//-----------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------
 

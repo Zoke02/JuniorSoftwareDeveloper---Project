@@ -72,7 +72,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized - False Token" });
 
         var cardholderName = Request.Form["cardholderName"].ToString();
-        var cardNumber = Request.Form["cardNumber"].ToString();
+        var cardNumber = Request.Form["cardNumber"].ToString().Replace(" ", "");
         var cardExpiry = Request.Form["cardExpiry"].ToString();
         var cardCVV = Request.Form["cardCVV"].ToString();
 
@@ -85,13 +85,34 @@ namespace DreamPlants.DataService.API.Controllers
           return Ok(new { success = false, message = "All fields are required." });
         }
 
+        if (!long.TryParse(cardNumber, out _) || cardNumber.Length < 13 || cardNumber.Length > 19)
+        {
+          return Ok(new { success = false, message = "Invalid card number. Must be 13–19 digits." });
+        }
+
+        if (cardExpiry.Length != 5 || cardExpiry[2] != '/')
+        {
+          return Ok(new { success = false, message = "Invalid expiry format. Use MM/YY." });
+        }
+
+        var monthStr = cardExpiry.Substring(0, 2);
+        if (!int.TryParse(monthStr, out int month) || month < 1 || month > 12)
+        {
+          return Ok(new { success = false, message = "Invalid expiry month." });
+        }
+
+        if (cardCVV.Length > 4 || !int.TryParse(cardCVV, out _)) // with _ u can discard
+        {
+          return Ok(new { success = false, message = "Invalid CVV. Must be numeric and max 4 digits." });
+        }
+
         CreditCard newCreditCard = new CreditCard
         {
           UserId = user.UserId,
           CardholderName = cardholderName,
           CardNumber = cardNumber,
           CardExpiry = cardExpiry,
-          CardCVV = cardCVV,
+          CardCvv = cardCVV,
         };
 
         // Add user to the database

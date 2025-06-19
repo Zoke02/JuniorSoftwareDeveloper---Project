@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\DreamPlants\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj": {}
+    "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj": {}
   },
   "projects": {
-    "C:\\DreamPlants\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj": {
+    "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\DreamPlants\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
+        "projectUniqueName": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
         "projectName": "DreamPlants.DataService.API",
-        "projectPath": "C:\\DreamPlants\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
+        "projectPath": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
         "packagesPath": "C:\\Users\\nedel\\.nuget\\packages\\",
-        "outputPath": "C:\\DreamPlants\\DreamPlants.DataService.API\\obj\\",
+        "outputPath": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

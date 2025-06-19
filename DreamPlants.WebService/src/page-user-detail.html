@@ -10,17 +10,33 @@
 		<div class="row g-3 mb-5">
 			<!-- Profile Avatar Card -->
 			<div class="col-lg-4 d-flex align-items-stretch">
-				<div class="card w-100 rounded-0">
-					<div
-						class="card-body text-center d-flex justify-content-center align-items-center"
-					>
-						<img
-							src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3.webp"
-							alt="avatar"
-							class="rounded-circle img-fluid mb-3"
-							style="width: 200px"
-						/>
-					</div>
+				<div
+					class="card text-center d-flex justify-content-center align-items-center w-100 rounded-0"
+				>
+					<input
+						class="d-none"
+						type="file"
+						id="avatarFileInput"
+						accept=".jpg,.jpeg,.png"
+					/>
+
+					<img
+						class="card-body text-center d-flex justify-content-center align-items-center img-fluid w-100 mb-4 p-5 rounded-circle"
+						src="./images/person-fill-up.svg"
+						alt="avatar"
+						class="img-fluid mb-3 p-1 border"
+						style="
+							width: 200px;
+							max-width: 310px;
+							min-height: 310px;
+							max-height: 310px;
+							object-fit: cover;
+						"
+						id="avatarImage"
+					/>
+					<button class="btn mb-4" id="avatarButton">
+						Changer User Picture
+					</button>
 				</div>
 			</div>
 
@@ -260,22 +276,6 @@
 
 						<div class="row" id="targetCards">
 							<!-- Show Addresses Here -->
-							<div class="d-flex align-items-center mb-3">
-								<i
-									class="bi bi-credit-card d-flex justify-content-center align-items-center h-100"
-									style="font-size: 2.5rem"
-								></i>
-								<input
-									type="text"
-									class="form-control form-control-lg mx-3"
-									value="**** **** **** 3193"
-									readonly
-								/>
-								<i
-									class="btn btn-secondary bi bi-trash3 d-flex justify-content-center align-items-center border h-100 px-3 removeAddress"
-									data-set-id=""
-								></i>
-							</div>
 						</div>
 
 						<!-- Grouped Add Card Section at Bottom -->

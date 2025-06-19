@@ -15,7 +15,7 @@ public partial class CreditCard
 
     public string CardExpiry { get; set; }
 
-    public string CardCVV { get; set; }
+    public string CardCvv { get; set; }
 
     public virtual User User { get; set; }
 }

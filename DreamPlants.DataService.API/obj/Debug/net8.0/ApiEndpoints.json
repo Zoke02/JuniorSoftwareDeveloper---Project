@@ -247,6 +247,16 @@
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.UsersController",
+    "Method": "Logout",
+    "RelativePath": "Users/Logout",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.UsersController",
     "Method": "Register",
     "RelativePath": "Users/Register",
     "HttpMethod": "POST",
@@ -302,6 +312,16 @@
         "Name": "RoleId",
         "Type": "System.Int32",
         "IsRequired": false
+      },
+      {
+        "Name": "AvatarBase64",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "AvatarFileType",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -315,6 +335,16 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.UsersController",
+    "Method": "UploadPicture",
+    "RelativePath": "Users/UploadPicture",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.UsersController",

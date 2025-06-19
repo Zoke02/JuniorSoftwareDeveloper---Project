@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Ob44lAUxqgA=",
+  "dgSpecHash": "lNg1WT49GNY=",
   "success": true,
-  "projectFilePath": "C:\\DreamPlants\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
+  "projectFilePath": "C:\\DreamPlants\\Old\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\nedel\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
     "C:\\Users\\nedel\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

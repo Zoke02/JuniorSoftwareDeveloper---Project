@@ -25,7 +25,11 @@ export default class NavigationBar {
 		// Init
 		//--------------------------------------------------
 		if (args.app.user) {
-			userName.innerText = `Welcome, ${args.app.user.firstName}`;
+			const user = JSON.parse(localStorage.getItem('user') || '{}');
+			if (user.firstName) {
+				userName.innerText = `Welcome, ${user.firstName}`;
+			}
+
 			if (args.app.user.roleId === 1) {
 				const show = (page) => page?.classList.remove('d-none');
 				show(usersManagement);
@@ -47,12 +51,18 @@ export default class NavigationBar {
 			userIcon.classList.add('bi-person-gear');
 
 			userLogOut.addEventListener('click', () => {
-				document.cookie =
-					'LoginToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-				location.hash = '#home';
+				// clear frontend
 				localStorage.removeItem('user');
 				args.app.user = null;
-				location.reload();
+
+				// call api
+				args.app.apiLogout((r) => {
+					if (r.success) {
+						alert(r.message);
+						location.hash = '#home';
+						location.reload();
+					}
+				});
 			});
 		}
 
