@@ -4,6 +4,7 @@ using DreamPlants.DataService.API.Models.Generated;
 using Microsoft.EntityFrameworkCore;
 using File = DreamPlants.DataService.API.Models.Generated.File;
 
+
 namespace DreamPlants.DataService.API.Data;
 
 public partial class DreamPlantsContext : DbContext
@@ -41,9 +42,9 @@ public partial class DreamPlantsContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=dreamPlants;User ID=dreamPlants;Password=dreamPlants");
+//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+//        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=dreamPlants;User ID=dreamPlants;Password=dreamPlants");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -350,6 +351,7 @@ public partial class DreamPlantsContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("updated_at");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
             entity.Property(e => e.VariantColor)
                 .HasMaxLength(50)
                 .HasColumnName("variant_color");
@@ -361,6 +363,10 @@ public partial class DreamPlantsContext : DbContext
             entity.HasOne(d => d.Product).WithMany(p => p.Stocks)
                 .HasForeignKey(d => d.ProductId)
                 .HasConstraintName("stock_product_id_fkey");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Stocks)
+                .HasForeignKey(d => d.UserId)
+                .HasConstraintName("stock_user_id_fkey");
         });
 
         modelBuilder.Entity<Subcategory>(entity =>

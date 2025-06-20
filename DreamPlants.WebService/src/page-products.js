@@ -69,7 +69,7 @@ export default class PageProducts {
 				}
 			} else {
 				window.open(
-					'#productdetail?id=' +
+					'#product-detail?stockUid=' +
 						e.target.parentElement.dataset.stockUid,
 					'_self'
 				);

@@ -26,11 +26,11 @@ namespace DreamPlants.DataService.API.Controllers
         // 1 - Is there a token cookie
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
-          return Unauthorized(new { success = false, message = "Unauthorized" });
+          return Unauthorized(new { success = false, message = "Unauthorized Token" });
         // 2 - Is the token same as the DataBank one. 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
         if (user == null)
-          return Unauthorized(new { success = false, message = "Unauthorized" });
+          return Unauthorized(new { success = false, message = "Unauthorized User" });
         // 3 - with user.UserId find user adresses
         List<CreditCardDTO> creditCardsDTO = await _context.CreditCards
             .Where(a => a.UserId == user.UserId)

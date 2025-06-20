@@ -130,7 +130,7 @@ export default class Application {
 			case '#shopcart':
 				new PageShopCart(args);
 				break;
-			case '#productdetail':
+			case '#product-detail':
 				new PageProductDetail(args);
 				break;
 			case '#login':
@@ -385,6 +385,28 @@ export default class Application {
 	apiDelCard(successCallback, errorCallback, id) {
 		fetch(this.#apiUrl + `/CreditCards/DelCard/${id}`, {
 			method: 'DELETE',
+			cache: 'no-cache',
+			credentials: 'include',
+		})
+			.then((r) => {
+				if (r.status == 200 || r.status == 401) {
+					return r.json();
+				} else {
+					throw new Error(r.status + ' ' + r.statusText);
+				}
+			})
+			.then(successCallback)
+			.catch(errorCallback);
+	}
+
+	// UNIVERSAL ADD?
+	apiNewSomethingPOST(successCallback, errorCallback, url, data) {
+		fetch(this.#apiUrl + '/' + url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(data),
 			cache: 'no-cache',
 			credentials: 'include',
 		})

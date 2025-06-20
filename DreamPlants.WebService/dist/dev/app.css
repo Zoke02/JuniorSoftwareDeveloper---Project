@@ -291,6 +291,9 @@ a i {
 }
 
 /* Hover */
+.hover-effect:hover {
+	cursor: pointer;
+}
 .hover-effect {
 	cursor: pointer;
 }
@@ -333,5 +336,11 @@ a i {
 /* Site is in DARK mode → make cards LIGHT */
 [data-bs-theme='dark'] .text-color {
 	color: whitesmoke;
+}
+
+/* DEV */
+.drag-over {
+	background-color: rgba(0, 255, 0, 0.05);
+	border-color: green;
 }
 

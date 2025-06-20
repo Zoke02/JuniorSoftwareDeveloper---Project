@@ -170,6 +170,22 @@
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",
+    "Method": "AddProduct",
+    "RelativePath": "Products/AddProduct",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "DreamPlants.DataService.API.Models.DTO.ProductDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",
     "Method": "GetProductByCategory",
     "RelativePath": "Products/Category/{id}",
     "HttpMethod": "GET",

@@ -31,7 +31,11 @@ public partial class Stock
 
     public int StockNumber { get; set; }
 
+    public int? UserId { get; set; }
+
     public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
 
     public virtual Product Product { get; set; }
+
+    public virtual User User { get; set; }
 }

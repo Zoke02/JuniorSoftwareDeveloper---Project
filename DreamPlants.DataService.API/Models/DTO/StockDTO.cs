@@ -7,5 +7,8 @@
     public int Quantity { get; set; }
     public string StockUid { get; set; }
     public int StockNumber { get; set; }
+    public string Note { get; set; }
+    public string CreatedBy { get; set; }
+
   }
 }

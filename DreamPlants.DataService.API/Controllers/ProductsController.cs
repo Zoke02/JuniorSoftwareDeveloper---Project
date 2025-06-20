@@ -28,17 +28,13 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
-        // Security check if user logged in for the API.
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
-        {
-          return Unauthorized();
-        }
+          return Unauthorized(new { success = false, message = "Unauthorized Token" });
+        // 2 - Is the token same as the DataBank one. 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
         if (user == null)
-        {
-          return Unauthorized();
-        } // Security End.
+          return Unauthorized(new { success = false, message = "Unauthorized User" });
         else
         {
           var product = await _context.Products
@@ -49,25 +45,38 @@ namespace DreamPlants.DataService.API.Controllers
           .Select(p => new ProductDTO
           {
             Name = p.Name,
+            CategoryId = p.Subcategory.Category.CategoryId,
             CategoryName = p.Subcategory.Category.CategoryName,
-            SubcategoryName = p.Subcategory.SubcategoryName,
             SubcategoryId = p.Subcategory.SubcategoryId,
-            Stocks = p.Stocks.Select(s => new StockDTO
+            SubcategoryName = p.Subcategory.SubcategoryName,
+            Stocks = p.Stocks
+            .Where(s => s.StockUid == id)
+            .Select(s => new StockDTO
             {
               StockUid = s.StockUid,
               VariantSize = s.VariantSize,
               Price = s.Price,
               Quantity = s.Quantity,
-              StockNumber = s.StockNumber
+              StockNumber = s.StockNumber,
+              Note = s.Note,
+              CreatedBy = s.CreatedBy,
+            }).ToList(),
+            Files = p.Files.Select(f => new FileDTO
+            {
+              FileId = f.FileId,
+              FileName = f.FileName,
+              FileType = f.FileType,
+              FileData = f.FileData
             }).ToList()
+
           })
           .FirstOrDefaultAsync();
 
           if (product == null)
           {
-            return NotFound();
+            return Ok(new { success = false, message = "Product not found!" });
           }
-          return Ok(product);
+          return Ok(new { success = true, message = "Login successful!", product });
         }
       }
       catch (Exception ex)
@@ -79,6 +88,82 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     }// GET: Products/5
+
+    [HttpPost("AddProduct")]
+    public async Task<ActionResult> AddProduct([FromBody] ProductDTO dto)
+    {
+      //start transacrtion
+      await using var transaction = await _context.Database.BeginTransactionAsync();
+
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+          return Unauthorized(new { success = false, message = "Unauthorized Token" });
+
+        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null)
+          return Unauthorized(new { success = false, message = "Unauthorized User" });
+
+        // get category from subcategory
+        var subcategory = await _context.Subcategories
+          .Include(sc => sc.Category)
+          .FirstOrDefaultAsync(sc => sc.SubcategoryId == dto.SubcategoryId);
+
+        var random = new Random();
+        string stockUid = random.Next(10000000, 99999999).ToString(); // maybe switch to guid later
+
+
+        var product = new Product
+        {
+          Name = dto.Name,
+          SubcategoryId = dto.SubcategoryId,
+          Subcategory = subcategory,
+          Stocks = dto.Stocks.Select(s => new Stock
+          {
+            StockUid = stockUid,
+            VariantSize = s.VariantSize,
+            Price = s.Price,
+            Quantity = s.Quantity,
+            StockNumber = s.StockNumber,
+            Note = s.Note,
+            UserId = user.UserId,
+            CreatedAt = DateTime.Now,
+            CreatedBy = user.FirstName + " " + user.LastName,
+          }).ToList(),
+          Files = dto.Files.Select(f => new Models.Generated.File
+          {
+            FileName = f.FileName,
+            FileType = f.FileType,
+            FileData = f.FileData,
+            UploadedAt = DateTime.Now
+          }).ToList()
+        };
+
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();
+
+        // actual save with commit...do i return a error is soemthign went wrong?
+        await transaction.CommitAsync();
+
+        return Ok(new { success = true, message = "Product created." });
+      }
+      catch (Exception ex)
+      {
+        // ROll back on error - check later how to send a message return might not work
+        await transaction.RollbackAsync();
+
+#if DEBUG
+        return StatusCode(500, new { message = ex.Message });
+#else
+		return StatusCode(500);
+#endif
+      }
+    }
+
+
+
+
 
     // GET: Products/Category/5
     [HttpGet("Category/{id}")]
