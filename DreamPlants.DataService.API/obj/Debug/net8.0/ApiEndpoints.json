@@ -143,6 +143,37 @@
     ]
   },
   {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.PageController",
+    "Method": "GetPaginatedProducts",
+    "RelativePath": "Page/product\u0026categorieslist/Paginated",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "catIds",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "subcatIds",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",
     "Method": "GetProduct",
     "RelativePath": "Products/{id}",
@@ -186,6 +217,27 @@
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",
+    "Method": "AdjustStock",
+    "RelativePath": "Products/AdjustStock/{adjust}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "adjust",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "DreamPlants.DataService.API.Models.DTO.AdjustStockDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",
     "Method": "GetProductByCategory",
     "RelativePath": "Products/Category/{id}",
     "HttpMethod": "GET",
@@ -209,6 +261,38 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",
+    "Method": "DeleteFile",
+    "RelativePath": "Products/DeleteFile/{fileId}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fileId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",
+    "Method": "DeleteProduct",
+    "RelativePath": "Products/DeleteProduct/{stockUid}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "stockUid",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",
@@ -240,6 +324,27 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",
+    "Method": "UpdateProduct",
+    "RelativePath": "Products/UpdateProduct/{stockUid}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "stockUid",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "DreamPlants.DataService.API.Models.DTO.ProductDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.UsersController",

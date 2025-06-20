@@ -420,6 +420,18 @@ export default class Application {
 			.then(successCallback)
 			.catch(errorCallback);
 	}
+	apiDeleteSomething(successCallback, errorCallback, url) {
+		fetch(this.#apiUrl + '/' + url, {
+			method: 'DELETE',
+			credentials: 'include',
+		})
+			.then((r) => {
+				if (r.status === 200 || r.status === 401) return r.json();
+				else throw new Error(r.status + ' ' + r.statusText);
+			})
+			.then(successCallback)
+			.catch(errorCallback);
+	}
 
 	//-----------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------

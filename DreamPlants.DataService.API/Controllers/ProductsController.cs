@@ -89,7 +89,7 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500);
 #endif
       }
-    }// GET: Products/5
+    }// GET: id
 
     [HttpPost("AddProduct")]
     public async Task<ActionResult> AddProduct([FromBody] ProductDTO dto)
@@ -120,18 +120,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Ok(new { success = false, message = "A product with this name already exists." });
         }
 
-        // VariantSize or VariantText to fill
-        if (dto.Stocks.Any(s =>
-            string.IsNullOrWhiteSpace(s.VariantSize) &&
-            string.IsNullOrWhiteSpace(s.VariantText)))
-        {
-          return Ok(new
-          {
-            success = false,
-            message = "Each stock must have at least a Variant Size or a Variant Text filled in."
-          });
-        }
-
+        // Variant Validation if i have time i have it in frontend
 
         // check price format (assuming one stock per product for now) CHECK PREDICATE 
         if (dto.Stocks.Any(s =>
@@ -197,7 +186,7 @@ namespace DreamPlants.DataService.API.Controllers
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        return Ok(new { success = true, message = "Product created." });
+        return Ok(new { success = true, message = "Product created.", stockUid });
       }
       catch (Exception ex)
       {
@@ -210,6 +199,145 @@ namespace DreamPlants.DataService.API.Controllers
       }
     } // AddProduct
 
+    [HttpPost("UpdateProduct/{stockUid}")]
+    public async Task<ActionResult> UpdateProduct(string stockUid, [FromBody] ProductDTO dto)
+
+    {
+      await using var transaction = await _context.Database.BeginTransactionAsync();
+
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+          return Unauthorized(new { success = false, message = "Unauthorized Token" });
+
+        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null)
+          return Unauthorized(new { success = false, message = "Unauthorized User" });
+
+        if (string.IsNullOrWhiteSpace(dto.Name))
+          return Ok(new { success = false, message = "Product name needed." });
+
+        if (dto.Stocks.Any(s =>
+          string.IsNullOrWhiteSpace(s.VariantSize) &&
+          string.IsNullOrWhiteSpace(s.VariantText)))
+        {
+          return Ok(new
+          {
+            success = false,
+            message = "Each stock must have at least a Variant Size or a Variant Text."
+          });
+        }
+
+        if (dto.Stocks.Any(s =>
+          s.Price <= 0 ||
+          s.Price > 9999999.99m ||
+          decimal.Round(s.Price, 2) != s.Price))
+        {
+          return Ok(new { success = false, message = "Invalid price format." });
+        }
+
+        if (dto.SubcategoryId <= 0 || dto.CategoryId <= 0)
+        {
+          return Ok(new { success = false, message = "You must select a subcategory." });
+        }
+
+        var product = await _context.Products
+          .Include(p => p.Stocks)
+          .Include(p => p.Files)
+          .Include(p => p.Subcategory)
+          .FirstOrDefaultAsync(p => p.Stocks.Any(s => s.StockUid == stockUid));
+
+        if (product == null)
+          return NotFound(new { success = false, message = "Product not found." });
+
+        // Check if new name already exists in another product
+        if (dto.Name.ToLower() != product.Name.ToLower())
+        {
+          bool nameExists = await _context.Products
+            .AnyAsync(p => p.Name.ToLower() == dto.Name.ToLower());
+          if (nameExists)
+            return Ok(new { success = false, message = "A product with this name already exists." });
+        }
+
+        // Update product
+        product.Name = dto.Name;
+        product.SubcategoryId = dto.SubcategoryId;
+
+        // Update stock
+        var stock = product.Stocks.FirstOrDefault(s => s.StockUid == stockUid);
+        if (stock != null)
+        {
+          stock.VariantSize = dto.Stocks[0].VariantSize;
+          stock.VariantColor = dto.Stocks[0].VariantColor;
+          stock.VariantText = dto.Stocks[0].VariantText;
+          stock.Price = dto.Stocks[0].Price;
+          stock.Quantity = dto.Stocks[0].Quantity;
+          stock.StockNumber = dto.Stocks[0].StockNumber;
+          stock.Note = dto.Stocks[0].Note;
+        }
+
+        // Replace files
+        _context.Files.RemoveRange(product.Files);
+        product.Files = dto.Files.Select(f => new Models.Generated.File
+        {
+          FileName = f.FileName,
+          FileType = f.FileType,
+          FileData = f.FileData,
+          UploadedAt = DateTime.Now
+        }).ToList();
+
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        return Ok(new { success = true, message = "Product updated." });
+      }
+      catch (Exception ex)
+      {
+        await transaction.RollbackAsync();
+#if DEBUG
+        return StatusCode(500, new { message = ex.Message });
+#else
+		return StatusCode(500);
+#endif
+      }
+    } // UpdateProduct
+
+    [HttpDelete("DeleteProduct/{stockUid}")]
+    public async Task<ActionResult> DeleteProduct(string stockUid)
+    {
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+          return Unauthorized(new { success = false, message = "Unauthorized Token" });
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null)
+          return Unauthorized(new { success = false, message = "Unauthorized User" });
+
+        var product = await _context.Products
+          .Include(p => p.Stocks)
+          .Include(p => p.Files)
+          .FirstOrDefaultAsync(p => p.Stocks.Any(s => s.StockUid == stockUid));
+
+        if (product == null)
+          return Ok(new { success = false, message = "Product not found." });
+
+        _context.Products.Remove(product);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "Product deleted." });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+		return StatusCode(500);
+#endif
+      }
+    } // DeleteProduct
 
     // GET: Products/Category/5
     [HttpGet("Category/{id}")]
@@ -266,7 +394,7 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500);
 #endif
       }
-    }// GET: Products/Category/5
+    }// GET: Category/id
 
     // Products/Filter
     [HttpGet("Filter")]
@@ -338,7 +466,91 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500);
 #endif
       }
+    } // FILTER
+
+
+    // STOCK
+    [HttpPost("AdjustStock/{adjust}")]
+    public async Task<ActionResult> AdjustStock(string adjust, [FromBody] AdjustStockDTO dto)
+    {
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+          return Unauthorized(new { success = false, message = "Unauthorized Token" });
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null)
+          return Unauthorized(new { success = false, message = "Unauthorized User" });
+
+        var stock = await _context.Stocks.FirstOrDefaultAsync(s => s.StockUid == dto.StockUid);
+        if (stock == null)
+          return NotFound(new { success = false, message = "Stock not found." });
+
+        int newQuantity;
+        if (adjust.ToLower() == "positiv")
+        {
+          newQuantity = stock.Quantity + dto.Amount;
+        }
+        else if (adjust.ToLower() == "negativ")
+        {
+          newQuantity = stock.Quantity - dto.Amount;
+          if (newQuantity < 0)
+            return Ok(new { success = false, message = "Quantity cannot be negative." });
+        }
+        else
+        {
+          return BadRequest(new { success = false, message = "Invalid adjust parameter. Use 'positiv' or 'negativ'." });
+        }
+
+        stock.Quantity = newQuantity;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "Stock updated.", newQuantity });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+        return StatusCode(500);
+#endif
+      }
     }
+
+    // IMAGE
+    [HttpDelete("DeleteFile/{fileId}")]
+    public async Task<ActionResult> DeleteFile(int fileId)
+    {
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+          return Unauthorized(new { success = false, message = "Unauthorized Token" });
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null)
+          return Unauthorized(new { success = false, message = "Unauthorized User" });
+
+        var file = await _context.Files.FindAsync(fileId);
+        if (file == null)
+          return NotFound(new { success = false, message = "File not found." });
+
+        _context.Files.Remove(file);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "File deleted successfully." });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+        return StatusCode(500);
+#endif
+      }
+    }
+
 
   }
 }

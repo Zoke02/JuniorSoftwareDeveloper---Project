@@ -9,6 +9,7 @@ export default class PageProductDetail {
 	#args = null;
 	#categorieTree = null;
 	#product = null;
+	#stockUid = null;
 
 	// Prefill items
 	#textNumber = null;
@@ -22,6 +23,7 @@ export default class PageProductDetail {
 	#containerFiles = null;
 
 	#uploadedFiles = [];
+	#existingFiles = []; //  DB
 
 	//--------------------------------------------------
 	// Constructor
@@ -30,6 +32,10 @@ export default class PageProductDetail {
 		this.#args = args;
 		args.target.innerHTML = PageHTML;
 
+		//7 stock
+		this.#stockUid =
+			this.#args.stockUid ||
+			new URLSearchParams(window.location.search).get('stockUid');
 		//--------------------------------------------------
 		// Constants
 		//--------------------------------------------------
@@ -85,9 +91,10 @@ export default class PageProductDetail {
 		this.#containerFiles = containerFiles;
 		//--------------------------------------------------
 		// Init
+
 		const random8Digit = Math.floor(10000000 + Math.random() * 90000000);
-		console.log(random8Digit);
 		if (this.#product == null) this.#textNumber.value = random8Digit;
+
 		//--------------------------------------------------
 		// TreeView init with single select
 		this.#categorieTree = new CategoryTree({
@@ -107,7 +114,6 @@ export default class PageProductDetail {
 					args.app.apiGet(
 						(successCallback) => {
 							this.#product = successCallback.product;
-							console.log(this.#product);
 
 							// Select the product's subcategory
 							const subId = successCallback.product.subcategoryId;
@@ -143,6 +149,13 @@ export default class PageProductDetail {
 		//--------------------------------------------------
 		// Events
 		//--------------------------------------------------
+		textPrice.addEventListener('input', (e) => {
+			let val = e.target.value
+				.replace(',', '.') // convert comma to dot
+				.replace(/[^0-9.]/g, '') // remove non-numeric and non-dot
+				.replace(/(\..*?)\..*/g, '$1'); // allow only one dot check later if you doin 1.000,29 stuff https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet
+			e.target.value = val;
+		});
 
 		// Trigger file picker on click
 		rowFile.addEventListener('click', () => inputFile.click());
@@ -170,35 +183,135 @@ export default class PageProductDetail {
 
 		buttonSave.addEventListener('click', async () => {
 			const payload = await this.#prepareProductPayload();
-			console.log(payload);
-			console.log('SAVE CLICK');
+			if (!this.#validateProductFields()) return;
 
-			if (this.#product == null) {
-				console.log('API CALLED');
+			// CASE: CREATE NEW PRODUCT
+			if ((!this.#product && !this.#args.stockUid) || !this.#stockUid) {
 				args.app.apiNewSomethingPOST(
 					(r) => {
-						toastTitle.innerText = 'Product Detail:';
-						toastBody.innerText = r.message;
-						const toastBootstrap =
+						if (r.success) {
+							toastTitle.innerText = 'Product Detail:';
+							toastBody.innerText = r.message;
+							const toastBootstrap =
+								bootstrap.Toast.getOrCreateInstance(
+									toastLiveExample
+								);
+							toastBootstrap.show();
+							this.#stockUid = r.stockUid;
+							accordionItem2.classList.remove('d-none');
+							if (r.stockUid) {
+								window.location.hash = `product-detail?stockUid=${r.stockUid}`;
+							}
+						} else {
+							toastTitle.innerText = 'Validation Error';
+							toastBody.innerText = r.message;
 							bootstrap.Toast.getOrCreateInstance(
 								toastLiveExample
-							);
-						toastBootstrap.show();
+							).show();
+						}
 					},
 					(err) => {
 						toastTitle.innerText = 'Product Detail:';
-						toastBody.innerText = err;
-						const toastBootstrap =
-							bootstrap.Toast.getOrCreateInstance(
-								toastLiveExample
-							);
-						toastBootstrap.show();
+						toastBody.innerText =
+							err.message || 'Failed to save product.';
+						bootstrap.Toast.getOrCreateInstance(
+							toastLiveExample
+						).show();
 					},
 					'Products/AddProduct',
 					payload
 				);
-			} else if (args.stockUid != null) {
-				// then api edit.
+			}
+			// CASE: EDIT EXISTING PRODUCT
+			else if (this.#args.stockUid || this.#stockUid) {
+				args.app.apiNewSomethingPOST(
+					(r) => {
+						toastTitle.innerText = 'Product Detail:';
+						toastBody.innerText = r.message;
+						bootstrap.Toast.getOrCreateInstance(
+							toastLiveExample
+						).show();
+					},
+					(err) => {
+						toastTitle.innerText = 'Product Detail:';
+						toastBody.innerText =
+							err.message || 'Failed to update product.';
+						bootstrap.Toast.getOrCreateInstance(
+							toastLiveExample
+						).show();
+					},
+					'Products/UpdateProduct/' + this.#stockUid,
+					payload
+				);
+			}
+		});
+
+		// Handle add stock
+		buttonAddStock.addEventListener('click', () => {
+			const amount = parseInt(
+				prompt('Enter amount to ADD to stock:'),
+				10
+			);
+			if (isNaN(amount) || amount <= 0) return alert('Invalid amount.');
+			this.#adjustStock('positiv', amount);
+		});
+
+		// Handle remove stock
+		buttonRemoveStock.addEventListener('click', () => {
+			const amount = parseInt(
+				prompt('Enter amount to SUBTRACT from stock:'),
+				10
+			);
+			if (isNaN(amount) || amount <= 0) return alert('Invalid amount.');
+			this.#adjustStock('negativ', amount);
+		});
+
+		// Handlke delete image
+		// File delete (for existing DB files)
+		this.#containerFiles.addEventListener('click', (e) => {
+			const btn = e.target.closest('.btn-delete-file');
+			if (!btn) return;
+
+			// 🟡 New uploaded file (temp)
+			const tempId = btn.dataset.tempId;
+			if (tempId) {
+				this.#uploadedFiles = this.#uploadedFiles.filter(
+					(_, i) => `temp-${i}` !== tempId
+				);
+				const fileCard = btn.closest(`[data-temp-id-card="${tempId}"]`);
+				if (fileCard) fileCard.remove();
+				return;
+			}
+
+			// 🟢 Existing DB file
+			const fileId = btn.dataset.fileId;
+			if (fileId && confirm('Delete this image?')) {
+				this.#existingFiles = this.#existingFiles.filter(
+					(f) => f.fileId != fileId
+				);
+				this.#args.app.apiDeleteSomething(
+					(r) => {
+						// ✅ THIS IS WHAT YOU NEED TO FIX ↓↓↓
+						const fileCard = btn.closest(
+							`[data-file-id="${fileId}"]`
+						);
+						if (fileCard) fileCard.remove();
+
+						toastTitle.innerText = 'Product Detail:';
+						toastBody.innerText = r.message;
+						bootstrap.Toast.getOrCreateInstance(
+							toastLiveExample
+						).show();
+					},
+					(err) => {
+						toastTitle.innerText = 'Product Detail:';
+						toastBody.innerText = err.message;
+						bootstrap.Toast.getOrCreateInstance(
+							toastLiveExample
+						).show();
+					},
+					`Products/DeleteFile/${fileId}`
+				);
 			}
 		});
 	} // Constructor
@@ -222,22 +335,25 @@ export default class PageProductDetail {
 					: '';
 			this.#textNote.value = this.#product.stocks[0].note || '';
 		}
+
 		if (this.#product.files?.length > 0) {
+			this.#containerFiles.innerHTML = ''; // clear before inserting
+			this.#existingFiles = [...this.#product.files]; //fucking ...
+
 			this.#product.files.forEach((file) => {
 				const base64 = `data:${file.fileType};base64,${file.fileData}`;
 				const html = `
-				<div class="col-12 col-sm-6 col-md-4 col-xl-3">
-					<div class="card text-center h-100">
-						<img src="${base64}" class="card-img-top" alt="${file.fileName}" />
-						<div class="card-body">
-							<p class="card-text">${file.fileName}</p>
-							<button class="btn btn-sm border" data-file-id="${file.fileId}">
-								Delete
-							</button>
-						</div>
+			<div class="col-12 col-sm-6 col-md-4 col-xl-3" data-temp-id-card="${file.fileId}">
+				<div class="card text-center h-100">
+					<img src="${base64}" class="card-img-top" alt="${file.fileName}" />
+					<div class="card-body">
+						<p class="card-text">${file.fileName}</p>
+						<button class="btn btn-sm btn-danger btn-delete-file" data-file-id="${file.fileId}">
+							Delete
+						</button>
 					</div>
 				</div>
-				`;
+		`;
 				this.#containerFiles.insertAdjacentHTML('beforeend', html);
 			});
 		}
@@ -301,37 +417,133 @@ export default class PageProductDetail {
 					note: this.#textNote.value,
 				},
 			],
-			files: fileDTOs,
+			files: [
+				...this.#existingFiles, // ✅ From DB
+				...fileDTOs, // ✅ Newly uploaded
+			],
 		};
 	}
 
 	#handleFiles(fileList) {
-		this.#uploadedFiles = Array.from(fileList); // store files
+		this.#uploadedFiles.push(...fileList); // ✅ Append instead of replace
 
-		this.#containerFiles.innerHTML = ''; // clear previews
+		const currentCount =
+			this.#containerFiles.querySelectorAll('[data-temp-id]').length;
 
-		this.#uploadedFiles.forEach((file) => {
+		Array.from(fileList).forEach((file, index) => {
 			if (!file.type.startsWith('image/')) return;
 
 			const reader = new FileReader();
 			reader.onload = (e) => {
+				const tempId = `temp-${currentCount + index}`; // Make sure IDs stay unique
 				const html = `
-				<div class="col-12 col-sm-6 col-md-4 col-xl-3">
+				<div class="col-12 col-sm-6 col-md-4 col-xl-3" data-temp-id-card="${tempId}">
 					<div class="card text-center h-100">
 						<img src="${e.target.result}" class="card-img-top" alt="${file.name}" />
 						<div class="card-body">
 							<p class="card-text">${file.name}</p>
-							<button class="btn btn-sm border" data-file-id="${file.fileId}">
+							<button class="btn btn-sm btn-danger btn-delete-file" data-temp-id="${tempId}">
 								Delete
 							</button>
 						</div>
 					</div>
 				</div>
-				`;
+			`;
 				this.#containerFiles.insertAdjacentHTML('beforeend', html);
 			};
 
 			reader.readAsDataURL(file);
 		});
+	}
+
+	#validateProductFields() {
+		const name = this.#textName.value.trim();
+		const variantSize = this.#textVariantSize.value.trim();
+		const variantColor = this.#textVariantColor.value.trim();
+		const priceString = this.#textPrice.value.trim();
+		const priceIntCheck = parseFloat(priceString);
+
+		function showErrorPopover(inputElement, message) {
+			const existing = bootstrap.Popover.getInstance(inputElement);
+			if (existing) existing.dispose();
+
+			const popover = new bootstrap.Popover(inputElement, {
+				content: message,
+				trigger: 'manual',
+				placement: 'top',
+				customClass: 'popover-error',
+			});
+
+			popover.show();
+
+			setTimeout(() => {
+				popover.hide();
+			}, 3000);
+		}
+
+		const fields = [this.#textName, this.#textVariantSize, this.#textPrice];
+		let valid = true;
+
+		fields.forEach((element) => {
+			if (element == this.#textName && !name) {
+				showErrorPopover(this.#textName, 'Product name is required.');
+				valid = false;
+			}
+			if (
+				element == this.#textVariantSize &&
+				!variantSize &&
+				!variantColor
+			) {
+				showErrorPopover(
+					this.#textVariantColor,
+					'Product Variant (Size or Color) is required.'
+				);
+				valid = false;
+			}
+
+			if (element == this.#textPrice) {
+				if (!priceString) {
+					showErrorPopover(
+						this.#textPrice,
+						'Product price is required.'
+					);
+					valid = false;
+				} else if (isNaN(priceIntCheck) || priceIntCheck <= 0) {
+					showErrorPopover(
+						this.#textPrice,
+						'Price must be a valid positive number.'
+					);
+					valid = false;
+				}
+			}
+		});
+		return valid;
+	}
+
+	#adjustStock(adjustType, amount) {
+		const stockUid = this.#product?.stocks[0]?.stockUid;
+		if (!stockUid) return alert('Stock UID missing.');
+
+		this.#args.app.apiNewSomethingPOST(
+			(r) => {
+				const toast = bootstrap.Toast.getOrCreateInstance(
+					document.getElementById('liveToast')
+				);
+				document.getElementById('toastTitle').innerText =
+					'Stock Update';
+				document.getElementById('toastBody').innerText = r.message;
+				toast.show();
+
+				if (r.success) {
+					this.#infoCurrentAmmount.innerText = r.newQuantity ?? '0';
+				}
+			},
+			(err) => {
+				alert('Stock update failed.');
+				console.error(err);
+			},
+			`Products/AdjustStock/${adjustType}`,
+			{ stockUid, amount }
+		);
 	}
 } // Class

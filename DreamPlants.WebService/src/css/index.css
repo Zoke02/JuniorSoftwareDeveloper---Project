@@ -340,3 +340,10 @@ a i {
 	background-color: rgba(0, 255, 0, 0.05);
 	border-color: green;
 }
+
+.popover-error {
+	background-color: #963232 !important;
+}
+.popover-warning {
+	background-color: #969623 !important;
+}

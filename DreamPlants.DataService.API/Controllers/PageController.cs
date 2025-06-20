@@ -67,7 +67,7 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     } // ApiGet (Init)
-    
+
     [HttpGet("product&categorieslist")]
     public async Task<ActionResult<User>> PageProdCatList()
     {
@@ -86,7 +86,8 @@ namespace DreamPlants.DataService.API.Controllers
         }
         // Dara Transfer Object - 
         var categoriesList = await _context.Categories
-        .Include(sc => sc.Subcategories).Select(c => new CategoryDTO {
+        .Include(sc => sc.Subcategories).Select(c => new CategoryDTO
+        {
           CategoryId = c.CategoryId,
           CategoryName = c.CategoryName,
           Subcategories = c.Subcategories.Select(sc => new SubcategoryDTO
@@ -239,5 +240,113 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     } // apiGet (product&categorieslist/Filter)
+
+    // PAGINATION
+    [HttpGet("product&categorieslist/Paginated")]
+    public async Task<ActionResult> GetPaginatedProducts(
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 10,
+    [FromQuery] string catIds = "",
+    [FromQuery] string subcatIds = ""
+)
+    {
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null) return Unauthorized();
+
+        var catIdList = catIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(int.Parse).ToList();
+
+        var subcatIdList = subcatIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(int.Parse).ToList();
+
+        var query = _context.Products
+            .Include(p => p.Subcategory)
+                .ThenInclude(c => c.Category)
+            .Include(p => p.Stocks)
+            .Where(p => p.Stocks.Any()) // Only include products that have stocks
+            .AsQueryable();
+
+
+        if (catIdList.Any() && !subcatIdList.Any())
+        {
+          query = query.Where(p => catIdList.Contains(p.Subcategory.Category.CategoryId));
+        }
+        else if (!catIdList.Any() && subcatIdList.Any())
+        {
+          query = query.Where(p => subcatIdList.Contains(p.Subcategory.SubcategoryId));
+        }
+        else if (catIdList.Any() && subcatIdList.Any())
+        {
+          var catToSubcatMap = _context.Categories
+              .Include(c => c.Subcategories)
+              .Where(c => catIdList.Contains(c.CategoryId))
+              .ToDictionary(
+                  c => c.CategoryId,
+                  c => c.Subcategories.Select(s => s.SubcategoryId).ToList()
+              );
+
+          var includeFullCats = new List<int>();
+
+          foreach (var catId in catIdList)
+          {
+            if (catToSubcatMap.TryGetValue(catId, out var subcatListInCat))
+            {
+              bool hasSelected = subcatListInCat.Any(sid => subcatIdList.Contains(sid));
+              if (!hasSelected) includeFullCats.Add(catId);
+            }
+          }
+
+          query = query.Where(p =>
+              subcatIdList.Contains(p.Subcategory.SubcategoryId) ||
+              includeFullCats.Contains(p.Subcategory.Category.CategoryId));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var products = await query
+            .OrderByDescending(p => p.Stocks.FirstOrDefault().StockUid) // or CreatedAt if you have it
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(p => new ProductDTO
+            {
+              Name = p.Name,
+              CategoryName = p.Subcategory.Category.CategoryName,
+              SubcategoryName = p.Subcategory.SubcategoryName,
+              SubcategoryId = p.Subcategory.SubcategoryId,
+              Stocks = p.Stocks.Select(s => new StockDTO
+              {
+                StockUid = s.StockUid,
+                VariantSize = s.VariantSize,
+                Price = s.Price,
+                Quantity = s.Quantity,
+                StockNumber = s.StockNumber
+              }).ToList()
+            })
+            .ToListAsync();
+
+        return Ok(new
+        {
+          totalCount,
+          page,
+          pageSize,
+          items = products
+        });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { message = ex.Message });
+#else
+        return StatusCode(500);
+#endif
+      }
+    }
+
+
   } // Class
 } // Namespace

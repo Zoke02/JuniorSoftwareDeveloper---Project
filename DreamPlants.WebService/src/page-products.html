@@ -18,12 +18,12 @@
 			</div>
 			<!-- Right Table -->
 			<div class="col-12 col-xl-9">
-				<div class="row mt-2">
+				<div class="row mt-4">
 					<div class="col-12">
 						<!-- TABLE  -->
-						<div class="table-responsive pb-4">
+						<div class="table-responsive">
 							<table
-								class="table table-striped table-hover table-bordered"
+								class="table table-striped table-hover table-bordered mb-0"
 								id="tableProducts"
 							>
 								<thead>
@@ -68,61 +68,37 @@
 						</div>
 						<!-- PAGINATION -->
 						<nav
-							aria-label="Page navigation example"
-							class="d-flex justify-content-center align-items-center mb-5"
+							aria-label="Page navigation"
+							class="d-flex justify-content-center my-4"
 						>
-							<ul class="pagination m-0">
-								<li class="page-item">
-									<a class="page-link text-color" href="#"
-										>Previous</a
-									>
-								</li>
-								<li class="page-item active">
-									<a class="page-link text-color" href="#"
-										>1</a
-									>
-								</li>
-								<li class="page-item">
-									<a class="page-link text-color" href="#"
-										>2</a
-									>
-								</li>
-								<li class="page-item">
-									<a class="page-link text-color" href="#"
-										>3</a
-									>
-								</li>
-								<li class="page-item">
-									<a class="page-link text-color" href="#"
-										>Next</a
-									>
-								</li>
-							</ul>
+							<ul id="pagination" class="pagination m-0"></ul>
 						</nav>
 					</div>
 				</div>
 			</div>
 		</div>
-		<!-- <div class="fixed-bottom py-2 bg-wifi">
 	</div>
-	<div class="position-relative">
-		<div class="container">
-			<div class="d-flex align-items-center">
+	<!-- Reusable Toast -->
+	<div class="toast-container position-fixed bottom-0 end-0 p-3">
+		<div
+			id="liveToast"
+			class="toast"
+			role="alert"
+			aria-live="assertive"
+			aria-atomic="true"
+		>
+			<div class="toast-header">
+				<strong class="me-auto" id="toastTitle">Bootstrap</strong>
 				<button
 					type="button"
-					class="btn btn-secondary"
-					id="buttonSpeichern"
-				>
-					<i class="bi-floppy me-2"></i>Speichern
-				</button>
-				<div
-					class="alert alert-success ms-4 mb-0 px-4 py-1 d-none"
-					id="alertMessage"
-				>
-					Erfolgreich gespeichert
-				</div>
+					class="btn-close"
+					data-bs-dismiss="toast"
+					aria-label="Close"
+				></button>
+			</div>
+			<div class="toast-body" id="toastBody">
+				Hello, world! This is a toast message.
 			</div>
 		</div>
-	</div> -->
 	</div>
 </div>
