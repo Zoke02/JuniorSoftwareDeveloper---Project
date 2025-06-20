@@ -55,6 +55,8 @@ namespace DreamPlants.DataService.API.Controllers
             {
               StockUid = s.StockUid,
               VariantSize = s.VariantSize,
+              VariantColor = s.VariantColor,
+              VariantText = s.VariantText,
               Price = s.Price,
               Quantity = s.Quantity,
               StockNumber = s.StockNumber,
@@ -92,7 +94,6 @@ namespace DreamPlants.DataService.API.Controllers
     [HttpPost("AddProduct")]
     public async Task<ActionResult> AddProduct([FromBody] ProductDTO dto)
     {
-      //start transacrtion
       await using var transaction = await _context.Database.BeginTransactionAsync();
 
       try
@@ -105,14 +106,64 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null)
           return Unauthorized(new { success = false, message = "Unauthorized User" });
 
+        // check if Name is empty
+        if (string.IsNullOrWhiteSpace(dto.Name))
+        {
+          return Ok(new { success = false, message = "Product name needed." });
+        }
+        //check for duplicate product name
+        bool nameExists = await _context.Products
+            .AnyAsync(p => p.Name.ToLower() == dto.Name.ToLower());
+
+        if (nameExists)
+        {
+          return Ok(new { success = false, message = "A product with this name already exists." });
+        }
+
+        // VariantSize or VariantText to fill
+        if (dto.Stocks.Any(s =>
+            string.IsNullOrWhiteSpace(s.VariantSize) &&
+            string.IsNullOrWhiteSpace(s.VariantText)))
+        {
+          return Ok(new
+          {
+            success = false,
+            message = "Each stock must have at least a Variant Size or a Variant Text filled in."
+          });
+        }
+
+
+        // check price format (assuming one stock per product for now) CHECK PREDICATE 
+        if (dto.Stocks.Any(s =>
+            s.Price <= 0 ||                      // must be greater than 0
+            s.Price > 9999999.99m ||             // must be within allowed range
+            decimal.Round(s.Price, 2) != s.Price // must have max 2 decimal places
+            
+        ))
+        {
+          return Ok(new { success = false, message = "Invalid price: must be greater than 0, max 9999999.99, and up to 2 decimal places." });
+        }
+
+        if (dto.SubcategoryId <= 0 || dto.CategoryId <= 0)
+        {
+          return Ok(new { success = false, message = "You must select a subcategory." });
+        }
+
+        // validate stock number uniqueness
+        bool stockNumberExists = await _context.Stocks
+            .AnyAsync(s => s.StockNumber == dto.Stocks[0].StockNumber);
+        if (stockNumberExists)
+        {
+          return Ok(new { success = false, message = "Stock number already exists." });
+        }
+
         // get category from subcategory
         var subcategory = await _context.Subcategories
-          .Include(sc => sc.Category)
-          .FirstOrDefaultAsync(sc => sc.SubcategoryId == dto.SubcategoryId);
+            .Include(sc => sc.Category)
+            .FirstOrDefaultAsync(sc => sc.SubcategoryId == dto.SubcategoryId);
 
         var random = new Random();
-        string stockUid = random.Next(10000000, 99999999).ToString(); // maybe switch to guid later
-
+        string stockUid = random.Next(10000000, 99999999).ToString();
 
         var product = new Product
         {
@@ -123,6 +174,8 @@ namespace DreamPlants.DataService.API.Controllers
           {
             StockUid = stockUid,
             VariantSize = s.VariantSize,
+            VariantColor = s.VariantColor,
+            VariantText = s.VariantText,
             Price = s.Price,
             Quantity = s.Quantity,
             StockNumber = s.StockNumber,
@@ -142,27 +195,20 @@ namespace DreamPlants.DataService.API.Controllers
 
         _context.Products.Add(product);
         await _context.SaveChangesAsync();
-
-        // actual save with commit...do i return a error is soemthign went wrong?
         await transaction.CommitAsync();
 
         return Ok(new { success = true, message = "Product created." });
       }
       catch (Exception ex)
       {
-        // ROll back on error - check later how to send a message return might not work
         await transaction.RollbackAsync();
-
 #if DEBUG
         return StatusCode(500, new { message = ex.Message });
 #else
-		return StatusCode(500);
+        return StatusCode(500);
 #endif
       }
-    }
-
-
-
+    } // AddProduct
 
 
     // GET: Products/Category/5
@@ -294,115 +340,5 @@ namespace DreamPlants.DataService.API.Controllers
       }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //// PUT: api/Products/5
-    //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    //[HttpPut("{id}")]
-    //public async Task<IActionResult> PutProduct(int id, Product product)
-    //{
-    //    if (id != product.ProductId)
-    //    {
-    //        return BadRequest();
-    //    }
-
-    //    _context.Entry(product).State = EntityState.Modified;
-
-    //    try
-    //    {
-    //        await _context.SaveChangesAsync();
-    //    }
-    //    catch (DbUpdateConcurrencyException)
-    //    {
-    //        if (!ProductExists(id))
-    //        {
-    //            return NotFound();
-    //        }
-    //        else
-    //        {
-    //            throw;
-    //        }
-    //    }
-
-    //    return NoContent();
-    //}
-
-    //// POST: api/Products
-    //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    //[HttpPost]
-    //public async Task<ActionResult<Product>> PostProduct(Product product)
-    //{
-    //    _context.Products.Add(product);
-    //    await _context.SaveChangesAsync();
-
-    //    return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
-    //}
-
-    //// DELETE: api/Products/5
-    //[HttpDelete("{id}")]
-    //public async Task<IActionResult> DeleteProduct(int id)
-    //{
-    //    var product = await _context.Products.FindAsync(id);
-    //    if (product == null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    _context.Products.Remove(product);
-    //    await _context.SaveChangesAsync();
-
-    //    return NoContent();
-    //}
-
-    //private bool ProductExists(int id)
-    //{
-    //    return _context.Products.Any(e => e.ProductId == id);
-    //}
   }
 }

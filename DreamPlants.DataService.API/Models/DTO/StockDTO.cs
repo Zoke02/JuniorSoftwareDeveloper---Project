@@ -3,6 +3,10 @@
   public class StockDTO
   {
     public string VariantSize { get; set; }
+    public string VariantColor { get; set; }
+    public string VariantText { get; set; }
+
+
     public decimal Price { get; set; }
     public int Quantity { get; set; }
     public string StockUid { get; set; }

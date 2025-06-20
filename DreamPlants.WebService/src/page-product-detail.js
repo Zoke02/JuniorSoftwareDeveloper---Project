@@ -18,6 +18,10 @@ export default class PageProductDetail {
 	#textPrice = null;
 	#infoCurrentAmmount = null;
 	#textNote = null;
+	#textVariantText = null;
+	#containerFiles = null;
+
+	#uploadedFiles = [];
 
 	//--------------------------------------------------
 	// Constructor
@@ -50,6 +54,8 @@ export default class PageProductDetail {
 		this.#textPrice = textPrice;
 		const textNote = args.target.querySelector('#textNote');
 		this.#textNote = textNote;
+		const textVariantText = args.target.querySelector('#textVariantText');
+		this.#textVariantText = textVariantText;
 
 		// Accordion panels
 		const accordionItem2 = args.target.querySelector('#accordionItem2');
@@ -76,11 +82,13 @@ export default class PageProductDetail {
 		const rowFile = args.target.querySelector('#rowFile');
 		const inputFile = args.target.querySelector('#inputFile');
 		const containerFiles = args.target.querySelector('#containerFiles');
-
+		this.#containerFiles = containerFiles;
 		//--------------------------------------------------
 		// Init
+		const random8Digit = Math.floor(10000000 + Math.random() * 90000000);
+		console.log(random8Digit);
+		if (this.#product == null) this.#textNumber.value = random8Digit;
 		//--------------------------------------------------
-		this.#refreshFields();
 		// TreeView init with single select
 		this.#categorieTree = new CategoryTree({
 			target: tableCategorieTree,
@@ -185,8 +193,6 @@ export default class PageProductDetail {
 								toastLiveExample
 							);
 						toastBootstrap.show();
-						console.error('Save failed:', err);
-						alert('Failed to save product.');
 					},
 					'Products/AddProduct',
 					payload
@@ -198,10 +204,6 @@ export default class PageProductDetail {
 	} // Constructor
 
 	#refreshFields() {
-		const random8Digit = Math.floor(10000000 + Math.random() * 90000000);
-		console.log(random8Digit);
-		if (this.#product == null) this.#textNumber.value = random8Digit;
-
 		if (this.#product != null) {
 			// Fill fields
 			this.#textNumber.value = this.#product.stocks[0].stockNumber || '';
@@ -210,6 +212,8 @@ export default class PageProductDetail {
 				this.#product.stocks[0].variantSize || '';
 			this.#textVariantColor.value =
 				this.#product.stocks[0].variantColor || '';
+			this.#textVariantText.value =
+				this.#product.stocks[0].variantText || '';
 			this.#infoCurrentAmmount.innerHTML =
 				this.#product.stocks[0].quantity ?? '';
 			this.#textPrice.value =
@@ -218,16 +222,47 @@ export default class PageProductDetail {
 					: '';
 			this.#textNote.value = this.#product.stocks[0].note || '';
 		}
+		if (this.#product.files?.length > 0) {
+			this.#product.files.forEach((file) => {
+				const base64 = `data:${file.fileType};base64,${file.fileData}`;
+				const html = `
+				<div class="col-12 col-sm-6 col-md-4 col-xl-3">
+					<div class="card text-center h-100">
+						<img src="${base64}" class="card-img-top" alt="${file.fileName}" />
+						<div class="card-body">
+							<p class="card-text">${file.fileName}</p>
+							<button class="btn btn-sm border" data-file-id="${file.fileId}">
+								Delete
+							</button>
+						</div>
+					</div>
+				</div>
+				`;
+				this.#containerFiles.insertAdjacentHTML('beforeend', html);
+			});
+		}
 	}
 
 	async #prepareProductPayload() {
 		// you need away for the promise so you dont mingle the files
-		const files = Array.from(document.getElementById('inputFile').files);
+		const files = this.#uploadedFiles;
 
 		// cant use this.#categorieTree.selectedCat[] because u got more then 1 cat open at a time. check with the subcat id as i cant have more then 1 subid be the same in databank for the correct catid.
 		const selectedSubCatId = this.#categorieTree.selectedSubCat[0];
-		const input = document.querySelector(`#checkbox_${selectedSubCatId}`);
-		const categoryId = parseInt(input.dataset.catId);
+
+		let categoryId = -1; // Default to -1 if nothing is selected
+
+		if (selectedSubCatId) {
+			const input = document.querySelector(
+				`#checkbox_${selectedSubCatId}`
+			);
+			if (input && input.dataset.catId) {
+				const parsed = parseInt(input.dataset.catId);
+				if (!isNaN(parsed)) {
+					categoryId = parsed;
+				}
+			}
+		}
 
 		const fileDTOs = await Promise.all(
 			files.map(
@@ -235,7 +270,7 @@ export default class PageProductDetail {
 					new Promise((resolve, reject) => {
 						const reader = new FileReader();
 						reader.onload = () => {
-							const base64 = reader.result.split(',')[1]; // strip ""data:image/... prefix
+							const base64 = reader.result.split(',')[1];
 							resolve({
 								fileName: file.name,
 								fileType: file.type,
@@ -247,7 +282,6 @@ export default class PageProductDetail {
 					})
 			)
 		);
-
 		return {
 			name: this.#textName.value,
 			subcategoryId: this.#categorieTree.selectedSubCat[0],
@@ -256,7 +290,13 @@ export default class PageProductDetail {
 				{
 					stockNumber: this.#textNumber.value,
 					variantSize: this.#textVariantSize.value,
-					price: parseFloat(this.#textPrice.value),
+					variantColor: this.#textVariantColor.value,
+					variantText: this.#textVariantText.value,
+					price:
+						this.#textPrice.value.trim() !== ''
+							? parseFloat(this.#textPrice.value)
+							: null,
+
 					quantity: 0, // with stock let user fill this later - mebmer to print red on 0
 					note: this.#textNote.value,
 				},
@@ -265,9 +305,12 @@ export default class PageProductDetail {
 		};
 	}
 
-	// Handle and preview images
 	#handleFiles(fileList) {
-		Array.from(fileList).forEach((file) => {
+		this.#uploadedFiles = Array.from(fileList); // store files
+
+		this.#containerFiles.innerHTML = ''; // clear previews
+
+		this.#uploadedFiles.forEach((file) => {
 			if (!file.type.startsWith('image/')) return;
 
 			const reader = new FileReader();
@@ -285,7 +328,7 @@ export default class PageProductDetail {
 					</div>
 				</div>
 				`;
-				containerFiles.insertAdjacentHTML('beforeend', html);
+				this.#containerFiles.insertAdjacentHTML('beforeend', html);
 			};
 
 			reader.readAsDataURL(file);
