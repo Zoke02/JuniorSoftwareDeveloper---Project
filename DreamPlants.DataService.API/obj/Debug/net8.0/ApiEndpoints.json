@@ -169,6 +169,16 @@
         "Name": "subcatIds",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "sortBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "stockUids",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

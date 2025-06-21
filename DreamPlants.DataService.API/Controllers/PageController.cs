@@ -3,6 +3,8 @@ using DreamPlants.DataService.API.Models.DTO;
 using DreamPlants.DataService.API.Models.Generated;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Linq;
 
 namespace DreamPlants.DataService.API.Controllers
 {
@@ -247,31 +249,40 @@ namespace DreamPlants.DataService.API.Controllers
     [FromQuery] int page = 1,
     [FromQuery] int pageSize = 10,
     [FromQuery] string catIds = "",
-    [FromQuery] string subcatIds = ""
-)
+    [FromQuery] string subcatIds = "",
+    [FromQuery] string sortBy = "newest",
+    [FromQuery] string stockUids = ""
+    )
     {
       try
       {
-        string token = Request.Cookies["LoginToken"];
-        if (string.IsNullOrEmpty(token)) return Unauthorized();
-
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null) return Unauthorized();
-
+        // Parse filter params
         var catIdList = catIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
-            .Select(int.Parse).ToList();
+          .Select(int.Parse).ToList();
 
         var subcatIdList = subcatIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
-            .Select(int.Parse).ToList();
+          .Select(int.Parse).ToList();
 
         var query = _context.Products
-            .Include(p => p.Subcategory)
-                .ThenInclude(c => c.Category)
-            .Include(p => p.Stocks)
-            .Where(p => p.Stocks.Any()) // Only include products that have stocks
-            .AsQueryable();
+          .Include(p => p.Subcategory)
+            .ThenInclude(c => c.Category)
+          .Include(p => p.Stocks)
+          .Include(p => p.Files)
+          .Where(p => p.Stocks.Any()) // Initial base filter
+          .AsQueryable();
 
+        // If filtering by stockUids
+        if (!string.IsNullOrEmpty(stockUids))
+        {
+          var uidList = stockUids
+            .Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .ToList();
 
+          query = query.Where(p => p.Stocks.Any(s => uidList.Contains(s.StockUid)));
+        }
+
+        // Additional filtering
         if (catIdList.Any() && !subcatIdList.Any())
         {
           query = query.Where(p => catIdList.Contains(p.Subcategory.Category.CategoryId));
@@ -283,12 +294,12 @@ namespace DreamPlants.DataService.API.Controllers
         else if (catIdList.Any() && subcatIdList.Any())
         {
           var catToSubcatMap = _context.Categories
-              .Include(c => c.Subcategories)
-              .Where(c => catIdList.Contains(c.CategoryId))
-              .ToDictionary(
-                  c => c.CategoryId,
-                  c => c.Subcategories.Select(s => s.SubcategoryId).ToList()
-              );
+            .Include(c => c.Subcategories)
+            .Where(c => catIdList.Contains(c.CategoryId))
+            .ToDictionary(
+              c => c.CategoryId,
+              c => c.Subcategories.Select(s => s.SubcategoryId).ToList()
+            );
 
           var includeFullCats = new List<int>();
 
@@ -302,32 +313,53 @@ namespace DreamPlants.DataService.API.Controllers
           }
 
           query = query.Where(p =>
-              subcatIdList.Contains(p.Subcategory.SubcategoryId) ||
-              includeFullCats.Contains(p.Subcategory.Category.CategoryId));
+            subcatIdList.Contains(p.Subcategory.SubcategoryId) ||
+            includeFullCats.Contains(p.Subcategory.Category.CategoryId));
         }
 
-        var totalCount = await query.CountAsync();
+        // Sort
+        if (sortBy == "newest")
+        {
+          query = query.OrderByDescending(p => p.Stocks.FirstOrDefault().StockId);
+        }
+        else if (sortBy == "asc")
+        {
+          query = query.OrderBy(p => p.Name);
+        }
+        else if (sortBy == "desc")
+        {
+          query = query.OrderByDescending(p => p.Name);
+        }
 
+        // Paginate
+        var totalCount = await query.CountAsync();
         var products = await query
-            .OrderByDescending(p => p.Stocks.FirstOrDefault().StockUid) // or CreatedAt if you have it
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .Select(p => new ProductDTO
+          .Skip((page - 1) * pageSize)
+          .Take(pageSize)
+          .Select(p => new ProductDTO
+          {
+            Name = p.Name,
+            CategoryName = p.Subcategory.Category.CategoryName,
+            SubcategoryName = p.Subcategory.SubcategoryName,
+            SubcategoryId = p.Subcategory.SubcategoryId,
+            Stocks = p.Stocks.Select(s => new StockDTO
             {
-              Name = p.Name,
-              CategoryName = p.Subcategory.Category.CategoryName,
-              SubcategoryName = p.Subcategory.SubcategoryName,
-              SubcategoryId = p.Subcategory.SubcategoryId,
-              Stocks = p.Stocks.Select(s => new StockDTO
-              {
-                StockUid = s.StockUid,
-                VariantSize = s.VariantSize,
-                Price = s.Price,
-                Quantity = s.Quantity,
-                StockNumber = s.StockNumber
-              }).ToList()
-            })
-            .ToListAsync();
+              StockUid = s.StockUid,
+              VariantSize = s.VariantSize,
+              Price = s.Price,
+              Quantity = s.Quantity,
+              StockNumber = s.StockNumber
+            }).ToList(),
+            Files = p.Files.Select(f => new FileDTO
+            {
+              FileId = f.FileId,
+              FileName = f.FileName,
+              FileType = f.FileType,
+              FileData = null,
+              FileBase64 = Convert.ToBase64String(f.FileData)
+            }).ToList()
+          })
+          .ToListAsync();
 
         return Ok(new
         {
@@ -342,10 +374,11 @@ namespace DreamPlants.DataService.API.Controllers
 #if DEBUG
         return StatusCode(500, new { message = ex.Message });
 #else
-        return StatusCode(500);
+		return StatusCode(500);
 #endif
       }
     }
+
 
 
   } // Class

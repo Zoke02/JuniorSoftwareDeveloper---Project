@@ -446,6 +446,25 @@ export default class Application {
 	#hasRole(allowedRoles) {
 		return this.#user && allowedRoles.includes(this.#user.roleId);
 	}
+
+	#shopCardsItemNumber() {
+		const shopCardsItemNumber = document.querySelector(
+			'#shopCardsItemNumber'
+		);
+		shopCardsItemNumber.innerHTML = '';
+
+		const cartRaw = localStorage.getItem('shopcart');
+		const cartItems = cartRaw ? JSON.parse(cartRaw) : []; // parse to 1 item each
+
+		const itemCount = cartItems.length;
+
+		if (itemCount > 0) {
+			shopCardsItemNumber.innerHTML = itemCount;
+		} else {
+			shopCardsItemNumber.innerHTML = '';
+		}
+		console.log('Shopcart contains', itemCount, 'item(s)');
+	}
 	//-----------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------
 } // Class

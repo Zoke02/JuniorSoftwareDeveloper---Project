@@ -19,11 +19,13 @@ export default class NavigationBar {
 		const userOrders = args.target.querySelector('#userOrders');
 		const usersManagement = args.target.querySelector('#usersManagement');
 		const userSummary = args.target.querySelector('#userSummary');
+
 		//--------------------------------------------------
 		const userName = args.target.querySelector('#userName');
 		//--------------------------------------------------
 		// Init
 		//--------------------------------------------------
+		this.#shopCardsItemNumber();
 		if (args.app.user) {
 			const user = JSON.parse(localStorage.getItem('user') || '{}');
 			if (user.firstName) {
@@ -64,6 +66,18 @@ export default class NavigationBar {
 					}
 				});
 			});
+		}
+		// DEV
+		const mobileCategoryIcon = document.querySelector(
+			'#mobileCategoryIcon'
+		);
+
+		if (!window.location.hash.startsWith('#products')) {
+			mobileCategoryIcon.classList.add('d-none');
+		} else {
+			mobileCategoryIcon.classList.remove('d-none');
+			mobileCategoryIcon.classList.add('d-lg-block');
+			mobileCategoryIcon.classList.add('d-xl-none');
 		}
 
 		//--------------------------------------------------
@@ -113,5 +127,24 @@ export default class NavigationBar {
 				location.hash = '#login';
 			}
 		});
+	}
+
+	#shopCardsItemNumber() {
+		const shopCardsItemNumber = document.querySelector(
+			'#shopCardsItemNumber'
+		);
+		shopCardsItemNumber.innerHTML = '';
+
+		const cartRaw = localStorage.getItem('shopcart');
+		const cartItems = cartRaw ? JSON.parse(cartRaw) : []; // parse to 1 item each
+
+		const itemCount = cartItems.length;
+
+		if (itemCount > 0) {
+			shopCardsItemNumber.innerHTML = itemCount;
+		} else {
+			shopCardsItemNumber.innerHTML = '';
+		}
+		console.log('Shopcart contains', itemCount, 'item(s)');
 	}
 }

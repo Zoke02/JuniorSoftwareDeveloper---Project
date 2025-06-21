@@ -11,6 +11,7 @@ export default class PageProducts {
 	#productList = null;
 	#categoriesList = null;
 	#categorieTree = null;
+	#mobileTree = null;
 	#currentPage = 1;
 	#totalPages = 1;
 
@@ -34,6 +35,11 @@ export default class PageProducts {
 		const toastTitle = document.getElementById('toastTitle');
 		const toastBody = document.getElementById('toastBody');
 
+		//offCanva
+		const mobileCategorieTree = document.querySelector(
+			'#mobileCategorieTree'
+		);
+
 		//--------------------------------------------------
 		// Init
 		//--------------------------------------------------
@@ -42,13 +48,39 @@ export default class PageProducts {
 			app: args.app,
 			checkbox: false,
 			click: () => {
-				// this.#currentPage = 1; // check if you need this for filter of 2 cat / subcat
+				// Sync to mobile
+				this.#mobileTree.selectedCat = [
+					...this.#categorieTree.selectedCat,
+				];
+				this.#mobileTree.selectedSubCat = [
+					...this.#categorieTree.selectedSubCat,
+				];
 				this.#readData();
 			},
 		});
+
+		this.#mobileTree = new CategoryTree({
+			target: mobileCategorieTree,
+			app: args.app,
+			checkbox: false,
+			click: () => {
+				// Use spread to copy the selectedCat array values from mobileTree
+				// into a new array, avoiding shared reference - find more documentation
+				this.#categorieTree.selectedCat = [
+					...this.#mobileTree.selectedCat,
+				];
+				this.#categorieTree.selectedSubCat = [
+					...this.#mobileTree.selectedSubCat,
+				];
+				this.#readData();
+			},
+		});
+
 		args.app.apiGet(
 			(r) => {
 				this.#categorieTree.categoriesList = r.categoriesList;
+				this.#mobileTree.categoriesList = r.categoriesList;
+
 				this.#readData(); // load data only after TreeView is ready
 			},
 			(ex) => alert('Failed to load categories.'),

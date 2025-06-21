@@ -272,7 +272,6 @@ export default class PageProductDetail {
 			const btn = e.target.closest('.btn-delete-file');
 			if (!btn) return;
 
-			// 🟡 New uploaded file (temp)
 			const tempId = btn.dataset.tempId;
 			if (tempId) {
 				this.#uploadedFiles = this.#uploadedFiles.filter(
@@ -283,7 +282,7 @@ export default class PageProductDetail {
 				return;
 			}
 
-			// 🟢 Existing DB file
+			//  Existing DB file
 			const fileId = btn.dataset.fileId;
 			if (fileId && confirm('Delete this image?')) {
 				this.#existingFiles = this.#existingFiles.filter(
@@ -291,7 +290,7 @@ export default class PageProductDetail {
 				);
 				this.#args.app.apiDeleteSomething(
 					(r) => {
-						// ✅ THIS IS WHAT YOU NEED TO FIX ↓↓↓
+						// THIS IS WHAT YOU NEED TO FIX  !! CHECK BAK LATER !!
 						const fileCard = btn.closest(
 							`[data-file-id="${fileId}"]`
 						);
@@ -413,13 +412,13 @@ export default class PageProductDetail {
 							? parseFloat(this.#textPrice.value)
 							: null,
 
-					quantity: 0, // with stock let user fill this later - mebmer to print red on 0
+					quantity: this.#product?.stocks?.[0]?.quantity ?? 0, // DEV
 					note: this.#textNote.value,
 				},
 			],
 			files: [
-				...this.#existingFiles, // ✅ From DB
-				...fileDTOs, // ✅ Newly uploaded
+				...this.#existingFiles, //From DB
+				...fileDTOs, // newly uploaded
 			],
 		};
 	}
@@ -536,6 +535,7 @@ export default class PageProductDetail {
 
 				if (r.success) {
 					this.#infoCurrentAmmount.innerText = r.newQuantity ?? '0';
+					this.#product.stocks[0].quantity = r.newQuantity;
 				}
 			},
 			(err) => {

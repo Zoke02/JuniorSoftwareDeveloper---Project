@@ -22,6 +22,7 @@ export default class PageHome {
 		});
 		new CardsSection({
 			target: cardsSection,
+			app: args.app,
 		});
 		new PlantCareSection({
 			target: plantCareSection,
