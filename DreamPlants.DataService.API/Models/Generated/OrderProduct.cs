@@ -11,13 +11,9 @@ public partial class OrderProduct
 
     public int StockId { get; set; }
 
-    public int AddressId { get; set; }
-
     public int Quantity { get; set; }
 
     public decimal TotalPrice { get; set; }
-
-    public virtual Address Address { get; set; }
 
     public virtual Order Order { get; set; }
 

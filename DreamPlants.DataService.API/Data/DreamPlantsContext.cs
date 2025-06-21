@@ -26,6 +26,8 @@ public partial class DreamPlantsContext : DbContext
 
     public virtual DbSet<File> Files { get; set; }
 
+    public virtual DbSet<ListPrice> ListPrices { get; set; }
+
     public virtual DbSet<Order> Orders { get; set; }
 
     public virtual DbSet<OrderProduct> OrderProducts { get; set; }
@@ -36,15 +38,14 @@ public partial class DreamPlantsContext : DbContext
 
     public virtual DbSet<Role> Roles { get; set; }
 
+    public virtual DbSet<StatusDelivery> StatusDeliveries { get; set; }
+
     public virtual DbSet<Stock> Stocks { get; set; }
 
     public virtual DbSet<Subcategory> Subcategories { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
 
-//    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-//#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-//        => optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=dreamPlants;User ID=dreamPlants;Password=dreamPlants");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -163,6 +164,24 @@ public partial class DreamPlantsContext : DbContext
                 .HasConstraintName("files_product_id_fkey");
         });
 
+        modelBuilder.Entity<ListPrice>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("list_prices_pkey");
+
+            entity.ToTable("list_prices", "dreamplants");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Label)
+                .IsRequired()
+                .HasColumnName("label");
+            entity.Property(e => e.Type)
+                .IsRequired()
+                .HasColumnName("type");
+            entity.Property(e => e.Value)
+                .HasPrecision(10, 2)
+                .HasColumnName("value");
+        });
+
         modelBuilder.Entity<Order>(entity =>
         {
             entity.HasKey(e => e.OrderId).HasName("orders_pkey");
@@ -170,17 +189,44 @@ public partial class DreamPlantsContext : DbContext
             entity.ToTable("orders", "dreamplants");
 
             entity.Property(e => e.OrderId).HasColumnName("order_id");
+            entity.Property(e => e.AddressId).HasColumnName("address_id");
+            entity.Property(e => e.CardId).HasColumnName("card_id");
             entity.Property(e => e.OrderDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("order_date");
-            entity.Property(e => e.Status)
-                .HasMaxLength(20)
-                .HasColumnName("status");
+            entity.Property(e => e.ShippingId).HasColumnName("shipping_id");
+            entity.Property(e => e.StatusId).HasColumnName("status_id");
+            entity.Property(e => e.TaxId).HasColumnName("tax_id");
             entity.Property(e => e.TotalPrice)
                 .HasPrecision(10, 2)
                 .HasColumnName("total_price");
             entity.Property(e => e.UserId).HasColumnName("user_id");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.AddressId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orders_address_id_fkey");
+
+            entity.HasOne(d => d.Card).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.CardId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orders_card_id_fkey");
+
+            entity.HasOne(d => d.Shipping).WithMany(p => p.OrderShippings)
+                .HasForeignKey(d => d.ShippingId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orders_shipping_id_fkey");
+
+            entity.HasOne(d => d.Status).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.StatusId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orders_status_id_fkey");
+
+            entity.HasOne(d => d.Tax).WithMany(p => p.OrderTaxes)
+                .HasForeignKey(d => d.TaxId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("orders_tax_id_fkey");
 
             entity.HasOne(d => d.User).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.UserId)
@@ -195,18 +241,12 @@ public partial class DreamPlantsContext : DbContext
             entity.ToTable("order_products", "dreamplants");
 
             entity.Property(e => e.OrderProductId).HasColumnName("order_product_id");
-            entity.Property(e => e.AddressId).HasColumnName("address_id");
             entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
             entity.Property(e => e.StockId).HasColumnName("stock_id");
             entity.Property(e => e.TotalPrice)
                 .HasPrecision(10, 2)
                 .HasColumnName("total_price");
-
-            entity.HasOne(d => d.Address).WithMany(p => p.OrderProducts)
-                .HasForeignKey(d => d.AddressId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("order_products_address_id_fkey");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderProducts)
                 .HasForeignKey(d => d.OrderId)
@@ -318,6 +358,18 @@ public partial class DreamPlantsContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .HasColumnName("role_name");
+        });
+
+        modelBuilder.Entity<StatusDelivery>(entity =>
+        {
+            entity.HasKey(e => e.StatusId).HasName("status_delivery_pkey");
+
+            entity.ToTable("status_delivery", "dreamplants");
+
+            entity.Property(e => e.StatusId).HasColumnName("status_id");
+            entity.Property(e => e.StatusName)
+                .IsRequired()
+                .HasColumnName("status_name");
         });
 
         modelBuilder.Entity<Stock>(entity =>

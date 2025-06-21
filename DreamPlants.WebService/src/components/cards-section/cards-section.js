@@ -13,23 +13,22 @@ export default class CardsSection {
 		this.#fetchLatestProducts('cardsBestSellers', 'asc');
 
 		// EVENTS
-		document.addEventListener('click', (e) => {
+		args.target.addEventListener('click', (e) => {
 			if (e.target.classList.contains('addToCart')) {
 				const stockUid = e.target.dataset.stockUid;
 				if (!stockUid) return;
 
-				// Load existing cart or start new
-				const existing = JSON.parse(
-					localStorage.getItem('shopcart') || '[]'
+				// Load existing or start new cart object
+				const cart = JSON.parse(
+					localStorage.getItem('shopcart') || '{}'
 				);
 
-				// Prevent duplicates
-				if (!existing.includes(stockUid)) {
-					existing.push(stockUid);
-					localStorage.setItem('shopcart', JSON.stringify(existing));
-					console.log('Added to cart:', stockUid); // DEV
+				if (!cart.hasOwnProperty(stockUid)) {
+					cart[stockUid] = (cart[stockUid] || 0) + 1;
+					localStorage.setItem('shopcart', JSON.stringify(cart));
+					console.log(`Added ${stockUid} to cart with quantity 1`);
 				}
-				this.#shopCardsItemNumber();
+				this.#updateShopCartTotalQuantity('shopCardsItemNumber');
 			}
 		});
 	}
@@ -59,7 +58,7 @@ export default class CardsSection {
 		const file = product.files?.[0];
 		const imageUrl = file
 			? `data:${file.fileType};base64,${file.fileBase64}`
-			: './../../src/images/Artikel - Fotos/01 - Alocasia - Flying Squid.webp'; // fallback if no file
+			: './../../src/images/Logo (DarkMode).svg'; // fallback if no file
 
 		const div = document.createElement('div');
 		div.className = 'col-12 col-sm-6 col-md-4 col-xl-3';
@@ -70,7 +69,7 @@ export default class CardsSection {
 			<div class="card-body">
 				<p class="card-text">${product.name}</p>
 				<p class="card-text">${stock.price.toFixed(2)} €</p>
-				<i class="bi bi-cart-plus cursor-pointer addToCart" data-stock-uid="${
+				<i class="bi bi-cart-plus cursor-pointer border p-2 rounded addToCart" data-stock-uid="${
 					stock.stockUid
 				}">
 					Add to cart
@@ -81,22 +80,29 @@ export default class CardsSection {
 		return div;
 	}
 
-	#shopCardsItemNumber() {
-		const shopCardsItemNumber = document.querySelector(
-			'#shopCardsItemNumber'
-		);
-		shopCardsItemNumber.innerHTML = '';
+	#updateShopCartTotalQuantity(targetId = null) {
+		const raw = localStorage.getItem('shopcart');
+		let totalQuantity = 0;
 
-		const cartRaw = localStorage.getItem('shopcart');
-		const cartItems = cartRaw ? JSON.parse(cartRaw) : []; // parse to 1 item each
-
-		const itemCount = cartItems.length;
-
-		if (itemCount > 0) {
-			shopCardsItemNumber.innerHTML = itemCount;
-		} else {
-			shopCardsItemNumber.innerHTML = '';
+		if (raw) {
+			try {
+				const quantities = JSON.parse(raw);
+				for (const qty of Object.values(quantities)) {
+					if (typeof qty === 'number' && qty > 0) {
+						totalQuantity += qty;
+					}
+				}
+			} catch (e) {
+				console.warn('Invalid shopcart JSON');
+			}
 		}
-		console.log('Shopcart contains', itemCount, 'item(s)');
+
+		// Optional DOM update
+		if (targetId) {
+			const el = document.getElementById(targetId);
+			if (el) el.innerHTML = totalQuantity > 0 ? totalQuantity : '';
+		}
+
+		return totalQuantity;
 	}
 }

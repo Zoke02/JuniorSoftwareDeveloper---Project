@@ -23,7 +23,7 @@ public partial class Address
 
     public string LastName { get; set; }
 
-    public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual User User { get; set; }
 }

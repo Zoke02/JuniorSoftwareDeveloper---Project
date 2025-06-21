@@ -17,5 +17,7 @@ public partial class CreditCard
 
     public string CardCvv { get; set; }
 
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+
     public virtual User User { get; set; }
 }

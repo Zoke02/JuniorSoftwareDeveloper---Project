@@ -25,7 +25,7 @@ export default class NavigationBar {
 		//--------------------------------------------------
 		// Init
 		//--------------------------------------------------
-		this.#shopCardsItemNumber();
+		this.#updateShopCartTotalQuantity('shopCardsItemNumber');
 		if (args.app.user) {
 			const user = JSON.parse(localStorage.getItem('user') || '{}');
 			if (user.firstName) {
@@ -129,22 +129,29 @@ export default class NavigationBar {
 		});
 	}
 
-	#shopCardsItemNumber() {
-		const shopCardsItemNumber = document.querySelector(
-			'#shopCardsItemNumber'
-		);
-		shopCardsItemNumber.innerHTML = '';
+	#updateShopCartTotalQuantity(targetId = null) {
+		const raw = localStorage.getItem('shopcart');
+		let totalQuantity = 0;
 
-		const cartRaw = localStorage.getItem('shopcart');
-		const cartItems = cartRaw ? JSON.parse(cartRaw) : []; // parse to 1 item each
-
-		const itemCount = cartItems.length;
-
-		if (itemCount > 0) {
-			shopCardsItemNumber.innerHTML = itemCount;
-		} else {
-			shopCardsItemNumber.innerHTML = '';
+		if (raw) {
+			try {
+				const quantities = JSON.parse(raw);
+				for (const qty of Object.values(quantities)) {
+					if (typeof qty === 'number' && qty > 0) {
+						totalQuantity += qty;
+					}
+				}
+			} catch (e) {
+				console.warn('Invalid shopcart JSON');
+			}
 		}
-		console.log('Shopcart contains', itemCount, 'item(s)');
+
+		// Optional DOM update
+		if (targetId) {
+			const el = document.getElementById(targetId);
+			if (el) el.innerHTML = totalQuantity > 0 ? totalQuantity : '';
+		}
+
+		return totalQuantity;
 	}
 }

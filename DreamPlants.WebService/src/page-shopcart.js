@@ -6,31 +6,34 @@ export default class PageShopCart {
 	#shopCartItemsTarget = null;
 	#shopCardItemCount = null;
 	#shopcartItemsPrice = null;
-	#shopcartShippingPriceInDB = 15;
-	#shopcartTaxesPriceInDB = 1.19;
 	#shopcartTotalPrice = null;
 	#quantities = {};
 
 	constructor(args) {
 		this.#args = args;
 		args.target.innerHTML = PageHTML;
+		// console.log(this.#args.app.user); // DEV
+
+		if (!this.#args.app.user) {
+			this.#insertSummaryForGuest('shopCartSummaryTarget');
+		} else {
+			this.#insertSummaryForUser('shopCartSummaryTarget');
+		}
 
 		this.#shopCartItemsTarget = document.querySelector(
 			'#shopCartItemsTarget'
 		);
 		this.#shopCardItemCount = document.getElementById('shopCardItemCount');
-		this.#shopcartItemsPrice =
-			document.getElementById('shopcartItemsPrice');
-		this.#shopcartTotalPrice =
-			document.getElementById('shopcartTotalPrice');
 
-		const stored = localStorage.getItem('shopcart');
-		if (stored) {
-			try {
-				this.#cart = JSON.parse(stored);
-			} catch (e) {
-				console.warn('Invalid cart data');
-			}
+		const rawCart = localStorage.getItem('shopcart');
+		try {
+			const cartObj = JSON.parse(rawCart) || {};
+			this.#cart = Object.keys(cartObj); // extract stockUids as array
+			this.#quantities = cartObj;
+		} catch (e) {
+			console.warn('Invalid cart data');
+			this.#cart = [];
+			this.#quantities = {};
 		}
 
 		if (this.#cart.length > 0) {
@@ -39,10 +42,31 @@ export default class PageShopCart {
 			this.#shopCartItemsTarget.innerHTML = '<p>Your cart is empty.</p>';
 			this.#shopCardItemCount.innerHTML = '0 items';
 		}
-	}
 
-	#fetchCartItems(stockUids) {
-		const query = `/page/product&categorieslist/Paginated?stockUids=${stockUids.join(
+		// DEV
+		this.#updateShopCartTotalQuantity('shopCardItemCount');
+		this.#updateShopCartTotalQuantity('shopCardsItemNumber');
+	} // COnstructor
+
+	#fetchCartItems() {
+		const cartRaw = localStorage.getItem('shopcart');
+		if (!cartRaw) {
+			console.warn('No items in cart');
+			return;
+		}
+
+		let stockUidList;
+		try {
+			const cartObj = JSON.parse(cartRaw);
+			stockUidList = Object.keys(cartObj); // Get only stockUids
+		} catch (e) {
+			console.warn('Invalid cart data');
+			return;
+		}
+
+		if (stockUidList.length === 0) return;
+
+		const query = `/page/product&categorieslist/Paginated?stockUids=${stockUidList.join(
 			','
 		)}&pageSize=100`;
 
@@ -59,23 +83,29 @@ export default class PageShopCart {
 	#renderCartItems(items) {
 		this.#shopCartItemsTarget.innerHTML = '';
 		let html = '';
-		let itemCount = 0;
-		let totalPrice = 0;
+
+		// Load quantities from localStorage
+		const storedQuantities = this.#getStoredQuantities();
 
 		for (const item of items) {
 			const file = item.files?.[0];
 			const stock = item.stocks?.[0];
 			if (!stock) continue;
 
-			const quantity = this.#quantities[stock.stockUid] ?? 1;
+			// Use stored quantity or default to 1
+			const quantity = parseInt(storedQuantities[stock.stockUid]) || 1;
 			this.#quantities[stock.stockUid] = quantity;
 
 			const imageSrc = file
 				? `data:image/${file.fileType};base64,${file.fileBase64}`
 				: './../../src/images/Logo (DarkMode).svg';
 
-			itemCount += 1;
-			totalPrice += stock.price * quantity;
+			const stockMessage =
+				stock.quantity === 0
+					? '<div class="text-center text-danger small mt-2">Out of stock: DELIVERY DATE DELAY</div>'
+					: stock.quantity < 5
+					? '<div class="text-center text-warning small mt-2">Limited stock AVAILABLE</div>'
+					: '';
 
 			html += `
 			<div class="row mb-4 d-flex justify-content-between align-items-center">
@@ -92,22 +122,26 @@ export default class PageShopCart {
 					<h6 class="text-muted">${item.categoryName || 'Category'}</h6>
 					<h6 class="mb-0">${item.name}</h6>
 				</div>
-				<div class="col-md-3 col-lg-3 col-xl-2 d-flex">
-					<button class="btn p-1" onclick="this.nextElementSibling.stepDown();  this.nextElementSibling.dispatchEvent(new Event('change'))"> 
-						<i class="bi bi-dash"></i>
-					</button>
-					<input
-						class="form-control form-control-sm cart-qty"
-						data-uid="${stock.stockUid}"
-						min="1"
-						name="quantity"
-						value="${quantity}"
-						type="number"
-						style="min-width: 50px"
-					/>
-					<button class="btn p-1" onclick="this.previousElementSibling.stepUp();  this.previousElementSibling.dispatchEvent(new Event('change'))">
-						<i class="bi bi-plus-lg"></i>
-					</button>
+				<div class="col" >
+					<div class="col-md-3 col-lg-3 col-xl-2 d-flex">
+						<button class="btn p-1" onclick="this.nextElementSibling.stepDown();  this.nextElementSibling.dispatchEvent(new Event('change'))"> 
+							<i class="bi bi-dash"></i>
+						</button>
+						<input
+							class="form-control form-control-sm cart-qty"
+							data-uid="${stock.stockUid}"
+							min="1"
+							max="10"
+							name="quantity"
+							value="${quantity}"
+							type="number"
+							style="min-width: 50px"
+						/>
+						<button class="btn p-1" onclick="this.previousElementSibling.stepUp();  this.previousElementSibling.dispatchEvent(new Event('change'))">
+							<i class="bi bi-plus-lg"></i>
+						</button>
+					</div>
+					${stockMessage}
 				</div>
 				<div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
 					<h6 class="mb-0">€ ${stock.price.toFixed(2)}</h6>
@@ -120,24 +154,35 @@ export default class PageShopCart {
 			</div>
 			`;
 		}
-
 		this.#shopCartItemsTarget.innerHTML = html;
-		this.#shopcartItemsPrice.innerHTML = '€ ' + totalPrice.toFixed(2);
-		this.#shopCardItemCount.innerHTML = itemCount ? itemCount : '0 items';
-
-		let finalPrice =
-			(totalPrice + this.#shopcartShippingPriceInDB) *
-			this.#shopcartTaxesPriceInDB;
-		this.#shopcartTotalPrice.innerHTML = '€ ' + finalPrice.toFixed(2);
-
 		this.#setupRemoveHandlers();
 
+		// Update Numbers.
+
+		// NEW!
 		document.querySelectorAll('.cart-qty').forEach((input) => {
 			input.addEventListener('change', () => {
 				const uid = input.dataset.uid;
 				const qty = Math.max(1, parseInt(input.value) || 1); // prevent 0 or NaN
+
 				this.#quantities[uid] = qty;
-				this.#recalculateTotals(items);
+
+				// localStorage
+				const raw = localStorage.getItem('shopcart');
+				if (raw) {
+					try {
+						const parsed = JSON.parse(raw);
+						parsed[uid] = qty;
+						localStorage.setItem(
+							'shopcart',
+							JSON.stringify(parsed)
+						);
+					} catch (e) {
+						console.warn('Invalid shopcart JSON');
+					}
+				}
+				this.#updateShopCartTotalQuantity('shopCardItemCount');
+				this.#updateShopCartTotalQuantity('shopCardsItemNumber');
 			});
 		});
 	}
@@ -147,54 +192,320 @@ export default class PageShopCart {
 			btn.addEventListener('click', () => {
 				const uid = btn.getAttribute('data-uid');
 				this.#removeFromCart(uid);
-				this.#shopCardsItemNumber();
 			});
 		});
 	}
 
 	#removeFromCart(uid) {
-		this.#cart = this.#cart.filter((id) => id !== uid);
-		localStorage.setItem('shopcart', JSON.stringify(this.#cart));
+		delete this.#quantities[uid];
+		localStorage.setItem('shopcart', JSON.stringify(this.#quantities));
+		this.#cart = Object.keys(this.#quantities);
 
 		if (this.#cart.length > 0) {
 			this.#fetchCartItems(this.#cart);
 		} else {
-			this.#shopCartItemsTarget.innerHTML = '<p>Your cart is empty.</p>';
-			this.#shopCardItemCount.innerHTML = '0 items';
-			this.#shopcartItemsPrice.innerHTML = '0.00';
-			this.#shopcartTotalPrice.innerHTML = '';
-			this.#shopCardsItemNumber();
+			if (this.#shopCartItemsTarget) {
+				this.#shopCartItemsTarget.innerHTML =
+					'<p>Your cart is empty.</p>';
+			}
+			if (this.#shopCardItemCount) {
+				this.#shopCardItemCount.innerHTML = '0';
+			}
+			if (this.#shopcartItemsPrice) {
+				this.#shopcartItemsPrice.innerHTML = '0.00';
+			}
+			if (this.#shopcartTotalPrice) {
+				this.#shopcartTotalPrice.innerHTML = '0.00';
+			}
 		}
+
+		// update the count in header/cart icon if applicable
+		this.#updateShopCartTotalQuantity('shopCardsItemNumber');
+		this.#updateShopCartTotalQuantity('shopCardItemCount');
 	}
 
-	#shopCardsItemNumber() {
-		const shopCardsItemNumber = document.querySelector(
-			'#shopCardsItemNumber'
+	// FINISHED
+	#updateShopCartTotalQuantity(targetId = null) {
+		const raw = localStorage.getItem('shopcart');
+		let totalQuantity = 0;
+
+		if (raw) {
+			try {
+				const quantities = JSON.parse(raw);
+				for (const qty of Object.values(quantities)) {
+					if (typeof qty === 'number' && qty > 0) {
+						totalQuantity += qty;
+					}
+				}
+			} catch (e) {
+				console.warn('Invalid shopcart JSON');
+			}
+		}
+
+		// Optional DOM update
+		if (targetId) {
+			const el = document.getElementById(targetId);
+			if (el) el.innerHTML = totalQuantity > 0 ? totalQuantity : '';
+		}
+
+		return totalQuantity;
+	}
+
+	#insertSummaryForGuest(target) {
+		const inserInto = document.getElementById(target);
+		inserInto.innerHTML += `
+		<div class="p-5">
+			<h3 class="fw-bold mb-1 mt-2 pt-1">
+				Summary
+			</h3>
+			<h5 class="fw-bold mb-1 mt-1 pt-1">
+				Prices
+			</h5>
+			<hr class="my-4" />
+			<div
+				class="d-flex justify-content-between mb-2"
+			>
+				<h6 class="text-uppercase">
+					Cart Items
+				</h6>
+				<h5 id="shopcartItemsPrice">0.00</h5>
+			</div>
+			<div
+				class="d-flex justify-content-between mb-2"
+			>
+				<h6 class="text-uppercase">
+					STD Shipping
+				</h6>
+				<h5 id="shopcartShippingPrice">
+					€ 15.00
+				</h5>
+			</div>
+			<div
+				class="d-flex justify-content-between mb-4"
+			>
+				<h6 class="text-uppercase">Taxes</h6>
+				<h5 id="shopcartTaxesPrice">+ 19%</h5>
+			</div>
+
+			<hr class="my-4" />
+
+			<div
+				class="d-flex justify-content-between mb-5"
+			>
+				<h5 class="text-uppercase">
+					Total price
+				</h5>
+				<h5 id="shopcartTotalPrice"></h5>
+			</div>
+
+		<a
+			href="#login"
+			type="button"
+			data-mdb-button-init
+			data-mdb-ripple-init
+			class="btn btn-dark btn-block btn-lg"
+			data-mdb-ripple-color="dark"
+		>
+			Register
+			</a>
+			</div>
+			`;
+	}
+
+	#insertSummaryForUser(target) {
+		const inserInto = document.getElementById(target);
+		inserInto.innerHTML += `
+		<div class="p-5">
+				<h3 class="fw-bold mb-1 mt-2 pt-1">
+				Summary
+			</h3>
+			<h5 class="fw-bold mb-1 mt-1 pt-1">
+				Prices
+			</h5>
+			<hr class="my-4" />
+			<div
+				class="d-flex justify-content-between mb-2"
+			>
+				<h6 class="text-uppercase">
+					Cart Items
+				</h6>
+				<h5 id="shopcartItemsPrice">0.00</h5>
+			</div>
+			<div
+				class="d-flex justify-content-between mb-2"
+			>
+				<h6 class="text-uppercase">
+					STD Shipping
+				</h6>
+				<h5 id="shopcartShippingPrice">
+					€ 15.00
+				</h5>
+			</div>
+			<div
+				class="d-flex justify-content-between mb-4"
+			>
+				<h6 class="text-uppercase">Taxes</h6>
+				<h5 id="shopcartTaxesPrice">+ 19%</h5>
+			</div>
+
+			<hr class="my-4" />
+
+
+
+		<h5 class="text-uppercase mb-3">
+			Delivery Adress
+		</h5>
+
+		<div class="mb-4 pb-2">
+			<select
+				id="shopCartAdresses"
+				data-mdb-select-init
+				class="w-100 mb-3"
+			>
+			
+			</select>
+			<a
+				href="#user-profile"
+				class="text-decoration-none text-body border p-1"
+				>Add new adress</a
+			>
+		</div>
+
+		<h5 class="text-uppercase mb-3">
+			Payment method
+		</h5>
+		<div class="mb-4 pb-2">
+			<select
+				id="shopCartCreditCards"
+				data-mdb-select-init
+				class="w-100 mb-3"
+			>
+				
+			</select>
+			<a
+				href="#user-profile"
+				class="text-decoration-none text-body border p-1"
+				>Add new payment</a
+			>
+		</div>
+
+		<hr class="my-4" />
+
+			<div
+				class="d-flex justify-content-between mb-5"
+			>
+				<h5 class="text-uppercase">
+					Total price
+				</h5>
+				<h5 id="shopcartTotalPrice"></h5>
+			</div>
+
+		<button
+			type="button"
+			data-mdb-button-init
+			data-mdb-ripple-init
+			class="btn btn-dark btn-block btn-lg"
+			data-mdb-ripple-color="dark"
+		>
+			Place Order
+		</button>
+	</div>
+		`;
+		this.#loadUserAddresses('shopCartAdresses');
+		this.#loadUserCreditCards('shopCartCreditCards');
+	}
+
+	#loadUserAddresses(target) {
+		const select = document.getElementById(target);
+		if (!select) {
+			console.warn('#shopCartAdresses not found in DOM');
+			return;
+		}
+
+		this.#args.app.apiGet(
+			(response) => {
+				if (!response.success) {
+					console.warn('Address fetch failed:', response.message);
+					select.innerHTML = `<option value="">No addresses found</option>`;
+					return;
+				}
+
+				const addresses = response.addressesDTO;
+				if (!addresses || addresses.length === 0) {
+					select.innerHTML = `<option value="">No saved addresses</option>`;
+					return;
+				}
+				console.log(addresses);
+				let optionsHtml = `<option value="">Select your address</option>`;
+
+				for (const a of addresses) {
+					optionsHtml += `
+					<option value="${a.addressId}">
+						${a.street} ${a.houseNr}${a.door ? '/' + a.door : ''}, ${a.city} (${
+						a.postalCode
+					})
+					</option>
+				`;
+				}
+
+				select.innerHTML = optionsHtml;
+			},
+			(err) => {
+				console.error('Error loading addresses:', err);
+				select.innerHTML = `<option value="">Error loading addresses</option>`;
+			},
+			'/Address/GetAddresses'
 		);
-		const cartRaw = localStorage.getItem('shopcart');
-		const cartItems = cartRaw ? JSON.parse(cartRaw) : [];
-
-		shopCardsItemNumber.innerHTML =
-			cartItems.length > 0 ? cartItems.length : '';
-		console.log('Shopcart contains', cartItems.length, 'item(s)');
 	}
 
-	#recalculateTotals(items) {
-		let itemTotal = 0;
-
-		for (const item of items) {
-			const stock = item.stocks?.[0];
-			if (!stock) continue;
-
-			const qty = this.#quantities[stock.stockUid] ?? 1;
-			itemTotal += stock.price * qty;
+	#loadUserCreditCards(target) {
+		const select = document.getElementById(target);
+		if (!select) {
+			console.warn('#shopCartCreditCards not found in DOM');
+			return;
 		}
 
-		const finalTotal =
-			(itemTotal + this.#shopcartShippingPriceInDB) *
-			this.#shopcartTaxesPriceInDB;
+		this.#args.app.apiGet(
+			(response) => {
+				if (!response.success) {
+					console.warn('Card fetch failed:', response.message);
+					select.innerHTML = `<option value="">No cards found</option>`;
+					return;
+				}
 
-		this.#shopcartItemsPrice.innerHTML = '€ ' + itemTotal.toFixed(2);
-		this.#shopcartTotalPrice.innerHTML = '€ ' + finalTotal.toFixed(2);
+				const cards = response.creditCardsDTO;
+				if (!cards || cards.length === 0) {
+					select.innerHTML = `<option value="">No saved cards</option>`;
+					return;
+				}
+
+				let optionsHtml = `<option value="">Select a card</option>`;
+
+				for (const c of cards) {
+					optionsHtml += `
+					<option value="${c.cardId}">
+						**** **** **** ${c.cardNumberLastDigits}
+					</option>
+				`;
+				}
+
+				select.innerHTML = optionsHtml;
+			},
+			(err) => {
+				console.error('Error loading credit cards:', err);
+				select.innerHTML = `<option value="">Error loading cards</option>`;
+			},
+			'/CreditCards/GetCards'
+		);
+	}
+
+	// DEV
+	#getStoredQuantities() {
+		try {
+			return JSON.parse(localStorage.getItem('shopcart')) || {};
+		} catch {
+			console.warn('Invalid shopcart data');
+			return {};
+		}
 	}
 }
