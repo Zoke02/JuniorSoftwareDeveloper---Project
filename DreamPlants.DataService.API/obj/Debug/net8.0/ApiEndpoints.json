@@ -72,6 +72,38 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.OrderController",
+    "Method": "CalculateShopCartTotal",
+    "RelativePath": "Order/CalculateShopCartTotal",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DreamPlants.DataService.API.Models.DTO.ShopCartCalculateDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.OrderController",
+    "Method": "PlaceOrder",
+    "RelativePath": "Order/PlaceOrder",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "DreamPlants.DataService.API.Models.DTO.OrderCreateDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "DreamPlants.DataService.API.Controllers.PageController",
     "Method": "PageInitUser",
     "RelativePath": "Page/init",
@@ -182,6 +214,26 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.PageController",
+    "Method": "GetShopCartPricing",
+    "RelativePath": "Page/shopcart/pricing",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "DreamPlants.DataService.API.Models.DTO.ShopCartPricingDTO",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.ProductsController",

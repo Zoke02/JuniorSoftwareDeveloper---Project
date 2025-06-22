@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DreamPlants.DataService.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f75dbb0559574f6d2473a0226253d482350e0fe7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c31248464f0cb56618089e313b3bc2418b70c131")]
 [assembly: System.Reflection.AssemblyProductAttribute("DreamPlants.DataService.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DreamPlants.DataService.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

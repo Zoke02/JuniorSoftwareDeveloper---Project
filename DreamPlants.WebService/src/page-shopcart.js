@@ -5,25 +5,38 @@ export default class PageShopCart {
 	#cart = [];
 	#shopCartItemsTarget = null;
 	#shopCardItemCount = null;
+
 	#shopcartItemsPrice = null;
 	#shopcartTotalPrice = null;
+	#shopcartFreeShipping;
+	#freeShippingAmmount;
 	#quantities = {};
+	#btnPlaceOrder;
 
 	constructor(args) {
 		this.#args = args;
 		args.target.innerHTML = PageHTML;
-		// console.log(this.#args.app.user); // DEV
+
+		this.#btnPlaceOrder = document.getElementById('btnPlaceOrder');
 
 		if (!this.#args.app.user) {
 			this.#insertSummaryForGuest('shopCartSummaryTarget');
 		} else {
 			this.#insertSummaryForUser('shopCartSummaryTarget');
 		}
-
 		this.#shopCartItemsTarget = document.querySelector(
 			'#shopCartItemsTarget'
 		);
 		this.#shopCardItemCount = document.getElementById('shopCardItemCount');
+		this.#shopcartItemsPrice =
+			document.getElementById('shopcartItemsPrice');
+		this.#shopcartTotalPrice =
+			document.getElementById('shopcartTotalPrice');
+		this.#shopcartFreeShipping = document.getElementById(
+			'shopcartFreeShipping'
+		);
+
+		// INIT
 
 		const rawCart = localStorage.getItem('shopcart');
 		try {
@@ -156,6 +169,7 @@ export default class PageShopCart {
 		}
 		this.#shopCartItemsTarget.innerHTML = html;
 		this.#setupRemoveHandlers();
+		this.#calculateShopCartTotal();
 
 		// Update Numbers.
 
@@ -246,6 +260,7 @@ export default class PageShopCart {
 		if (targetId) {
 			const el = document.getElementById(targetId);
 			if (el) el.innerHTML = totalQuantity > 0 ? totalQuantity : '';
+			this.#calculateShopCartTotal();
 		}
 
 		return totalQuantity;
@@ -271,23 +286,30 @@ export default class PageShopCart {
 				<h5 id="shopcartItemsPrice">0.00</h5>
 			</div>
 			<div
-				class="d-flex justify-content-between mb-2"
-			>
-				<h6 class="text-uppercase">
-					STD Shipping
-				</h6>
-				<h5 id="shopcartShippingPrice">
-					€ 15.00
+				<h5 class="text-uppercase mb-3">
+					Shipping Method
 				</h5>
+
+				<div class="mb-4 pb-2 mt-1">
+					<select
+						id="shopCartShippingCost"
+						data-mdb-select-init
+						class="w-100 "
+					>
+					</select>
+
+					<div class="mt-1 text-success d-none" id="shopcartFreeShipping"> Free Shipping!
+					</div>
+				</div>
 			</div>
+			
+			<hr class="my-4" />
 			<div
 				class="d-flex justify-content-between mb-4"
 			>
 				<h6 class="text-uppercase">Taxes</h6>
-				<h5 id="shopcartTaxesPrice">+ 19%</h5>
+				<h5 id="shopcartTaxesPrice"></h5>
 			</div>
-
-			<hr class="my-4" />
 
 			<div
 				class="d-flex justify-content-between mb-5"
@@ -310,6 +332,7 @@ export default class PageShopCart {
 			</a>
 			</div>
 			`;
+		this.#loadShippingOptions('shopCartShippingCost');
 	}
 
 	#insertSummaryForUser(target) {
@@ -331,28 +354,26 @@ export default class PageShopCart {
 				</h6>
 				<h5 id="shopcartItemsPrice">0.00</h5>
 			</div>
-			<div
-				class="d-flex justify-content-between mb-2"
-			>
-				<h6 class="text-uppercase">
-					STD Shipping
-				</h6>
-				<h5 id="shopcartShippingPrice">
-					€ 15.00
-				</h5>
-			</div>
-			<div
-				class="d-flex justify-content-between mb-4"
-			>
-				<h6 class="text-uppercase">Taxes</h6>
-				<h5 id="shopcartTaxesPrice">+ 19%</h5>
-			</div>
 
 			<hr class="my-4" />
+		<h5 class="text-uppercase mb-2">
+			Shipping Method
+		</h5>
+
+		<div class="mb-4 pb-2">
+			<select
+				id="shopCartShippingCost"
+				data-mdb-select-init
+				class="w-100 mb-0"
+			>
+			</select>
+			<div class="mt-1 text-success d-none" id="shopcartFreeShipping"> Free Shipping!
+			</div>
+
+		</div>
 
 
-
-		<h5 class="text-uppercase mb-3">
+		<h5 class="text-uppercase mb-2">
 			Delivery Adress
 		</h5>
 
@@ -371,7 +392,7 @@ export default class PageShopCart {
 			>
 		</div>
 
-		<h5 class="text-uppercase mb-3">
+		<h5 class="text-uppercase mb-2">
 			Payment method
 		</h5>
 		<div class="mb-4 pb-2">
@@ -390,6 +411,12 @@ export default class PageShopCart {
 		</div>
 
 		<hr class="my-4" />
+					<div
+				class="d-flex justify-content-between mb-4"
+			>
+				<h6 class="text-uppercase">Taxes</h6>
+				<h5 id="shopcartTaxesPrice">+ 19%</h5>
+			</div>
 
 			<div
 				class="d-flex justify-content-between mb-5"
@@ -406,6 +433,7 @@ export default class PageShopCart {
 			data-mdb-ripple-init
 			class="btn btn-dark btn-block btn-lg"
 			data-mdb-ripple-color="dark"
+			id="btnPlaceOrder"
 		>
 			Place Order
 		</button>
@@ -413,6 +441,48 @@ export default class PageShopCart {
 		`;
 		this.#loadUserAddresses('shopCartAdresses');
 		this.#loadUserCreditCards('shopCartCreditCards');
+		this.#loadShippingOptions('shopCartShippingCost');
+		document
+			.getElementById('btnPlaceOrder')
+			?.addEventListener('click', () => {
+				if (confirm('Are you sure you want to place this order?')) {
+					this.#placeOrder();
+				}
+			});
+	}
+
+	#loadShippingOptions(target) {
+		const select = document.getElementById(target);
+		const taxFee = document.getElementById('shopcartTaxesPrice');
+		if (!select) {
+			console.warn(`#${target} not found in DOM`);
+			return;
+		}
+
+		this.#args.app.apiGet(
+			(response) => {
+				if (!response.success || !response.dto) {
+					select.innerHTML = `<option value="">No shipping options found</option>`;
+					return;
+				}
+				// const taxMultiplier = response.dto.taxMultiplier;
+				// const taxPercent = Math.round((taxMultiplier - 1) * 100); // 19 --do more testing with decimal point it wont work databank does not allow
+				this.#freeShippingAmmount = response.dto.shippingFree;
+				taxFee.innerHTML = '+ ' + response.dto.taxMultiplier + ' %';
+				select.innerHTML = `
+				<option value="standard">Standard (€ ${response.dto.shippingStandard})</option>
+				<option value="express">Express (€ ${response.dto.shippingExpress})</option>
+				`;
+				select.addEventListener('change', () => {
+					this.#calculateShopCartTotal();
+				});
+			},
+			(err) => {
+				console.warn('Failed to load shopcart pricing:', err);
+				select.innerHTML = `<option value="">Error loading shipping options</option>`;
+			},
+			'/page/shopcart/pricing'
+		);
 	}
 
 	#loadUserAddresses(target) {
@@ -507,5 +577,129 @@ export default class PageShopCart {
 			console.warn('Invalid shopcart data');
 			return {};
 		}
+	}
+
+	#calculateShopCartTotal() {
+		const rawCart = localStorage.getItem('shopcart');
+
+		if (!rawCart) return;
+
+		let cart;
+		try {
+			cart = JSON.parse(rawCart);
+		} catch {
+			console.warn('Invalid cart JSON');
+			return;
+		}
+
+		const entries = Object.entries(cart);
+		if (entries.length === 0) {
+			console.log('Cart is empty');
+			this.#shopcartItemsPrice.innerHTML = '0.00';
+			this.#shopcartTotalPrice.innerHTML = '0.00';
+			return;
+		}
+
+		const shippingSelect = document.getElementById('shopCartShippingCost');
+		const selectedShipping =
+			shippingSelect?.value === 'express' ? 'express' : 'standard';
+
+		const requestData = {
+			shippingType: selectedShipping,
+			items: entries.map(([stockUid, quantity]) => ({
+				stockUid,
+				quantity: parseInt(quantity) || 1,
+			})),
+		};
+
+		this.#args.app.apiNewSomethingPOST(
+			(response) => {
+				if (!response.success || !response.dto) return;
+				this.#shopcartItemsPrice.innerHTML = `€ ${response.dto.itemTotal.toFixed(
+					2
+				)}`;
+
+				if (
+					response.dto.itemTotal.toFixed(2) >=
+					this.#freeShippingAmmount
+				) {
+					this.#shopcartFreeShipping.classList.remove('d-none');
+				} else {
+					this.#shopcartFreeShipping.classList.add('d-none');
+				}
+
+				this.#shopcartTotalPrice.innerHTML = `€ ${response.dto.finalTotal.toFixed(
+					2
+				)}`;
+			},
+			(err) => console.error('Failed to calculate cart totals', err),
+			'Order/CalculateShopCartTotal',
+			requestData
+		);
+	}
+
+	#placeOrder() {
+		const addressId = parseInt(
+			document.getElementById('shopCartAdresses')?.value
+		);
+		const cardId = parseInt(
+			document.getElementById('shopCartCreditCards')?.value
+		);
+		const shippingType =
+			document.getElementById('shopCartShippingCost')?.value ||
+			'standard';
+
+		if (!addressId || !cardId) {
+			alert('Please select both an address and a payment method.');
+			return;
+		}
+
+		const cartRaw = localStorage.getItem('shopcart');
+		if (!cartRaw) {
+			alert('Your cart is empty.');
+			return;
+		}
+
+		let items;
+		try {
+			const cart = JSON.parse(cartRaw);
+			items = Object.entries(cart).map(([stockUid, quantity]) => ({
+				stockUid,
+				quantity: parseInt(quantity) || 1,
+			}));
+		} catch {
+			alert('Cart data is invalid.');
+			return;
+		}
+
+		const payload = {
+			addressId,
+			cardId,
+			shippingType,
+			items,
+		};
+
+		const btn = document.getElementById('btnPlaceOrder');
+		if (btn) btn.disabled = true;
+
+		this.#args.app.apiNewSomethingPOST(
+			(res) => {
+				if (res.success) {
+					localStorage.removeItem('shopcart');
+					alert('Order placed successfully!');
+					window.location.hash = '#user-order-history';
+				} else {
+					alert('Order failed: ' + (res.message || 'Unknown error'));
+				}
+				if (btn) btn.disabled = false;
+			},
+			(err) => {
+				console.error('Order error', err);
+				alert('Server error while placing order.');
+				if (btn) btn.disabled = false;
+			},
+			'Order/PlaceOrder',
+			payload
+		);
 	}
 }

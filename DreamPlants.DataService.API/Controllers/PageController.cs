@@ -377,7 +377,45 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500);
 #endif
       }
+    } // PAGINATION
+
+    [HttpGet("shopcart/pricing")]
+    public async Task<ActionResult<ShopCartPricingDTO>> GetShopCartPricing()
+    {
+      try
+      {
+        var shippingTaxEntries = await _context.ListPrices.ToListAsync();
+
+        var tax = shippingTaxEntries.FirstOrDefault(p => p.Type?.ToLower() == "tax");
+        var standard = shippingTaxEntries.FirstOrDefault(p => p.Label?.ToLower() == "standard");
+        var rapid = shippingTaxEntries.FirstOrDefault(p => p.Label?.ToLower() == "express");
+        var free = shippingTaxEntries.FirstOrDefault(p => p.Label?.ToLower() == "free");
+
+
+
+        if (tax == null || standard == null || rapid == null || free == null)
+          return Ok(new { success = false, message = "Pricing data incomplete." });
+
+        var dto = new ShopCartPricingDTO
+        {
+          TaxMultiplier = tax.Value,
+          ShippingStandard = standard.Value,
+          ShippingExpress = rapid.Value,
+          ShippingFree = free.Value
+        };
+
+        return Ok(new { success = true, message = "Stock updated.", dto });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { message = ex.Message });
+#else
+        return StatusCode(500);
+#endif
+      }
     }
+
 
 
 

@@ -26,6 +26,7 @@ export default class PageHome {
 		});
 		new PlantCareSection({
 			target: plantCareSection,
+			app: args.app,
 		});
 	}
 } // Class
