@@ -43,6 +43,7 @@ export default class CardsSection {
 				container.innerHTML = '';
 				this.#products.forEach((product) => {
 					const card = this.#createProductCard(product);
+					console.log(product);
 					container.appendChild(card);
 				});
 			},
@@ -60,23 +61,42 @@ export default class CardsSection {
 			? `data:${file.fileType};base64,${file.fileBase64}`
 			: './../../src/images/Logo (DarkMode).svg'; // fallback if no file
 
+		// i love tarnary now
 		const div = document.createElement('div');
 		div.className = 'col-12 col-sm-6 col-md-4 col-xl-3';
+		let buttonHtml = '';
+
+		if (stock.quantity === 0) {
+			buttonHtml = `
+		<button class="btn btn-outline-secondary" disabled>
+			<i class="bi bi-cart-x me-2"></i>Add to cart
+		</button>
+		<p class="my-2 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Out of Stock</p>
+		`;
+		} else if (stock.quantity < 6) {
+			buttonHtml = `
+		<button class="btn btn-primary addToCart" data-stock-uid="${stock.stockUid}">
+			<i class="bi bi-cart-plus me-2"></i>Add to cart
+		</button>
+		<p class="my-2 text-warning"><i class="bi bi-exclamation-square me-2"></i>Limited Stock</p>
+		`;
+		} else {
+			buttonHtml = `
+		<button class="btn btn-primary addToCart" data-stock-uid="${stock.stockUid}">
+			<i class="bi bi-cart-plus me-2"></i>Add to cart
+		</button>`;
+		}
 
 		div.innerHTML = `
-		<div class="card text-center text-decoration-none h-100">
-			<img src="${imageUrl}" class="card-img-top" alt="${product.name}" />
-			<div class="card-body">
-				<p class="card-text">${product.name}</p>
-				<p class="card-text">${stock.price.toFixed(2)} €</p>
-				<i class="bi bi-cart-plus cursor-pointer border p-2 rounded addToCart" data-stock-uid="${
-					stock.stockUid
-				}">
-					Add to cart
-				</i>
+			<div class="card text-center text-decoration-none h-100">
+				<img src="${imageUrl}" class="card-img-top" alt="${product.name}" />
+				<div class="card-body">
+					<p class="card-text">${product.name}</p>
+					<p class="card-text">${stock.price.toFixed(2)} €</p>
+					${buttonHtml}
+				</div>
 			</div>
-		</div>
-	`;
+			`;
 		return div;
 	}
 

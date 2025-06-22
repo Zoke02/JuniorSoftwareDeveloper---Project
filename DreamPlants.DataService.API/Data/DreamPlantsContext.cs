@@ -4,7 +4,6 @@ using DreamPlants.DataService.API.Models.Generated;
 using Microsoft.EntityFrameworkCore;
 using File = DreamPlants.DataService.API.Models.Generated.File;
 
-
 namespace DreamPlants.DataService.API.Data;
 
 public partial class DreamPlantsContext : DbContext
@@ -46,7 +45,6 @@ public partial class DreamPlantsContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Address>(entity =>
@@ -60,6 +58,12 @@ public partial class DreamPlantsContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .HasColumnName("city");
+            entity.Property(e => e.DeleteDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("delete_date");
+            entity.Property(e => e.Deleted)
+                .HasDefaultValue(false)
+                .HasColumnName("deleted");
             entity.Property(e => e.Door)
                 .HasMaxLength(10)
                 .HasColumnName("door");
@@ -128,6 +132,12 @@ public partial class DreamPlantsContext : DbContext
                 .IsRequired()
                 .HasMaxLength(100)
                 .HasColumnName("cardholder_name");
+            entity.Property(e => e.DeleteDate)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("delete_date");
+            entity.Property(e => e.Deleted)
+                .HasDefaultValue(false)
+                .HasColumnName("deleted");
             entity.Property(e => e.UserId).HasColumnName("user_id");
 
             entity.HasOne(d => d.User).WithMany(p => p.CreditCards)
@@ -188,6 +198,8 @@ public partial class DreamPlantsContext : DbContext
 
             entity.ToTable("orders", "dreamplants");
 
+            entity.HasIndex(e => e.OrderNumber, "orders_order_number_key").IsUnique();
+
             entity.Property(e => e.OrderId).HasColumnName("order_id");
             entity.Property(e => e.AddressId).HasColumnName("address_id");
             entity.Property(e => e.CardId).HasColumnName("card_id");
@@ -195,6 +207,11 @@ public partial class DreamPlantsContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("order_date");
+            entity.Property(e => e.OrderNumber)
+                .IsRequired()
+                .HasMaxLength(32)
+                .HasDefaultValueSql("''::character varying")
+                .HasColumnName("order_number");
             entity.Property(e => e.ShippingId).HasColumnName("shipping_id");
             entity.Property(e => e.StatusId).HasColumnName("status_id");
             entity.Property(e => e.TaxId).HasColumnName("tax_id");

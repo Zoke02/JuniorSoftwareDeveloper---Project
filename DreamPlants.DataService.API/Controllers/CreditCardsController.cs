@@ -33,7 +33,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized User" });
         // 3 - with user.UserId find user adresses
         List<CreditCardDTO> creditCardsDTO = await _context.CreditCards
-            .Where(a => a.UserId == user.UserId)
+            .Where(a => a.UserId == user.UserId && !a.Deleted)
             .Select(a => new CreditCardDTO
             {
               CardId = a.CardId,
@@ -43,7 +43,7 @@ namespace DreamPlants.DataService.API.Controllers
 
         // 4 - if no adresses send ok with a message (Check if you need to send notfound) 
         if (creditCardsDTO == null || creditCardsDTO.Count == 0)
-          return Ok(new { success = true, message = "User doesnt have any adresses saved." });
+          return Ok(new { success = false, message = "User doesnt have any adresses saved." });
 
         // Last - Return Adresses
         return Ok(new { success = true, message = "Address saved!", creditCardsDTO });
@@ -140,27 +140,42 @@ namespace DreamPlants.DataService.API.Controllers
         if (string.IsNullOrEmpty(token))
           return Unauthorized(new { success = false, message = "Unauthorized" });
 
-        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
         if (user == null)
           return Unauthorized(new { success = false, message = "Unauthorized" });
-
-        var card = await _context.CreditCards.FirstOrDefaultAsync(a => a.UserId == user.UserId && a.CardId == id);
+        //  checkback later to return Ok success false and pront messages for user from backend as validation
+        var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.UserId == user.UserId && c.CardId == id);
         if (card == null)
           return Ok(new { success = false, message = "Card not found or does not belong to user." });
 
-        _context.CreditCards.Remove(card);
-        await _context.SaveChangesAsync();
+        // same as adresses
+        bool isInUse = await _context.Orders.AnyAsync(o => o.CardId == id);
 
-        return Ok(new { success = true, message = "Card deleted!" });
+        if (isInUse)
+        {
+          // Soft delete
+          card.Deleted = true;
+          card.DeleteDate = DateTime.Now;
+          await _context.SaveChangesAsync();
+          return Ok(new { success = true, message = "Card deleted." });
+        }
+        else
+        {
+          // Hard delete
+          _context.CreditCards.Remove(card);
+          await _context.SaveChangesAsync();
+          return Ok(new { success = true, message = "Card deleted!" });
+        }
       }
       catch (Exception ex)
       {
 #if DEBUG
         return StatusCode(500, new { success = false, message = ex.Message });
 #else
-        return StatusCode(500, new { success = false, message = "An error occurred." });
+    return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // DelAddress
+    }
+    // DelAddress
   }
 }

@@ -1,4 +1,5 @@
 import PageHTML from './page-shopcart.html';
+import * as bootstrap from 'bootstrap';
 
 export default class PageShopCart {
 	#args = null;
@@ -35,6 +36,10 @@ export default class PageShopCart {
 		this.#shopcartFreeShipping = document.getElementById(
 			'shopcartFreeShipping'
 		);
+		// Toastie
+		const toastLiveExample = document.getElementById('liveToast');
+		const toastTitle = document.getElementById('toastTitle');
+		const toastBody = document.getElementById('toastBody');
 
 		// INIT
 
@@ -115,7 +120,7 @@ export default class PageShopCart {
 
 			const stockMessage =
 				stock.quantity === 0
-					? '<div class="text-center text-danger small mt-2">Out of stock: DELIVERY DATE DELAY</div>'
+					? '<div class="text-center text-danger small mt-2">Out of stock!</div>'
 					: stock.quantity < 5
 					? '<div class="text-center text-warning small mt-2">Limited stock AVAILABLE</div>'
 					: '';
@@ -144,7 +149,7 @@ export default class PageShopCart {
 							class="form-control form-control-sm cart-qty"
 							data-uid="${stock.stockUid}"
 							min="1"
-							max="10"
+							max="${stock.quantity}"
 							name="quantity"
 							value="${quantity}"
 							type="number"
@@ -649,14 +654,27 @@ export default class PageShopCart {
 			document.getElementById('shopCartShippingCost')?.value ||
 			'standard';
 
+		// Toastie
+		const toastLiveExample = document.getElementById('liveToast');
+		const toastTitle = document.getElementById('toastTitle');
+		const toastBody = document.getElementById('toastBody');
+
+		const toastBootstrap =
+			bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+
 		if (!addressId || !cardId) {
-			alert('Please select both an address and a payment method.');
+			toastTitle.innerText = 'Shop Cart';
+			toastBody.innerText =
+				'Please select both an address and a payment method.';
+			toastBootstrap.show();
 			return;
 		}
 
 		const cartRaw = localStorage.getItem('shopcart');
 		if (!cartRaw) {
-			alert('Your cart is empty.');
+			toastTitle.innerText = 'Shop Cart';
+			toastBody.innerText = 'Your cart is empty.';
+			toastBootstrap.show();
 			return;
 		}
 
@@ -689,7 +707,9 @@ export default class PageShopCart {
 					alert('Order placed successfully!');
 					window.location.hash = '#user-order-history';
 				} else {
-					alert('Order failed: ' + (res.message || 'Unknown error'));
+					toastTitle.innerText = 'Shop Cart';
+					toastBody.innerText = res.message;
+					toastBootstrap.show();
 				}
 				if (btn) btn.disabled = false;
 			},

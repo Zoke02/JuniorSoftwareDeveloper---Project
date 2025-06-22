@@ -17,6 +17,10 @@ public partial class CreditCard
 
     public string CardCvv { get; set; }
 
+    public bool Deleted { get; set; }
+
+    public DateTime? DeleteDate { get; set; }
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual User User { get; set; }

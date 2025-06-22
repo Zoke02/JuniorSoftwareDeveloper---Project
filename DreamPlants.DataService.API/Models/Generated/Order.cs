@@ -23,6 +23,8 @@ public partial class Order
 
     public int TaxId { get; set; }
 
+    public string OrderNumber { get; set; }
+
     public virtual Address Address { get; set; }
 
     public virtual CreditCard Card { get; set; }

@@ -104,6 +104,27 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.OrderController",
+    "Method": "GetUserOrderHistory",
+    "RelativePath": "Order/UserHistory",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "DreamPlants.DataService.API.Controllers.PageController",
     "Method": "PageInitUser",
     "RelativePath": "Page/init",

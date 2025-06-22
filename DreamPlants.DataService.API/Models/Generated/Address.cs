@@ -23,6 +23,10 @@ public partial class Address
 
     public string LastName { get; set; }
 
+    public bool Deleted { get; set; }
+
+    public DateTime? DeleteDate { get; set; }
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual User User { get; set; }

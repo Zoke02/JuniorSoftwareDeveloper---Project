@@ -37,64 +37,65 @@ namespace DreamPlants.DataService.API.Controllers
           return Ok(new { success = false, message = "Email and Password are required!" });
         }
 
-        User user = await _context.Users.FirstOrDefaultAsync(user => user.Email == this.Request.Form["email"].ToString());
+        string email = this.Request.Form["email"].ToString();
+        string password = this.Request.Form["password"].ToString();
+        User user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+        if (user == null || !user.CheckPassword(password))
+        {
+          return Ok(new { success = false, message = "Invalid email or password!" });
+        }
 
         if (!user.UserStatus)
         {
           this.Response.Cookies.Delete("LoginToken");
-          return Ok(new { success = false, message = "User Status: Disabled" });
+          return Ok(new { success = false, message = "User Status: Disabled!" }); // check init aswell if user gets disabled while logged in.
         }
 
-        if (user != null && user.CheckPassword(this.Request.Form["password"]))
+        SHA512 sha = SHA512.Create();
+        user.LoginToken = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes($"{user.Email} {DateTime.Now:yyyyMMddHHmmssfff}")));
+        user.LoginTokenLastLog = DateTime.Now;
+        if (this.Request.Form["remember"] == "true")
         {
-
-          // First save changers then send the DataTransferObject you dumbass.
-          user.LoginTokenLastLog = DateTime.Now;
-          // Remember me if statement.
-          if (this.Request.Form["remember"] == "true")
-          {
-            user.LoginTokenTimeout = DateTime.Now.AddDays(30);
-          } else
-          {
-            user.LoginTokenTimeout = DateTime.Now.AddDays(1);
-          }
-          // Login Token
-          SHA512 sha = SHA512.Create();
-          user.LoginToken = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes($"{user.Email} {DateTime.Now:yyyyMMddHHmmssfff}")));
-          // Now set the cookie to the users browser.
-          this.Response.Cookies.Append("LoginToken", user.LoginToken, new CookieOptions()
-          {
-            Expires = user.LoginTokenTimeout.Value,
-            SameSite = SameSiteMode.Unspecified,
-            Secure = true
-          });
-          // Dara Transfer Object
-          UserDTO userDTO = new UserDTO
-          {
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            PhoneNumber = user.PhoneNumber,
-            RoleId = user.RoleId,
-            AvatarBase64 = user.AvatarBase64 != null ? Convert.ToBase64String(user.AvatarBase64) : null,
-            AvatarFileType = user.AvatarFileType != null ? user.AvatarFileType : null
-            //LoginToken = user.LoginToken,
-          };
-
-          await _context.SaveChangesAsync();
-          return Ok(new { success = true, message = "Login successful!", user = userDTO });
+          user.LoginTokenTimeout = DateTime.Now.AddDays(30);
         }
-        return Unauthorized(new { success = false, message = "Invalid Email/Password!" });
+        else
+        {
+          user.LoginTokenTimeout = DateTime.Now.AddDays(1);
+        }
+
+
+        this.Response.Cookies.Append("LoginToken", user.LoginToken, new CookieOptions
+        {
+          Expires = user.LoginTokenTimeout.Value,
+          SameSite = SameSiteMode.Unspecified,
+          Secure = true
+        });
+
+        UserDTO userDTO = new UserDTO
+        {
+          FirstName = user.FirstName,
+          LastName = user.LastName,
+          Email = user.Email,
+          PhoneNumber = user.PhoneNumber,
+          RoleId = user.RoleId,
+          AvatarBase64 = user.AvatarBase64 != null ? Convert.ToBase64String(user.AvatarBase64) : null,
+          AvatarFileType = user.AvatarFileType
+        };
+
+        await _context.SaveChangesAsync();
+        return Ok(new { success = true, message = "Login successful!", user = userDTO });
       }
       catch (Exception ex)
       {
 #if DEBUG
         return StatusCode(500, new { success = false, message = ex.Message });
 #else
-        return StatusCode(500, new { success = false, message = "An error occurred." });
+    return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // Login
+    }
+    // Login
 
     [HttpPost("Logout")]
     public async Task<ActionResult> Logout()
