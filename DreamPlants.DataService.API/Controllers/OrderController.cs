@@ -3,6 +3,7 @@ using DreamPlants.DataService.API.Models.DTO;
 using DreamPlants.DataService.API.Models.Generated;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace DreamPlants.DataService.API.Controllers
 {
@@ -188,71 +189,242 @@ namespace DreamPlants.DataService.API.Controllers
       }
     } // Place Order
 
-    [HttpGet("UserHistory")]
-    public async Task<ActionResult> GetUserOrderHistory(int page = 1, int pageSize = 4) // 5 per page
+    [HttpGet("OrderHistory")]
+    public async Task<ActionResult> GetUserOrderHistory([FromQuery] int page = 1, [FromQuery] int pageSize = 4)
     {
-      string token = Request.Cookies["LoginToken"];
-      if (string.IsNullOrEmpty(token))
-        return Unauthorized();
-
-      var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-      if (user == null)
-        return Unauthorized();
-
-      // query
-      var query = _context.Orders
-        .Include(o => o.OrderProducts)
-          .ThenInclude(op => op.Stock)
-            .ThenInclude(s => s.Product)
-        .Include(o => o.Status)
-        .AsQueryable();
-
-      //  simple return only user histoy if not 
-      if (user.RoleId != 1 && user.RoleId != 2)
-        query = query.Where(o => o.UserId == user.UserId);
-
-      // Pagination
-      int totalOrders = await query.CountAsync();
-
-      var orders = await query
-        .OrderByDescending(o => o.OrderDate)
-        .Skip((page - 1) * pageSize)
-        .Take(pageSize)
-        .ToListAsync();
-
-      // DTO
-      var result = orders.Select(o => new OrderHistoryDTO
+      try
       {
-        OrderId = o.OrderId,
-        OrderNumber = o.OrderNumber,
-        OrderDate = o.OrderDate,
-        Status = o.Status.StatusName,
-        TotalPrice = o.TotalPrice,
-        Items = o.OrderProducts.Select(op => new OrderItemDTO
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token))
+          return Unauthorized();
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null)
+          return Unauthorized();
+
+        var query = _context.Orders.AsQueryable();
+
+        if (user.RoleId != 1 && user.RoleId != 2)
+          query = query.Where(o => o.UserId == user.UserId);
+
+        int totalOrders = await query.CountAsync();
+
+        // Get paged order IDs
+        var pagedOrders = await query
+          .OrderByDescending(o => o.OrderDate)
+          .Skip((page - 1) * pageSize)
+          .Take(pageSize)
+          .Select(o => o.OrderId)
+          .ToListAsync();
+
+        // Load full order data with includes
+        var fullOrders = await _context.Orders
+          .Where(o => pagedOrders.Contains(o.OrderId))
+          .Include(o => o.Status)
+          .Include(o => o.Tax)
+          .Include(o => o.Shipping) // pulls ListPrice.Label -change from int
+          .Include(o => o.OrderProducts)
+            .ThenInclude(op => op.Stock)
+              .ThenInclude(s => s.Product)
+              .Include(o => o.User)
+          .OrderByDescending(o => o.OrderDate)
+          .ToListAsync();
+
+        // DTO
+        var result = fullOrders.Select(o => new OrderHistoryDTO
         {
-          ProductName = op.Stock.Product.Name,
-          VariantSize = op.Stock.VariantSize,
-          VariantColor = op.Stock.VariantColor,
-          Quantity = op.Quantity,
-          UnitPrice = op.TotalPrice / op.Quantity,
-          TotalPrice = op.TotalPrice
-        }).ToList()
-      }).ToList();
+          OrderId = o.OrderId,
+          OrderNumber = o.OrderNumber,
+          OrderDate = o.OrderDate,
+          Status = o.Status.StatusName,
+          TotalPrice = o.TotalPrice,
+          AddressId = o.AddressId,
+          CardId = o.CardId,
+          Tax = o.Tax.Value,
+          ShippingName = o.Shipping?.Label ?? "Unknown",
+          FirstName = o.User.FirstName,
+          LastName = o.User.LastName,
+          Items = o.OrderProducts.Select(op => new OrderItemDTO
+          {
+            ProductName = op.Stock.Product.Name,
+            VariantSize = op.Stock?.VariantSize ?? "-",
+            VariantColor = op.Stock?.VariantColor ?? "-",
+            Quantity = op.Quantity,
+            UnitPrice = op.Quantity == 0 ? 0 : op.TotalPrice / op.Quantity,
+            TotalPrice = op.TotalPrice
+          }).ToList()
+        }).ToList();
 
-      return Ok(new
+
+        // DEV show order
+        fullOrders = pagedOrders
+        .Select(id => fullOrders.First(o => o.OrderId == id))
+        .ToList();
+
+        return Ok(new
+        {
+          success = true,
+          page,
+          pageSize,
+          totalOrders,
+          totalPages = (int)Math.Ceiling((double)totalOrders / pageSize),
+          orders = result
+        });
+      }
+      catch (Exception ex)
       {
-        success = true,
-        page,
-        pageSize,
-        totalOrders,
-        totalPages = (int)Math.Ceiling((double)totalOrders / pageSize), // cast to int problem fixed
-        orders = result
-      });
-    }
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+    return StatusCode(500, new { success = false, message = "An error occurred while loading order history." });
+#endif
+      }
+    } // Order History
 
+    [HttpPost("Cancel/{orderId}")]
+    public async Task<ActionResult> CancelOrder(int orderId)
+    {
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
 
-    // OrderHistory
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null) return Unauthorized();
 
+        var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == user.UserId);
+        if (order == null)
+          return NotFound(new { success = false, message = "Order not found." });
+
+        if (order.StatusId != 1 && order.StatusId != 2)
+          return BadRequest(new { success = false, message = "You can only cancel Pending or Confirmed orders." });
+
+        order.StatusId = 5; // Cancelled
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "Order cancelled." });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+    return StatusCode(500, new { success = false, message = "An error occurred while cancelling the order." });
+#endif
+      }
+    } // CancelOrder
+
+    [HttpPost("Reorder/{orderId}")]
+    public async Task<ActionResult> Reorder(int orderId)
+    {
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null) return Unauthorized();
+
+        var originalOrder = await _context.Orders
+          .Include(o => o.OrderProducts)
+          .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == user.UserId);
+
+        if (originalOrder == null)
+          return NotFound(new { success = false, message = "Original order not found." });
+
+        // Regenerate order number
+        string newOrderNumber = await Order.GenerateUniqueOrderNumberAsync(_context);
+
+        var newOrder = new Order
+        {
+          UserId = user.UserId,
+          AddressId = originalOrder.AddressId,
+          CardId = originalOrder.CardId,
+          OrderDate = DateTime.Now,
+          ShippingId = originalOrder.ShippingId,
+          TaxId = originalOrder.TaxId,
+          TotalPrice = originalOrder.TotalPrice,
+          StatusId = 1, // Pending
+          OrderNumber = newOrderNumber
+        };
+
+        _context.Orders.Add(newOrder);
+        await _context.SaveChangesAsync();
+
+        foreach (var item in originalOrder.OrderProducts)
+        {
+          _context.OrderProducts.Add(new OrderProduct
+          {
+            OrderId = newOrder.OrderId,
+            StockId = item.StockId,
+            Quantity = item.Quantity,
+            TotalPrice = item.TotalPrice
+          });
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "Order placed again.", orderId = newOrder.OrderId });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+    return StatusCode(500, new { success = false, message = "An error occurred while reordering." });
+#endif
+      }
+    } // Reorder
+
+    [HttpGet("DeliveryStatuses")]
+    public async Task<ActionResult> GetDeliveryStatuses()
+    {
+      try
+      {
+
+        // NO need for securyty - if time later.
+        var statuses = await _context.StatusDeliveries
+          .OrderBy(s => s.StatusId)
+          .Select(s => new { id = s.StatusId, name = s.StatusName })
+          .ToListAsync();
+
+        return Ok(new { success = true, statuses });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+    return StatusCode(500, new { success = false, message = "Failed to load statuses." });
+#endif
+      }
+    } // GET DeliveryStatuses
+
+    [HttpPost("UpdateOrderStatus")]
+    public async Task<ActionResult> UpdateOrderStatus([FromBody] UpdateOrderStatusDTO dto)
+    {
+      try
+      {
+
+        // NO need for securyty - if time later.
+        var order = await _context.Orders.FindAsync(dto.OrderId);
+        if (order == null)
+          return NotFound(new { success = false, message = "Order not found." });
+
+        order.StatusId = dto.StatusId;
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "Order status updated." });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+		return StatusCode(500, new { success = false, message = "Failed to update order status." });
+#endif
+      }
+    } // UpdateOrderStatus
 
 
   }

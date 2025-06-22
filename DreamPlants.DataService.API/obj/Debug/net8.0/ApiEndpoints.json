@@ -89,6 +89,53 @@
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.OrderController",
+    "Method": "CancelOrder",
+    "RelativePath": "Order/Cancel/{orderId}",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.OrderController",
+    "Method": "GetDeliveryStatuses",
+    "RelativePath": "Order/DeliveryStatuses",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.OrderController",
+    "Method": "GetUserOrderHistory",
+    "RelativePath": "Order/OrderHistory",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.OrderController",
     "Method": "PlaceOrder",
     "RelativePath": "Order/PlaceOrder",
     "HttpMethod": "POST",
@@ -105,21 +152,32 @@
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.OrderController",
-    "Method": "GetUserOrderHistory",
-    "RelativePath": "Order/UserHistory",
-    "HttpMethod": "GET",
+    "Method": "Reorder",
+    "RelativePath": "Order/Reorder/{orderId}",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "page",
+        "Name": "orderId",
         "Type": "System.Int32",
-        "IsRequired": false
-      },
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.OrderController",
+    "Method": "UpdateOrderStatus",
+    "RelativePath": "Order/UpdateOrderStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
       {
-        "Name": "pageSize",
-        "Type": "System.Int32",
-        "IsRequired": false
+        "Name": "dto",
+        "Type": "DreamPlants.DataService.API.Models.DTO.UpdateOrderStatusDTO",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
