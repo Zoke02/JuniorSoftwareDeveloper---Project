@@ -12,6 +12,7 @@ import PageUserDetail from './page-user-detail';
 import PageUserOrderHistory from './page-user-order-history';
 import PageUsersManagement from './page-users-management';
 import PageSummary from './page-summary';
+import PageAllProducts from './page-all-products';
 
 export default class Application {
 	//=========================================================================================
@@ -166,6 +167,9 @@ export default class Application {
 				if (this.#hasToken() && this.#hasRole([1]))
 					new PageSummary(args);
 				else window.open('#login', '_self');
+				break;
+			case '#all-products':
+				new PageAllProducts(args);
 				break;
 			default:
 				new PageHome(args);
@@ -423,6 +427,7 @@ export default class Application {
 	apiDeleteSomething(successCallback, errorCallback, url) {
 		fetch(this.#apiUrl + '/' + url, {
 			method: 'DELETE',
+			cache: 'no-cache',
 			credentials: 'include',
 		})
 			.then((r) => {
@@ -434,7 +439,6 @@ export default class Application {
 	}
 
 	// DEV
-
 
 	//-----------------------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------------------

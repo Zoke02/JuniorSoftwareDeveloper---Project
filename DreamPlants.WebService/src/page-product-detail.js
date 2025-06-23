@@ -7,7 +7,6 @@ export default class PageProductDetail {
 	// Private Variables
 	//--------------------------------------------------
 	#args = null;
-	#categorieTree = null;
 	#product = null;
 	#stockUid = null;
 
@@ -24,6 +23,9 @@ export default class PageProductDetail {
 
 	#uploadedFiles = [];
 	#existingFiles = []; //  DB
+
+	#categorieTree = null;
+	#mobileTree = null;
 
 	//--------------------------------------------------
 	// Constructor
@@ -45,6 +47,9 @@ export default class PageProductDetail {
 		// TreeView container
 		const tableCategorieTree = args.target.querySelector(
 			'#tableCategorieTree'
+		);
+		const mobileCategorieTree = document.querySelector(
+			'#mobileCategorieTree'
 		);
 
 		// Input fields
@@ -97,11 +102,39 @@ export default class PageProductDetail {
 
 		//--------------------------------------------------
 		// TreeView init with single select
+
 		this.#categorieTree = new CategoryTree({
 			target: tableCategorieTree,
 			app: args.app,
 			checkbox: true,
 			singleSelect: true,
+
+			click: () => {
+				// Sync to mobile
+				this.#mobileTree.selectedCat = [
+					...this.#categorieTree.selectedCat,
+				];
+				this.#mobileTree.selectedSubCat = [
+					...this.#categorieTree.selectedSubCat,
+				];
+			},
+		});
+
+		this.#mobileTree = new CategoryTree({
+			target: mobileCategorieTree,
+			app: args.app,
+			checkbox: true,
+			singleSelect: true,
+			click: () => {
+				// Use spread to copy the selectedCat array values from mobileTree
+				// into a new array, avoiding shared reference - find more documentation
+				this.#categorieTree.selectedCat = [
+					...this.#mobileTree.selectedCat,
+				];
+				this.#categorieTree.selectedSubCat = [
+					...this.#mobileTree.selectedSubCat,
+				];
+			},
 		});
 
 		// First load categories and product
@@ -109,6 +142,7 @@ export default class PageProductDetail {
 			(r) => {
 				// Pass category list to the treeview.
 				this.#categorieTree.categoriesList = r.categoriesList;
+				this.#mobileTree.categoriesList = r.categoriesList;
 
 				if (args.stockUid) {
 					args.app.apiGet(
@@ -121,6 +155,8 @@ export default class PageProductDetail {
 
 							this.#categorieTree.selectedSubCat = [subId];
 							this.#categorieTree.selectedCat = [catId];
+							this.#mobileTree.selectedSubCat = [subId];
+							this.#mobileTree.selectedCat = [catId];
 
 							// Select the parent category for visual sync
 							const parentCat = r.categoriesList.find((cat) =>

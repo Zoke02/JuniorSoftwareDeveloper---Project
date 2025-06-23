@@ -248,11 +248,19 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
+        // if no TOKEN
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
           return Ok(new { success = false, message = "Unauthorized!" });
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+
+        // if Disabled
+        if (!user.UserStatus)
+        {
+          this.Response.Cookies.Delete("LoginToken");
+          return Ok(new { success = false, message = "User Status: Disabled!" }); // check init aswell if user gets disabled while logged in.
+        }
 
         if (user != null)
         {
@@ -362,6 +370,105 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     } // UploadPicture
+
+    // DEV
+    [HttpPost("UpdateUserAdmin")]
+    public async Task<ActionResult> UpdateUserAdmin([FromBody] UpdateUserAdminDTO dto)
+    {
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+
+        var admin = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (admin == null || admin.LoginTokenTimeout < DateTime.Now || (admin.RoleId != 1 && admin.RoleId != 2))
+          return Unauthorized();
+
+        var user = await _context.Users.FindAsync(dto.UserId);
+        if (user == null)
+          return Ok(new { success = false, message = "User not found." });
+
+        user.RoleId = dto.RoleId;
+        user.UserStatus = dto.UserStatus;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "User updated successfully." });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+    return StatusCode(500, new { success = false, message = "An error occurred." });
+#endif
+      }
+    }
+
+    [HttpGet("GetAllUsersAndOrders")]
+    public async Task<ActionResult> GetAllUsersAndOrders([FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+    {
+      try
+      {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
+
+        var admin = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (admin == null || admin.LoginTokenTimeout < DateTime.Now || (admin.RoleId != 1 && admin.RoleId != 2))
+          return Unauthorized();
+
+        var query = _context.Users
+          .Include(u => u.Orders)
+          .ThenInclude(o => o.Status)
+          .OrderBy(u => u.UserId);
+
+        var totalCount = await query.CountAsync();
+
+        var users = await query
+          .Skip((page - 1) * pageSize)
+          .Take(pageSize)
+          .Select(u => new
+          {
+            u.UserId,
+            u.FirstName,
+            u.LastName,
+            u.Email,
+            u.PhoneNumber,
+            u.RoleId,
+            u.UserStatus,
+            Orders = u.Orders
+              .OrderByDescending(o => o.OrderDate)
+              .Take(5)
+              .Select(o => new
+              {
+                o.OrderId,
+                o.OrderDate,
+                o.TotalPrice,
+                Status = o.Status.StatusName,
+              })
+              .ToList()
+          })
+          .ToListAsync();
+
+        return Ok(new
+        {
+          success = true,
+          message = "User list retrieved.",
+          totalCount,
+          pageSize,
+          users
+        });
+      }
+      catch (Exception ex)
+      {
+#if DEBUG
+        return StatusCode(500, new { success = false, message = ex.Message });
+#else
+    return StatusCode(500, new { success = false, message = "Failed to load users." });
+#endif
+      }
+    }
+
 
   }
 }

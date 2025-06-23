@@ -35,6 +35,8 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null)
           return BadRequest(new { success = false, message = "Unauthorized User" });
 
+
+        // NICE! 
         if (user.LoginTokenTimeout < DateTime.Now)
         {
           return Ok(new { success = false, message = "Token Timeout" });
@@ -164,13 +166,6 @@ namespace DreamPlants.DataService.API.Controllers
             .ThenInclude(c => c.Category)
           .Include(p => p.Stocks)
           .AsQueryable();
-
-        // Logic:
-        // - If only categories selected → match by category
-        // - If only subcats selected → match by subcat
-        // - If both:
-        //   - Match by subcats
-        //   - Also include products from categories where **no subcats were selected**
 
         if (catIdList.Any() && !subcatIdList.Any())
         {

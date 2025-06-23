@@ -36,6 +36,112 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CategoryController",
+    "Method": "AddCategory",
+    "RelativePath": "Category/Add",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "DreamPlants.DataService.API.Models.DTO.RenameDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CategoryController",
+    "Method": "DeleteCategory",
+    "RelativePath": "Category/Delete/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CategoryController",
+    "Method": "GetAllCategories",
+    "RelativePath": "Category/List",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CategoryController",
+    "Method": "RenameCategory",
+    "RelativePath": "Category/Rename",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "DreamPlants.DataService.API.Models.DTO.RenameDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CategoryController",
+    "Method": "AddSubcategory",
+    "RelativePath": "Category/Subcategory/Add",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "DreamPlants.DataService.API.Models.DTO.AddSubcategoryDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CategoryController",
+    "Method": "DeleteSubcategory",
+    "RelativePath": "Category/Subcategory/Delete/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.CategoryController",
+    "Method": "RenameSubcategory",
+    "RelativePath": "Category/Subcategory/Rename",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "DreamPlants.DataService.API.Models.DTO.RenameDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "DreamPlants.DataService.API.Controllers.CreditCardsController",
     "Method": "DelCard",
     "RelativePath": "CreditCards/DelCard/{id}",
@@ -489,6 +595,27 @@
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.UsersController",
+    "Method": "GetAllUsersAndOrders",
+    "RelativePath": "Users/GetAllUsersAndOrders",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "page",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.UsersController",
     "Method": "Login",
     "RelativePath": "Users/Login",
     "HttpMethod": "POST",
@@ -597,6 +724,22 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "DreamPlants.DataService.API.Controllers.UsersController",
+    "Method": "UpdateUserAdmin",
+    "RelativePath": "Users/UpdateUserAdmin",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "DreamPlants.DataService.API.Models.DTO.UpdateUserAdminDTO",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "DreamPlants.DataService.API.Controllers.UsersController",

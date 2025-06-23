@@ -93,7 +93,7 @@ namespace DreamPlants.DataService.API.Controllers
         return Unauthorized();
 
       User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-      if (user == null)
+      if (user == null || user.LoginTokenTimeout < DateTime.Now)
         return Unauthorized();
 
       if (request.Items == null || !request.Items.Any())
@@ -127,7 +127,7 @@ namespace DreamPlants.DataService.API.Controllers
       {
         Stock stock = stockItems[item.StockUid];
         if (stock.Quantity < item.Quantity)
-          return Ok(new { success = false, message = $"Sorry, Product Sold OUT!" });
+          return Ok(new { success = false, message = "Sorry, Product Sold OUT!" });
 
         itemTotal += stock.Price * item.Quantity;
       }
@@ -177,7 +177,7 @@ namespace DreamPlants.DataService.API.Controllers
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        return Ok(new { success = true, message = $"Order Placed!", orderId = newOrder.OrderId });
+        return Ok(new { success = true, message = "Order Placed!", orderId = newOrder.OrderId });
       }
       catch (Exception ex)
       {
@@ -199,7 +199,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized();
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized();
 
         var query = _context.Orders.AsQueryable();
@@ -241,6 +241,7 @@ namespace DreamPlants.DataService.API.Controllers
           AddressId = o.AddressId,
           CardId = o.CardId,
           Tax = o.Tax.Value,
+          UserId = o.UserId,
           ShippingName = o.Shipping?.Label ?? "Unknown",
           FirstName = o.User.FirstName,
           LastName = o.User.LastName,
@@ -323,14 +324,16 @@ namespace DreamPlants.DataService.API.Controllers
         if (string.IsNullOrEmpty(token)) return Unauthorized();
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null) return Unauthorized();
+        if (user == null || user.LoginTokenTimeout < DateTime.Now) 
+          return Unauthorized();
 
         var originalOrder = await _context.Orders
           .Include(o => o.OrderProducts)
           .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == user.UserId);
 
-        if (originalOrder == null)
-          return NotFound(new { success = false, message = "Original order not found." });
+        // safe Check so u can only reorder your own order.
+        if (originalOrder == null || user.UserId != originalOrder.UserId)
+          return Ok(new { success = false, message = "Order does not belong to you." });
 
         // Regenerate order number
         string newOrderNumber = await Order.GenerateUniqueOrderNumberAsync(_context);
@@ -381,8 +384,13 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
 
-        // NO need for securyty - if time later.
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
+          return Unauthorized();
+
         var statuses = await _context.StatusDeliveries
           .OrderBy(s => s.StatusId)
           .Select(s => new { id = s.StatusId, name = s.StatusName })
@@ -405,13 +413,34 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
+        string token = Request.Cookies["LoginToken"];
+        if (string.IsNullOrEmpty(token)) return Unauthorized();
 
-        // NO need for securyty - if time later.
+        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
+          return Unauthorized();
+
         var order = await _context.Orders.FindAsync(dto.OrderId);
         if (order == null)
           return NotFound(new { success = false, message = "Order not found." });
 
-        order.StatusId = dto.StatusId;
+        // admins & employees can update any order
+        if (user.RoleId == 1 || user.RoleId == 2)
+        {
+          order.StatusId = dto.StatusId;
+        }
+        else
+        {
+          // Customers can only change their own orders
+          if (order.UserId != user.UserId)
+            return Unauthorized();
+
+          // Customers can only change to Pending (1) or Cancelled (5)
+          if (dto.StatusId != 1 && dto.StatusId != 5)
+            return Ok(new { success = false, message = "You are not allowed to set this status." });
+
+          order.StatusId = dto.StatusId;
+        }
         await _context.SaveChangesAsync();
 
         return Ok(new { success = true, message = "Order status updated." });

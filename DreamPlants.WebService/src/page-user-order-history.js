@@ -100,7 +100,8 @@ export default class PageUserOrderHistory {
 			const status = order.status.toLowerCase();
 			const canCancel = ['pending', 'confirmed'].includes(status);
 			const isFinal = ['shipped', 'delivered'].includes(status);
-			const isOwnOrder = order.userId === this.#args.app.user.userId;
+			const isOwnOrder =
+				order.firstName === this.#args.app.user.firstName;
 
 			const itemsHtml = order.items
 				.map(
@@ -118,67 +119,66 @@ export default class PageUserOrderHistory {
 				.join('');
 
 			const table = `
-		<div class="table-responsive">
-			<table class="table table-bordered mb-0">
-			<thead class="table-light text-uppercase">
-				<tr>
-				<th>Product</th>
-				<th>Variant Size</th>
-				<th>Variant Color</th>
-				<th>Quantity</th>
-				<th>Price</th>
-				<th>Subtotal</th>
-				</tr>
-			</thead>
-			<tbody>${itemsHtml}</tbody>
-			<tfoot>
-				<tr>
-					<td colspan="5" class="text-end">Shipping</td>
-					<td class="text-end">${order.shippingName}</td>
-				</tr>
-				<tr>
-					<td colspan="5" class="text-end">Taxes</td>
-					<td class="text-end">+ ${order.tax} %</td>
-				</tr>
-				<tr>
-					<td colspan="5" class="text-end fw-bold">Total</td>
-					<td class="fw-bold text-end">${order.totalPrice.toFixed(2)} €</td>
-				</tr>
-				<tr>
-					<td colspan="6" class="text-end">
-						<span class="badge bg-secondary">${order.status}</span>
-					</td>
-				</tr>
-			</tfoot>
-			</table>
-		</div>`;
+			<div class="table-responsive">
+				<table class="table table-bordered mb-0">
+				<thead class="table-light text-uppercase">
+					<tr>
+					<th>Product</th>
+					<th>Variant Size</th>
+					<th>Variant Color</th>
+					<th>Quantity</th>
+					<th>Price</th>
+					<th>Subtotal</th>
+					</tr>
+				</thead>
+				<tbody>${itemsHtml}</tbody>
+				<tfoot>
+					<tr>
+						<td colspan="5" class="text-end">Shipping</td>
+						<td class="text-end">${order.shippingName}</td>
+					</tr>
+					<tr>
+						<td colspan="5" class="text-end">Taxes</td>
+						<td class="text-end">+ ${order.tax} %</td>
+					</tr>
+					<tr>
+						<td colspan="5" class="text-end fw-bold">Total</td>
+						<td class="fw-bold text-end">${order.totalPrice.toFixed(2)} €</td>
+					</tr>
+					<tr>
+						<td colspan="6" class="text-end">
+							<span class="badge bg-secondary">${order.status}</span>
+						</td>
+					</tr>
+				</tfoot>
+				</table>
+			</div>`;
 
-			// Reorder only if user owns the order
 			const buttonBlock = `
-		<div class="d-flex align-items-center gap-3">
-			${
-				!isFinal && canCancel
-					? `<button data-order-id="${order.orderId}" class="btn btn-danger btnCancelOrder">CANCEL Order</button>`
-					: ''
-			}
-			${
-				isOwnOrder
-					? `<button data-order-id="${order.orderId}" class="btn btn-secondary btnReorder">Reorder</button>`
-					: ''
-			}
-		</div>`;
+			<div class="d-flex align-items-center gap-3">
+				${
+					!isFinal && canCancel && !isAdmin
+						? `<button data-order-id="${order.orderId}" class="btn btn-danger btnCancelOrder">CANCEL Order</button>`
+						: ''
+				}
+				${
+					isOwnOrder
+						? `<button data-order-id="${order.orderId}" class="btn btn-secondary btnReorder">Reorder</button>`
+						: ''
+				}
+			</div>`;
 
 			const header = `
-		<div class="d-flex justify-content-between align-items-center mb-3">
-			<div>
-				<h5 class="mb-1">Order #${order.orderNumber}</h5>
-				<h5 class="mb-1">${order.firstName} ${order.lastName}</h5>
-				<small class="text-muted">Placed on: ${new Date(
-					order.orderDate
-				).toLocaleString()}</small>
-			</div>
-			${buttonBlock}
-		</div>`;
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<div>
+					<h5 class="mb-1">Order #${order.orderNumber}</h5>
+					<h5 class="mb-1">${order.firstName} ${order.lastName}</h5>
+					<small class="text-muted">Placed on: ${new Date(
+						order.orderDate
+					).toLocaleString()}</small>
+				</div>
+				${buttonBlock}
+			</div>`;
 
 			const statusOptions = statuses
 				.map(
@@ -207,13 +207,13 @@ export default class PageUserOrderHistory {
 
 			// Final Card HTML
 			html += `
-		<div class="card mb-4 rounded-0">
-			<div class="card-body">
-				${header}
-				${table}
-				${statusControl}
-			</div>
-		</div>`;
+			<div class="card mb-4 rounded-0">
+				<div class="card-body">
+					${header}
+					${table}
+					${statusControl}
+				</div>
+			</div>`;
 		}
 
 		return html;

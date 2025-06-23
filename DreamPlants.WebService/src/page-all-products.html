@@ -1,0 +1,79 @@
+<div class="container-min-height border-bottom-gold">
+	<div class="container">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="border-bottom border-2 py-2 m-0">All Products</h1>
+			</div>
+		</div>
+		<div class="row">
+			<!-- Categorie Tree -->
+			<div class="col-xl-3 d-none d-xl-block">
+				<a class="btn btn-secondary w-100 mt-4" id="clearCatFilter"
+					><i class="bi bi-x-square pe-2"></i>Clear Selected
+					Category</a
+				>
+				<div class="mt-2" id="tableCategorieTree"></div>
+			</div>
+			<!-- Right Table -->
+			<div class="col-12 col-xl-9">
+				<div class="row mt-4">
+					<div class="col-12">
+						<!-- CARDS  -->
+						<div
+							class="container d-flex flex-wrap gap-1"
+							id="targetAllCards"
+						></div>
+						<!-- PAGINATION -->
+						<nav
+							aria-label="Page navigation"
+							class="d-flex justify-content-center my-4"
+						>
+							<ul id="pagination" class="pagination m-0"></ul>
+						</nav>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- Reusable Toast -->
+	<div class="toast-container position-fixed bottom-0 end-0 p-3">
+		<div
+			id="liveToast"
+			class="toast"
+			role="alert"
+			aria-live="assertive"
+			aria-atomic="true"
+		>
+			<div class="toast-header">
+				<strong class="me-auto" id="toastTitle">Bootstrap</strong>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="toast"
+					aria-label="Close"
+				></button>
+			</div>
+			<div class="toast-body" id="toastBody">
+				Hello, world! This is a toast message.
+			</div>
+		</div>
+	</div>
+	<div
+		class="offcanvas offcanvas-start"
+		tabindex="-1"
+		id="mobileCategoryCanvas"
+	>
+		<div class="offcanvas-header">
+			<h5 class="offcanvas-title">Filter Categories</h5>
+			<button
+				type="button"
+				class="btn-close"
+				data-bs-dismiss="offcanvas"
+			></button>
+		</div>
+		<div class="offcanvas-body">
+			<div id="mobileCategorieTree"></div>
+			<!-- Placeholder for clone -->
+		</div>
+	</div>
+</div>

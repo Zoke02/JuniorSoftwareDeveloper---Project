@@ -72,12 +72,16 @@ export default class NavigationBar {
 			'#mobileCategoryIcon'
 		);
 
-		if (!window.location.hash.startsWith('#products')) {
-			mobileCategoryIcon.classList.add('d-none');
-		} else {
+		if (
+			window.location.hash.startsWith('#products') ||
+			window.location.hash.startsWith('#product-detail') ||
+			window.location.hash.startsWith('#all-products')
+		) {
 			mobileCategoryIcon.classList.remove('d-none');
 			mobileCategoryIcon.classList.add('d-lg-block');
 			mobileCategoryIcon.classList.add('d-xl-none');
+		} else {
+			mobileCategoryIcon.classList.add('d-none');
 		}
 
 		//--------------------------------------------------

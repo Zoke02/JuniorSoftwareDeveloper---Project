@@ -73,7 +73,7 @@
 											class="col-12 col-md-4 col-lg-3 pt-md-2 text-md-end"
 										>
 											<label for="textVariantSize"
-												>Variant - Size:</label
+												>Size:</label
 											>
 										</div>
 										<div class="col-12 col-md-8 col-lg-9">
@@ -89,7 +89,7 @@
 											class="col-12 col-md-4 col-lg-3 pt-md-2 text-md-end"
 										>
 											<label for="textVariantColor"
-												>Variant - Color:</label
+												>Color:</label
 											>
 										</div>
 										<div class="col-12 col-md-8 col-lg-9">
@@ -105,7 +105,7 @@
 											class="col-12 col-md-4 col-lg-3 pt-md-2 text-md-end"
 										>
 											<label for="textPrice"
-												>Variant Text:</label
+												>Description:</label
 											>
 										</div>
 										<div class="col-12 col-md-8 col-lg-9">
@@ -334,41 +334,60 @@
 		</div>
 		<div class="container-save-bar fixed-bottom py-2 bg-wifi">
 			<div class="position-relative">
-				<div class="container">
-					<div class="d-flex align-items-center">
+				<div class="container align-middle">
+					<div class="d-flex align-items-center justify-content-end">
 						<button
 							type="button"
 							class="btn btn-secondary"
 							id="buttonSave"
 						>
-							<i class="bi-floppy me-2"></i>Save
+							<i class="bi bi-floppy me-2"></i>Save
 						</button>
 					</div>
 				</div>
 			</div>
 		</div>
-		<!-- Reusable Toast -->
-		<div class="toast-container position-fixed bottom-0 end-0 p-3">
-			<div
-				id="liveToast"
-				class="toast"
-				role="alert"
-				aria-live="assertive"
-				aria-atomic="true"
-			>
-				<div class="toast-header">
-					<strong class="me-auto" id="toastTitle">Bootstrap</strong>
-					<button
-						type="button"
-						class="btn-close"
-						data-bs-dismiss="toast"
-						aria-label="Close"
-					></button>
-				</div>
-				<div class="toast-body" id="toastBody">
-					Hello, world! This is a toast message.
-				</div>
+	</div>
+	<!-- Reusable Toast -->
+	<div class="toast-container position-fixed bottom-0 end-0 p-3">
+		<div
+			id="liveToast"
+			class="toast"
+			role="alert"
+			aria-live="assertive"
+			aria-atomic="true"
+		>
+			<div class="toast-header">
+				<strong class="me-auto" id="toastTitle">Bootstrap</strong>
+				<button
+					type="button"
+					class="btn-close"
+					data-bs-dismiss="toast"
+					aria-label="Close"
+				></button>
 			</div>
+			<div class="toast-body" id="toastBody">
+				Hello, world! This is a toast message.
+			</div>
+		</div>
+	</div>
+	<!-- Offcanva -->
+	<div
+		class="offcanvas offcanvas-start"
+		tabindex="-1"
+		id="mobileCategoryCanvas"
+	>
+		<div class="offcanvas-header">
+			<h5 class="offcanvas-title">Select Category</h5>
+			<button
+				type="button"
+				class="btn-close"
+				data-bs-dismiss="offcanvas"
+			></button>
+		</div>
+		<div class="offcanvas-body">
+			<div id="mobileCategorieTree"></div>
+			<!-- Placeholder for clone -->
 		</div>
 	</div>
 </section>

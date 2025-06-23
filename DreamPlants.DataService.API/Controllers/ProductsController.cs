@@ -115,10 +115,6 @@ namespace DreamPlants.DataService.API.Controllers
         bool nameExists = await _context.Products
             .AnyAsync(p => p.Name.ToLower() == dto.Name.ToLower());
 
-        if (nameExists)
-        {
-          return Ok(new { success = false, message = "A product with this name already exists." });
-        }
 
         // Variant Validation if i have time i have it in frontend
 
@@ -251,14 +247,6 @@ namespace DreamPlants.DataService.API.Controllers
         if (product == null)
           return NotFound(new { success = false, message = "Product not found." });
 
-        // Check if new name already exists in another product
-        if (dto.Name.ToLower() != product.Name.ToLower())
-        {
-          bool nameExists = await _context.Products
-            .AnyAsync(p => p.Name.ToLower() == dto.Name.ToLower());
-          if (nameExists)
-            return Ok(new { success = false, message = "A product with this name already exists." });
-        }
 
         // Update product
         product.Name = dto.Name;

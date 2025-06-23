@@ -320,6 +320,7 @@ export default class PageUserDetail {
 		// ----------------------------------
 		// Get Delivery Data
 		this.#getAndInsertAddresses();
+		this.#insertAddresses([]);
 		// Save Delivery Data
 		saveDeliveryAdress.addEventListener('click', () => {
 			const fields = [
@@ -395,6 +396,8 @@ export default class PageUserDetail {
 						toastBody.innerText = successCallback.message;
 						toastBootstrapDelete.show();
 						this.#getAndInsertAddresses();
+						console.log(this.#adresses);
+						this.#insertAddresses([]);
 					} else {
 						console.warn('Delete failed:', successCallback.message);
 					}
@@ -412,6 +415,8 @@ export default class PageUserDetail {
 		// ----------------------------------
 		// Get Card Data
 		this.#getAndInsertCards();
+		this.#insertCards([]);
+
 		// Handle Card
 		cardNumber.addEventListener('input', (e) => {
 			let val = e.target.value.replace(/\D/g, '');
@@ -495,6 +500,7 @@ export default class PageUserDetail {
 						toastBody.innerText = successCallback.message;
 						toastBootstrapDelete.show();
 						this.#getAndInsertCards();
+						this.#insertCards([]);
 					} else {
 						console.warn('Delete failed:', successCallback.message);
 					}

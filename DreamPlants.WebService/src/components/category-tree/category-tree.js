@@ -1,9 +1,6 @@
 import HTML from './category-tree.html';
 
 export default class CategoryTree {
-	//--------------------------------------------------
-	// Private Variables
-	//--------------------------------------------------
 	#args = null;
 	#categoriesList = null;
 	#selectedCat = [];
@@ -13,74 +10,18 @@ export default class CategoryTree {
 	constructor(args) {
 		this.#args = args;
 		this.#args.target.innerHTML = HTML;
-		this.#singleSelect = this.#args.singleSelect || false;
+		this.#singleSelect = !!this.#args.singleSelect;
 
-		//--------------------------------------------------
-		// Event Listeners
-		//--------------------------------------------------
-
-		// Toggle caret icon on collapse
-		this.#args.target.addEventListener('click', (e) => {
-			const toggle = e.target.closest('a[data-bs-toggle="collapse"]');
-			if (toggle) {
-				const icon = toggle.querySelector('i');
-				if (icon) {
-					icon.classList.toggle('bi-caret-up-square');
-					icon.classList.toggle('bi-caret-down-square');
-				}
-			}
-		});
-
-		// Handle category/subcategory selection
-		this.#args.target.addEventListener('click', (e) => {
-			const category = e.target.closest('[data-id]');
-			const subcategory = e.target.closest('[data-subcat-id]');
-
-			if (category) {
-				const catId = parseInt(category.dataset.id);
-				const index = this.#selectedCat.indexOf(catId);
-
-				if (index === -1) {
-					this.#selectedCat.push(catId);
-				} else {
-					this.#selectedCat.splice(index, 1);
-				}
-			}
-
-			if (subcategory && !e.target.matches('input[type="checkbox"]')) {
-				const subcatId = parseInt(subcategory.dataset.subcatId);
-				const index = this.#selectedSubCat.indexOf(subcatId);
-
-				if (index === -1) {
-					if (this.#singleSelect) {
-						this.#selectedSubCat = [subcatId];
-					} else {
-						this.#selectedSubCat.push(subcatId);
-					}
-				} else {
-					this.#selectedSubCat.splice(index, 1);
-				}
-			}
-
-			this.#updateActiveStates();
-
-			if (typeof this.#args.click === 'function') {
-				this.#args.click();
-			}
-		});
+		this.#setupEvents();
 	}
-
-	//--------------------------------------------------
-	// Getters / Setters
-	//--------------------------------------------------
 
 	get categoriesList() {
 		return this.#categoriesList;
 	}
 
-	set categoriesList(v) {
-		this.#categoriesList = v;
-		this.#showTree();
+	set categoriesList(list) {
+		this.#categoriesList = list;
+		this.#renderTree();
 	}
 
 	get selectedCat() {
@@ -89,7 +30,7 @@ export default class CategoryTree {
 
 	set selectedCat(value) {
 		this.#selectedCat = value;
-		this.#updateActiveStates();
+		this.#updateUI();
 	}
 
 	get selectedSubCat() {
@@ -98,127 +39,156 @@ export default class CategoryTree {
 
 	set selectedSubCat(value) {
 		this.#selectedSubCat = value;
-		this.#updateActiveStates();
+		this.#updateUI();
 	}
 
-	//--------------------------------------------------
-	// Private Methods
-	//--------------------------------------------------
+	#setupEvents() {
+		this.#args.target.addEventListener('click', (e) => {
+			const caretToggle = e.target.closest(
+				'a[data-bs-toggle="collapse"]'
+			);
+			if (caretToggle) {
+				const icon = caretToggle.querySelector('i');
+				if (icon) {
+					icon.classList.toggle('bi-caret-up-square');
+					icon.classList.toggle('bi-caret-down-square');
+				}
+			}
 
-	#showTree() {
+			const catEl = e.target.closest('[data-id]');
+			const subcatEl = e.target.closest('[data-subcat-id]');
+
+			if (catEl) {
+				const id = parseInt(catEl.dataset.id);
+				this.#handleCatClick(id);
+			}
+
+			if (subcatEl && !e.target.matches('input[type="checkbox"]')) {
+				const id = parseInt(subcatEl.dataset.subcatId);
+				this.#handleSubcatClick(id);
+			}
+
+			this.#updateUI();
+
+			if (typeof this.#args.click === 'function') {
+				this.#args.click();
+			}
+		});
+	}
+
+	#handleCatClick(id) {
+		if (!this.#selectedCat.includes(id)) {
+			this.#selectedCat.push(id);
+		} else {
+			this.#selectedCat = this.#selectedCat.filter((x) => x !== id);
+		}
+	}
+
+	#handleSubcatClick(id) {
+		if (this.#singleSelect) {
+			this.#selectedSubCat = [id];
+		} else {
+			if (!this.#selectedSubCat.includes(id)) {
+				this.#selectedSubCat.push(id);
+			} else {
+				this.#selectedSubCat = this.#selectedSubCat.filter(
+					(x) => x !== id
+				);
+			}
+		}
+	}
+
+	#renderTree() {
 		const container = this.#args.target.querySelector('#containerCategory');
-		container.innerHTML = this.#createTree();
-		this.#updateActiveStates(); // Update UI after rendering
-	}
+		if (!this.#categoriesList) return;
 
-	#createTree() {
 		let html = '';
-
-		if (!this.#categoriesList) return html;
 
 		for (const cat of this.#categoriesList) {
 			const catId = cat.categoryId;
-			const isExpanded = this.#selectedCat.includes(catId);
+			const expanded = this.#selectedCat.includes(catId);
 
-			// Category button
 			html += `
 				<a class="list-group-item list-group-item-action ps-2 ${
-					isExpanded ? 'active' : ''
+					expanded ? 'active' : ''
 				}"
 					data-bs-toggle="collapse"
 					data-id="${catId}"
-					href="#collapseCat${catId}"
-					role="button"
-					aria-expanded="${isExpanded}"
-					aria-controls="collapseCat${catId}">
+					href="#collapseCat${catId}">
 					<i class="bi ${
-						isExpanded
-							? 'bi-caret-down-square'
-							: 'bi-caret-up-square'
+						expanded ? 'bi-caret-down-square' : 'bi-caret-up-square'
 					} pe-2"></i>
 					${cat.categoryName}
 				</a>
-			`;
-
-			// Subcategory wrapper
-			html += `
 				<div class="collapse multi-collapse ${
-					isExpanded ? 'show' : ''
+					expanded ? 'show' : ''
 				}" id="collapseCat${catId}">
 			`;
 
-			// Subcategory list
 			for (const subcat of cat.subcategories || []) {
-				html += `
-					<div class="row ps-3" data-subcat-id="${subcat.subcategoryId}">
-						${
-							this.#args.checkbox
-								? `<label class="list-group-item list-group-item-action">
-										<input class="form-check-input" type="checkbox"
-											id="checkbox_${subcat.subcategoryId}"
-											data-cat-id="${cat.categoryId}"
-											>
-										<span>${subcat.subcategoryName}</span>
-									</label>`
-								: `<div class="list-group-item list-group-item-action">
-										<span>${subcat.subcategoryName}</span>
-									</div>`
-						}
-					</div>
-				`;
+				if (this.#args.checkbox) {
+					html += `
+						<div class="row ps-4 pe-3 " data-subcat-id="${subcat.subcategoryId}">
+							<label class="list-group-item list-group-item-action">
+								<input class="form-check-input me-2" type="checkbox"
+									   id="checkbox_${subcat.subcategoryId}"
+									   data-cat-id="${catId}" />
+								<span>${subcat.subcategoryName}</span>
+							</label>
+						</div>
+					`;
+				} else {
+					html += `
+						<div class="list-group-item list-group-item-action ps-4"
+							 data-subcat-id="${subcat.subcategoryId}">
+							<span>${subcat.subcategoryName}</span>
+						</div>
+					`;
+				}
 			}
 
-			html += `</div>`; // close collapse
+			html += `</div>`;
 		}
 
-		return html;
+		container.innerHTML = html;
+		this.#updateUI();
 	}
 
-	#updateActiveStates() {
-		// Category highlight and expansion
-		const categoryEls = this.#args.target.querySelectorAll('[data-id]');
-		categoryEls.forEach((el) => {
-			const catId = parseInt(el.dataset.id);
+	#updateUI() {
+		// Category toggle and highlight
+		const catEls = this.#args.target.querySelectorAll('[data-id]');
+		for (const el of catEls) {
+			const id = parseInt(el.dataset.id);
+			const isActive = this.#selectedCat.includes(id);
+			el.classList.toggle('active', isActive);
+
 			const collapse = this.#args.target.querySelector(
-				`#collapseCat${catId}`
+				`#collapseCat${id}`
 			);
+			if (collapse) collapse.classList.toggle('show', isActive);
 
 			const icon = el.querySelector('i');
-
-			if (this.#selectedCat.includes(catId)) {
-				el.classList.add('active');
-				if (collapse) collapse.classList.add('show');
-				if (icon) {
-					icon.classList.remove('bi-caret-up-square');
-					icon.classList.add('bi-caret-down-square');
-				}
-			} else {
-				el.classList.remove('active');
-				if (collapse) collapse.classList.remove('show');
-				if (icon) {
-					icon.classList.remove('bi-caret-down-square');
-					icon.classList.add('bi-caret-up-square');
-				}
+			if (icon) {
+				icon.classList.toggle('bi-caret-down-square', isActive);
+				icon.classList.toggle('bi-caret-up-square', !isActive);
 			}
-		});
+		}
 
-		// Subcategory checkbox and highlight
-		const subcatEls =
-			this.#args.target.querySelectorAll('[data-subcat-id]');
-		subcatEls.forEach((el) => {
-			const subcatId = parseInt(el.dataset.subcatId);
-			const isSelected = this.#selectedSubCat.includes(subcatId);
+		// Subcategory toggle and checkbox sync
+		const subEls = this.#args.target.querySelectorAll('[data-subcat-id]');
+		for (const el of subEls) {
+			const id = parseInt(el.dataset.subcatId);
+			const isSelected = this.#selectedSubCat.includes(id);
 
 			if (this.#args.checkbox) {
 				const checkbox = el.querySelector('input[type="checkbox"]');
 				if (checkbox) checkbox.checked = isSelected;
+
+				const label = el.querySelector('label');
+				if (label) label.classList.toggle('active', isSelected);
 			} else {
-				if (isSelected) {
-					el.classList.add('active');
-				} else {
-					el.classList.remove('active');
-				}
+				el.classList.toggle('active', isSelected);
 			}
-		});
+		}
 	}
 }

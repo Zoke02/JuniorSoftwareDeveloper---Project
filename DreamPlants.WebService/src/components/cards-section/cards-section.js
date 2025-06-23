@@ -91,7 +91,7 @@ export default class CardsSection {
 			<div class="card text-center text-decoration-none h-100">
 				<img src="${imageUrl}" class="card-img-top" alt="${product.name}" />
 				<div class="card-body">
-					<p class="card-text">${product.name}</p>
+					<p class="card-text">${product.name} - ${product.stocks[0].variantSize}</p>
 					<p class="card-text">${stock.price.toFixed(2)} €</p>
 					${buttonHtml}
 				</div>

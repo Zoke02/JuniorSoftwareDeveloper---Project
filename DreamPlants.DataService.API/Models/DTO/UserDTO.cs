@@ -19,4 +19,12 @@
 
     public string AvatarFileType { get; set; }
   }
+
+  public class UpdateUserAdminDTO
+  {
+    public int UserId { get; set; }
+    public int RoleId { get; set; }
+    public bool UserStatus { get; set; }
+  }
+
 }
