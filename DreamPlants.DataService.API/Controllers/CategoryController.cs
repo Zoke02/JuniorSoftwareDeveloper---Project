@@ -130,6 +130,8 @@ namespace DreamPlants.DataService.API.Controllers
     [HttpDelete("Delete/{id}")]
     public async Task<ActionResult> DeleteCategory(int id)
     {
+      await using var transaction = await _context.Database.BeginTransactionAsync();
+
       try
       {
         var user = await ValidateAdminAsync();
@@ -159,18 +161,19 @@ namespace DreamPlants.DataService.API.Controllers
 
         _context.Categories.Remove(category);
         await _context.SaveChangesAsync();
-
+        await transaction.CommitAsync();
         return Ok(new { success = true, message = "Category deleted." });
       }
       catch (Exception ex)
       {
 #if DEBUG
+        await transaction.RollbackAsync();
         return StatusCode(500, new { success = false, message = ex.Message });
 #else
 		return StatusCode(500, new { success = false, message = "Failed to delete category." });
 #endif
       }
-    }
+    } // - has Trans
 
     [HttpPost("Subcategory/Add")]
     public async Task<ActionResult> AddSubcategory([FromBody] AddSubcategoryDTO dto)
@@ -256,6 +259,8 @@ namespace DreamPlants.DataService.API.Controllers
     [HttpDelete("Subcategory/Delete/{id}")]
     public async Task<ActionResult> DeleteSubcategory(int id)
     {
+      await using var transaction = await _context.Database.BeginTransactionAsync();
+
       try
       {
         var user = await ValidateAdminAsync();
@@ -271,18 +276,19 @@ namespace DreamPlants.DataService.API.Controllers
 
         _context.Subcategories.Remove(sub);
         await _context.SaveChangesAsync();
-
+        await transaction.CommitAsync();
         return Ok(new { success = true, message = "Subcategory deleted." });
       }
       catch (Exception ex)
       {
 #if DEBUG
+        await transaction.RollbackAsync();
         return StatusCode(500, new { success = false, message = ex.Message });
 #else
 		return StatusCode(500, new { success = false, message = "Failed to delete subcategory." });
 #endif
       }
-    }
+    } // - has Trans
 
     private async Task<User> ValidateAdminAsync()
     {

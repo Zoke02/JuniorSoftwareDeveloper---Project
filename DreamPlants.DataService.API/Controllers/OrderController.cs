@@ -139,7 +139,7 @@ namespace DreamPlants.DataService.API.Controllers
       decimal finalTotal = (itemTotal + shipping) * (1 + tax.Value / 100);
 
       // wtf do you cast transaction to - CHECK LATER
-      using var transaction = await _context.Database.BeginTransactionAsync();
+      await using var transaction = await _context.Database.BeginTransactionAsync();
       try
       {
         string orderNumber = await Order.GenerateUniqueOrderNumberAsync(_context);
@@ -182,6 +182,7 @@ namespace DreamPlants.DataService.API.Controllers
       catch (Exception ex)
       {
 #if DEBUG
+        await transaction.RollbackAsync();
         return StatusCode(500, new { success = false, message = ex.Message });
 #else
     return StatusCode(500, new { success = false, message = "An error occurred while placing the order." });
@@ -318,6 +319,8 @@ namespace DreamPlants.DataService.API.Controllers
     [HttpPost("Reorder/{orderId}")]
     public async Task<ActionResult> Reorder(int orderId)
     {
+      await using var transaction = await _context.Database.BeginTransactionAsync();
+
       try
       {
         string token = Request.Cookies["LoginToken"];
@@ -352,7 +355,7 @@ namespace DreamPlants.DataService.API.Controllers
         };
 
         _context.Orders.Add(newOrder);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(); // need this save or you viaolate order_products_foreign constrain ...reference doesnt exist? - check docu
 
         foreach (var item in originalOrder.OrderProducts)
         {
@@ -365,13 +368,16 @@ namespace DreamPlants.DataService.API.Controllers
           });
         }
 
+
         await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
 
         return Ok(new { success = true, message = "Order placed again.", orderId = newOrder.OrderId });
       }
       catch (Exception ex)
       {
 #if DEBUG
+        await transaction.RollbackAsync();
         return StatusCode(500, new { success = false, message = ex.Message });
 #else
     return StatusCode(500, new { success = false, message = "An error occurred while reordering." });

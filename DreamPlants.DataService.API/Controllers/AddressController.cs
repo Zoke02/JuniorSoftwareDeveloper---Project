@@ -2,6 +2,7 @@
 using DreamPlants.DataService.API.Models.DTO;
 using DreamPlants.DataService.API.Models.Generated;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Npgsql;
@@ -83,6 +84,8 @@ namespace DreamPlants.DataService.API.Controllers
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
         if (user == null)
           return Unauthorized(new { success = false, message = "Unauthorized" });
+        if (user.LoginTokenTimeout < DateTime.Now)
+          return Unauthorized(new { success = false, message = "Unauthorized - Login token expired. Please login again. " });
 
         var firstName = Request.Form["addressFirstName"].ToString();
         var lastName = Request.Form["addressLastName"].ToString();
@@ -134,6 +137,7 @@ namespace DreamPlants.DataService.API.Controllers
     [HttpDelete("DelAddress/{id}")]
     public async Task<ActionResult> DelAddress(int id)
     {
+      await using var transaction = await _context.Database.BeginTransactionAsync();
       try
       {
         string token = Request.Cookies["LoginToken"];
@@ -141,8 +145,9 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized" });
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized(new { success = false, message = "Unauthorized" });
+
 
         var address = await _context.Addresses.FirstOrDefaultAsync(a => a.UserId == user.UserId && a.AddressId == id);
         if (address == null)
@@ -156,6 +161,8 @@ namespace DreamPlants.DataService.API.Controllers
           address.Deleted = true;
           address.DeleteDate = DateTime.Now;
           await _context.SaveChangesAsync();
+          await transaction.CommitAsync();
+
           return Ok(new { success = true, message = "Address deleted." });
         }
         else
@@ -163,17 +170,19 @@ namespace DreamPlants.DataService.API.Controllers
           // Hard delete
           _context.Addresses.Remove(address);
           await _context.SaveChangesAsync();
+          await transaction.CommitAsync();
           return Ok(new { success = true, message = "Address deleted!" });
         }
       }
       catch (Exception ex)
       {
 #if DEBUG
+        await transaction.RollbackAsync();
         return StatusCode(500, new { success = false, message = ex.Message });
 #else
     return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    }    // DelAddress
+    }    // DelAddress - has trans
   }
 }

@@ -43,10 +43,10 @@ namespace DreamPlants.DataService.API.Controllers
 
         // 4 - if no adresses send ok with a message (Check if you need to send notfound) 
         if (creditCardsDTO == null || creditCardsDTO.Count == 0)
-          return Ok(new { success = false, message = "User doesnt have any adresses saved." });
+          return Ok(new { success = false, message = "User doesnt have any Credit Cards saved." });
 
         // Last - Return Adresses
-        return Ok(new { success = true, message = "Address saved!", creditCardsDTO });
+        return Ok(new { success = true, message = "Cards saved!", creditCardsDTO });
       }
       catch (Exception ex)
       {
@@ -68,13 +68,13 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized - No Token" });
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized(new { success = false, message = "Unauthorized - False Token" });
 
-        var cardholderName = Request.Form["cardholderName"].ToString();
-        var cardNumber = Request.Form["cardNumber"].ToString().Replace(" ", "");
-        var cardExpiry = Request.Form["cardExpiry"].ToString();
-        var cardCVV = Request.Form["cardCVV"].ToString();
+        var cardholderName = Request.Form["cardholderName"].ToString().Trim();
+        var cardNumber = Request.Form["cardNumber"].ToString().Replace(" ", "").Trim();
+        var cardExpiry = Request.Form["cardExpiry"].ToString().Trim();
+        var cardCVV = Request.Form["cardCVV"].ToString().Trim();
 
 
         if (string.IsNullOrWhiteSpace(cardholderName) ||
@@ -119,7 +119,7 @@ namespace DreamPlants.DataService.API.Controllers
         _context.CreditCards.Add(newCreditCard);
         await _context.SaveChangesAsync();
 
-        return Ok(new { success = true, message = "Address saved!"});
+        return Ok(new { success = true, message = "Card saved!"});
       }
       catch (Exception ex)
       {
@@ -129,11 +129,13 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // NewAddress
+    } // NewCard
 
     [HttpDelete("DelCard/{id}")]
     public async Task<ActionResult> DelCard(int id)
     {
+      await using var transaction = await _context.Database.BeginTransactionAsync();
+
       try
       {
         string token = Request.Cookies["LoginToken"];
@@ -157,6 +159,7 @@ namespace DreamPlants.DataService.API.Controllers
           card.Deleted = true;
           card.DeleteDate = DateTime.Now;
           await _context.SaveChangesAsync();
+          await transaction.CommitAsync();  
           return Ok(new { success = true, message = "Card deleted." });
         }
         else
@@ -164,18 +167,21 @@ namespace DreamPlants.DataService.API.Controllers
           // Hard delete
           _context.CreditCards.Remove(card);
           await _context.SaveChangesAsync();
+          await transaction.CommitAsync();
+
           return Ok(new { success = true, message = "Card deleted!" });
         }
       }
       catch (Exception ex)
       {
 #if DEBUG
+        await transaction.RollbackAsync();  
         return StatusCode(500, new { success = false, message = ex.Message });
 #else
     return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    }
+    } // - has Trans
     // DelAddress
   }
 }

@@ -151,10 +151,10 @@ namespace DreamPlants.DataService.API.Controllers
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(phone))
           return Ok(new { success = false, message = "All fields must be filled." });
 
-        if (_context.Users.Any(p => p.PhoneNumber == phone))
+        if ( _context.Users.Any(p => p.PhoneNumber == phone))
           return Ok(new { success = false, message = "Phone already registered." });
 
-        if (_context.Users.Any(u => u.Email == email))
+        if ( _context.Users.Any(u => u.Email == email))
           return Ok(new { success = false, message = "Email already registered." });
 
         // Create user

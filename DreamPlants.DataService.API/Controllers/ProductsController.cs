@@ -28,15 +28,7 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
-        //string token = Request.Cookies["LoginToken"];
-        //if (string.IsNullOrEmpty(token))
-        //  return Unauthorized(new { success = false, message = "Unauthorized Token" });
-        //// 2 - Is the token same as the DataBank one. 
-        //User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        //if (user == null)
-        //  return Unauthorized(new { success = false, message = "Unauthorized User" });
-        //else
-        //{
+
           var product = await _context.Products
           .Include(sc => sc.Subcategory)
               .ThenInclude(c => c.Category)
@@ -103,7 +95,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized Token" });
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized(new { success = false, message = "Unauthorized User" });
 
         // check if Name is empty
@@ -193,7 +185,7 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500);
 #endif
       }
-    } // AddProduct
+    } // AddProduct - has Trans
 
     [HttpPost("UpdateProduct/{stockUid}")]
     public async Task<ActionResult> UpdateProduct(string stockUid, [FromBody] ProductDTO dto)
@@ -208,7 +200,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized Token" });
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized(new { success = false, message = "Unauthorized User" });
 
         if (string.IsNullOrWhiteSpace(dto.Name))
@@ -289,11 +281,13 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500);
 #endif
       }
-    } // UpdateProduct
+    } // UpdateProduct - has Trans
 
     [HttpDelete("DeleteProduct/{stockUid}")]
     public async Task<ActionResult> DeleteProduct(string stockUid)
     {
+      await using var transaction = await _context.Database.BeginTransactionAsync();
+
       try
       {
         string token = Request.Cookies["LoginToken"];
@@ -301,7 +295,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized Token" });
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now) 
           return Unauthorized(new { success = false, message = "Unauthorized User" });
 
         var product = await _context.Products
@@ -327,19 +321,22 @@ namespace DreamPlants.DataService.API.Controllers
 
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
 
         return Ok(new { success = true, message = "Product deleted." });
       }
       catch (Exception ex)
       {
 #if DEBUG
+        await transaction.RollbackAsync();
+
         return StatusCode(500, new { success = false, message = ex.Message });
 #else
 		return StatusCode(500);
 #endif
       }
-    }
-    // DeleteProduct
+    } // DeleteProduct - has Trans
 
     // GET: Products/Category/5
     [HttpGet("Category/{id}")]
@@ -354,7 +351,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized();
         }
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
         {
           return Unauthorized();
         } // Security End.
@@ -410,7 +407,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized();
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized();
 
         // Parse ID strings to int lists
@@ -482,7 +479,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized Token" });
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized(new { success = false, message = "Unauthorized User" });
 
         var stock = await _context.Stocks.FirstOrDefaultAsync(s => s.StockUid == dto.StockUid);
@@ -531,7 +528,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized Token" });
 
         var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized(new { success = false, message = "Unauthorized User" });
 
         var file = await _context.Files.FindAsync(fileId);
