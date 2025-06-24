@@ -106,7 +106,6 @@ export default class PageAllProducts {
 				if (!cart.hasOwnProperty(stockUid)) {
 					cart[stockUid] = (cart[stockUid] || 0) + 1;
 					localStorage.setItem('shopcart', JSON.stringify(cart));
-					console.log(`Added ${stockUid} to cart with quantity 1`);
 				}
 				this.#updateShopCartTotalQuantity('shopCardsItemNumber');
 			}

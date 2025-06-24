@@ -228,7 +228,7 @@ export default class PageLogin {
 				{ id: 'textFirstName', name: 'First Name' },
 				{ id: 'textLastName', name: 'Last Name' },
 				{ id: 'textPhone', name: 'Phone' },
-				{ id: 'textConfirmPassword', name: 'Confirm Password' }
+				{ id: 'textConfirmPassword', name: 'Password Again' }
 			);
 		}
 

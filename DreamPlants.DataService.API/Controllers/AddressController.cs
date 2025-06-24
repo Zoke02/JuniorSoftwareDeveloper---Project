@@ -30,11 +30,15 @@ namespace DreamPlants.DataService.API.Controllers
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
           return Unauthorized(new { success = false, message = "Unauthorized" });
-        // 2 - Is the token same as the DataBank one. 
+        // 2 - Is the token same as the DataBank one or if user status is Disabled(false) - I already check this in init!
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.UserStatus == false)
           return Unauthorized(new { success = false, message = "Unauthorized" });
-        // 3 - with user.UserId find user adresses
+        // 3 - Is user lastlog of token < DateTime.Now
+        if (user.LoginTokenTimeout < DateTime.Now)
+          return Unauthorized(new { success = false, message = "Unauthorized - Login token expired. Please login again. " });
+
+
         List<AddressDTO> addressesDTO = await _context.Addresses
             .Where(a => a.UserId == user.UserId && !a.Deleted)
             .Select(a => new AddressDTO

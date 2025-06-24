@@ -86,7 +86,6 @@ export default class PageShopCart {
 
 		this.#args.app.apiGet(
 			(r) => {
-				console.log(r.items);
 				this.#renderCartItems(r.items);
 			},
 			(err) => console.error('Failed to fetch cart items', err),
@@ -466,8 +465,7 @@ export default class PageShopCart {
 					select.innerHTML = `<option value="">No shipping options found</option>`;
 					return;
 				}
-				// const taxMultiplier = response.dto.taxMultiplier;
-				// const taxPercent = Math.round((taxMultiplier - 1) * 100); // 19 --do more testing with decimal point it wont work databank does not allow
+
 				this.#freeShippingAmmount = response.dto.shippingFree;
 				taxFee.innerHTML = '+ ' + response.dto.taxMultiplier + ' %';
 				select.innerHTML = `
@@ -496,7 +494,6 @@ export default class PageShopCart {
 		this.#args.app.apiGet(
 			(response) => {
 				if (!response.success) {
-					console.warn('Address fetch failed:', response.message);
 					select.innerHTML = `<option value="">No addresses found</option>`;
 					return;
 				}
@@ -506,7 +503,6 @@ export default class PageShopCart {
 					select.innerHTML = `<option value="">No saved addresses</option>`;
 					return;
 				}
-				console.log(addresses);
 				let optionsHtml = `<option value="">Select your address</option>`;
 
 				for (const a of addresses) {
@@ -539,7 +535,6 @@ export default class PageShopCart {
 		this.#args.app.apiGet(
 			(response) => {
 				if (!response.success) {
-					console.warn('Card fetch failed:', response.message);
 					select.innerHTML = `<option value="">No cards found</option>`;
 					return;
 				}
@@ -595,7 +590,6 @@ export default class PageShopCart {
 
 		const entries = Object.entries(cart);
 		if (entries.length === 0) {
-			console.log('Cart is empty');
 			this.#shopcartItemsPrice.innerHTML = '0.00';
 			this.#shopcartTotalPrice.innerHTML = '0.00';
 			return;

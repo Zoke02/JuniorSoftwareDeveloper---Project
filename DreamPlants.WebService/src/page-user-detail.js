@@ -246,9 +246,7 @@ export default class PageUserDetail {
 								(data) => {
 									if (data.success) {
 										this.#newPassword = newPass;
-										console.log(
-											'Old password verified. Ready to save.'
-										);
+
 										document
 											.getElementById('modalFirstInput')
 											.classList.remove('is-invalid');
@@ -398,7 +396,6 @@ export default class PageUserDetail {
 						toastBody.innerText = successCallback.message;
 						toastBootstrapDelete.show();
 						this.#getAndInsertAddresses();
-						console.log(this.#adresses);
 						this.#insertAddresses([]);
 					} else {
 						console.warn('Delete failed:', successCallback.message);
@@ -409,8 +406,6 @@ export default class PageUserDetail {
 				},
 				addressId
 			);
-
-			console.log(addressId);
 		});
 
 		// Get Card Data - INITIAL INSERT
@@ -445,10 +440,7 @@ export default class PageUserDetail {
 		});
 		// Save Card Data
 		saveCard.addEventListener('click', () => {
-			console.log('Befor VAl');
-
 			if (!this.#validateFieldsCard()) return;
-			console.log('After VAl');
 			// If all valid save.
 			const fields = [
 				'cardholderName',
@@ -465,8 +457,6 @@ export default class PageUserDetail {
 				const input = document.getElementById(id);
 				creditCardInfoData.append(id, input.value.trim());
 			});
-
-			console.log(creditCardInfoData);
 
 			this.#args.app.apiNewCard(
 				(successCallback) => {

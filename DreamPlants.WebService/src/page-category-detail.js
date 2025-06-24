@@ -77,7 +77,6 @@ export default class PageCategoryDetail {
 	#fetchCategories(callback) {
 		this.#args.app.apiGet(
 			(res) => {
-				console.log(res.categoriesDTO);
 				if (res.success && Array.isArray(res.categoriesDTO)) {
 					callback(res.categoriesDTO);
 				} else {
@@ -153,7 +152,6 @@ export default class PageCategoryDetail {
 	#promptAndAddCategory() {
 		const name = prompt('Enter Category name:')?.trim();
 		if (!name) return;
-		console.log(name);
 		this.#args.app.apiNewSomethingPOST(
 			(res) => {
 				if (res.success) this.#refreshCategoryList();

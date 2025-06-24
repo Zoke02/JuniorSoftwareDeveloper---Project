@@ -190,15 +190,22 @@
 						<!-- Add New Address -->
 						<p class="fw-bold mb-3">Add new address:</p>
 						<div class="row flex-grow-0">
-							<div class="col-md-6 border-end mb-3">
+							<div class="col-md-6 mb-3">
+								<label class="form-label" for="addressFirstName"
+									>First Name:</label
+								>
 								<input
 									type="text"
+									name="firstName"
 									id="addressFirstName"
 									class="form-control form-control-md"
 									placeholder="First name"
 								/>
 							</div>
 							<div class="col-md-6 mb-3">
+								<label class="form-label" for="addressLastName"
+									>Last Name:</label
+								>
 								<input
 									type="text"
 									id="addressLastName"
@@ -209,7 +216,10 @@
 						</div>
 
 						<div class="row flex-grow-0">
-							<div class="col-md-6 border-end mb-3">
+							<div class="col-md-6 mb-3">
+								<label class="form-label" for="addressStreet"
+									>Street:</label
+								>
 								<input
 									type="text"
 									id="addressStreet"
@@ -217,15 +227,21 @@
 									placeholder="Street"
 								/>
 							</div>
-							<div class="col-md-4 border-end mb-3">
+							<div class="col-md-4 mb-3">
+								<label class="form-label" for="addressHouseNr"
+									>House Nr:</label
+								>
 								<input
 									type="text"
 									id="addressHouseNr"
 									class="form-control form-control-md"
-									placeholder="House Nr"
+									placeholder="House Nr:"
 								/>
 							</div>
 							<div class="col-md-2 mb-3">
+								<label class="form-label" for="addressDoor"
+									>Door:</label
+								>
 								<input
 									type="text"
 									id="addressDoor"
@@ -236,6 +252,9 @@
 						</div>
 
 						<div class="mb-3 flex-grow-0">
+							<label class="form-label" for="addressCity"
+								>City:</label
+							>
 							<input
 								type="text"
 								id="addressCity"
@@ -245,6 +264,9 @@
 						</div>
 
 						<div class="mb-4 flex-grow-0">
+							<label class="form-label" for="addressPostalCode"
+								>Postal Code::</label
+							>
 							<input
 								type="text"
 								id="addressPostalCode"
@@ -283,6 +305,9 @@
 							<p class="fw-bold mb-3">Add new card:</p>
 
 							<div class="mb-3">
+								<label for="cardholderName" class="form-label"
+									>Cardholder's Name</label
+								>
 								<input
 									type="text"
 									class="form-control form-control-md"
@@ -293,6 +318,9 @@
 
 							<div class="row mb-3">
 								<div class="col-7">
+									<label for="cardNumber" class="form-label"
+										>Card Number</label
+									>
 									<input
 										type="text"
 										class="form-control form-control-md"
@@ -302,6 +330,9 @@
 									/>
 								</div>
 								<div class="col-3">
+									<label for="cardExpiry" class="form-label"
+										>Expiry Date</label
+									>
 									<input
 										type="text"
 										class="form-control form-control-md"
@@ -311,6 +342,9 @@
 									/>
 								</div>
 								<div class="col-2">
+									<label for="cardCVV" class="form-label"
+										>CVV</label
+									>
 									<input
 										type="text"
 										class="form-control form-control-md"
@@ -427,9 +461,7 @@
 					aria-label="Close"
 				></button>
 			</div>
-			<div class="toast-body" id="toastBody">
-				Hello, world! This is a toast message.
-			</div>
+			<div class="toast-body" id="toastBody"></div>
 		</div>
 	</div>
 </section>

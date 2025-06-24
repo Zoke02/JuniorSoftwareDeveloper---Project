@@ -28,15 +28,15 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
-        string token = Request.Cookies["LoginToken"];
-        if (string.IsNullOrEmpty(token))
-          return Unauthorized(new { success = false, message = "Unauthorized Token" });
-        // 2 - Is the token same as the DataBank one. 
-        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
-          return Unauthorized(new { success = false, message = "Unauthorized User" });
-        else
-        {
+        //string token = Request.Cookies["LoginToken"];
+        //if (string.IsNullOrEmpty(token))
+        //  return Unauthorized(new { success = false, message = "Unauthorized Token" });
+        //// 2 - Is the token same as the DataBank one. 
+        //User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        //if (user == null)
+        //  return Unauthorized(new { success = false, message = "Unauthorized User" });
+        //else
+        //{
           var product = await _context.Products
           .Include(sc => sc.Subcategory)
               .ThenInclude(c => c.Category)
@@ -79,7 +79,7 @@ namespace DreamPlants.DataService.API.Controllers
             return Ok(new { success = false, message = "Product not found!" });
           }
           return Ok(new { success = true, message = "Login successful!", product });
-        }
+        //}
       }
       catch (Exception ex)
       {

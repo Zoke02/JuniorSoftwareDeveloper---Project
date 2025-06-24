@@ -1,6 +1,5 @@
 import PageHTML from './page-individual-product.html';
 import PlantCareSection from './components/plant-care-section/plant-care-section';
-import * as bootstrap from 'bootstrap';
 
 export default class PageIndividualProduct {
 	#args = null;
@@ -29,7 +28,6 @@ export default class PageIndividualProduct {
 			if (!cart.hasOwnProperty(stockUid)) {
 				cart[stockUid] = (cart[stockUid] || 0) + 1;
 				localStorage.setItem('shopcart', JSON.stringify(cart));
-				console.log(`Added ${stockUid} to cart with quantity 1`);
 			}
 			this.#updateShopCartTotalQuantity('shopCardsItemNumber');
 		});
@@ -92,7 +90,6 @@ export default class PageIndividualProduct {
 		this.#args.app.apiGet(
 			(res) => {
 				this.#renderProductDetail(res);
-				console.log('Product details:', res);
 			},
 			(err) => {
 				console.error('Error fetching product:', err.message || err);

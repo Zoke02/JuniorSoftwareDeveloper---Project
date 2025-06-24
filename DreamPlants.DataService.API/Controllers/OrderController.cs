@@ -327,9 +327,6 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null || user.LoginTokenTimeout < DateTime.Now) 
           return Unauthorized();
 
-        if (user.RoleId != 1 && user.RoleId != 2)  // xD
-          return Unauthorized();
-
           var originalOrder = await _context.Orders
           .Include(o => o.OrderProducts)
           .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == user.UserId);

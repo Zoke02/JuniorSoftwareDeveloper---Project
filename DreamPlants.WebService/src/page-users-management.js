@@ -99,7 +99,6 @@ export default class PageUsersManagement {
 
 		for (const user of users) {
 			const div = document.createElement('div');
-			console.log(user.orders);
 			div.className = 'col-12';
 			div.innerHTML = `
 			<div class="card rounded-0 mb-4">

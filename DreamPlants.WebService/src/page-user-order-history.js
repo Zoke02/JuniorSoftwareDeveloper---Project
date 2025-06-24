@@ -33,7 +33,6 @@ export default class PageUserOrderHistory {
 	#handleClick = (e) => {
 		if (this.#clickLock) return;
 		this.#clickLock = true;
-		console.log('Click TRUE');
 		setTimeout(() => (this.#clickLock = false), 10);
 
 		const btn = e.target.closest('button');
@@ -306,7 +305,6 @@ export default class PageUserOrderHistory {
 		this.#args.app.apiGet(
 			(res) => {
 				callback(res.statuses); // extract 'statuses' array from response
-				console.log(res.statuses); // dev
 			},
 			(err) => {
 				console.error(
