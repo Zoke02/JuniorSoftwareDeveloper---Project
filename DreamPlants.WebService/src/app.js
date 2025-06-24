@@ -1,6 +1,5 @@
 import NavigationBar from './components/navigation-bar/navigation-bar';
 import FooterSection from './components/footer-section/footer-section';
-// import HeroSection from './components/hero-section/hero-section';
 
 import PageLogin from './page-login';
 import PageHome from './page-home';
@@ -13,6 +12,7 @@ import PageUserOrderHistory from './page-user-order-history';
 import PageUsersManagement from './page-users-management';
 import PageSummary from './page-summary';
 import PageAllProducts from './page-all-products';
+import PageIndividualProduct from './page-individual-product';
 
 export default class Application {
 	//=========================================================================================
@@ -38,6 +38,20 @@ export default class Application {
 		this.#main = document.querySelector('main');
 		this.#footer = document.querySelector('footer');
 		this.#loggedIn = document.cookie.includes('LoginToken');
+		// DEV
+
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', () => {
+				navigator.serviceWorker
+					.register('service-worker.js')
+					.then((reg) =>
+						console.log('Service Worker registered', reg)
+					)
+					.catch((err) =>
+						console.error('Service Worker error:', err)
+					);
+			});
+		}
 
 		//=========================================================================================
 		// Event
@@ -134,6 +148,9 @@ export default class Application {
 			case '#product-detail':
 				new PageProductDetail(args);
 				break;
+			case '#individual-product':
+				new PageIndividualProduct(args);
+				break;
 			case '#login':
 				if (document.cookie.includes('LoginToken')) new PageHome(args);
 				else new PageLogin(args);
@@ -144,9 +161,9 @@ export default class Application {
 				else window.open('#login', '_self');
 				break;
 			case '#user-order-history':
-				if (document.cookie.includes('LoginToken'))
+				if (document.cookie.includes('LoginToken')) {
 					new PageUserOrderHistory(args);
-				else window.open('#login', '_self');
+				} else window.open('#login', '_self');
 				break;
 			case '#users-management':
 				if (this.#hasToken() && this.#hasRole([1, 2]))
@@ -175,6 +192,7 @@ export default class Application {
 				new PageHome(args);
 				break;
 		}
+
 		new FooterSection({
 			target: this.#footer,
 			app: this,

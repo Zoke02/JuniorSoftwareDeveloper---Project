@@ -36,10 +36,6 @@ export default class PageShopCart {
 		this.#shopcartFreeShipping = document.getElementById(
 			'shopcartFreeShipping'
 		);
-		// Toastie
-		const toastLiveExample = document.getElementById('liveToast');
-		const toastTitle = document.getElementById('toastTitle');
-		const toastBody = document.getElementById('toastBody');
 
 		// INIT
 
@@ -49,7 +45,7 @@ export default class PageShopCart {
 			this.#cart = Object.keys(cartObj); // extract stockUids as array
 			this.#quantities = cartObj;
 		} catch (e) {
-			console.warn('Invalid cart data');
+			console.warn('Invalid cart data' + e);
 			this.#cart = [];
 			this.#quantities = {};
 		}
@@ -78,7 +74,7 @@ export default class PageShopCart {
 			const cartObj = JSON.parse(cartRaw);
 			stockUidList = Object.keys(cartObj); // Get only stockUids
 		} catch (e) {
-			console.warn('Invalid cart data');
+			console.warn('Invalid cart data' + e);
 			return;
 		}
 
@@ -197,7 +193,7 @@ export default class PageShopCart {
 							JSON.stringify(parsed)
 						);
 					} catch (e) {
-						console.warn('Invalid shopcart JSON');
+						console.warn('Invalid shopcart JSON' + e);
 					}
 				}
 				this.#updateShopCartTotalQuantity('shopCardItemCount');
@@ -257,7 +253,7 @@ export default class PageShopCart {
 					}
 				}
 			} catch (e) {
-				console.warn('Invalid shopcart JSON');
+				console.warn('Invalid shopcart JSON' + e);
 			}
 		}
 

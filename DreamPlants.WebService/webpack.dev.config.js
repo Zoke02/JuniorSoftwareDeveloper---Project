@@ -3,6 +3,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+// DEV
+const CopyPlugin = require('copy-webpack-plugin');
+
 module.exports = {
 	mode: 'development',
 	entry: {
@@ -39,6 +42,15 @@ module.exports = {
 	},
 
 	plugins: [
+		new CopyPlugin({
+			patterns: [
+				{ from: 'public/manifest.json', to: '.' },
+				{ from: 'public/icons', to: 'assets/icons' },
+				{ from: 'src/service-worker.js', to: '.' },
+				{ from: 'src/offline.html', to: '.' },
+			],
+		}),
+
 		new HtmlWebpackPlugin({
 			template: './src/index.html',
 		}),

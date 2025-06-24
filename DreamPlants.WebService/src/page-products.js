@@ -48,6 +48,7 @@ export default class PageProducts {
 			app: args.app,
 			checkbox: false,
 			click: () => {
+				this.#currentPage = 1;
 				// Sync to mobile
 				this.#mobileTree.selectedCat = [
 					...this.#categorieTree.selectedCat,
@@ -64,6 +65,7 @@ export default class PageProducts {
 			app: args.app,
 			checkbox: false,
 			click: () => {
+				this.#currentPage = 1;
 				// Use spread to copy the selectedCat array values from mobileTree
 				// into a new array, avoiding shared reference - find more documentation
 				this.#categorieTree.selectedCat = [
@@ -111,9 +113,6 @@ export default class PageProducts {
 				btn = e.target.parentElement;
 			if (btn) {
 				if (btn.dataset.aktion == 'del') {
-					const a = this.#productList.filter(
-						(o) => o.stockUid == btn.dataset.id
-					)[0];
 					if (confirm('Are you sure you wish to delete?')) {
 						args.app.apiDeleteSomething(
 							(r) => {

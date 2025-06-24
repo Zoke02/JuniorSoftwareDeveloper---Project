@@ -252,6 +252,8 @@ export default class PageUserDetail {
 										document
 											.getElementById('modalFirstInput')
 											.classList.remove('is-invalid');
+
+										document.activeElement.blur();
 										setTimeout(() => modal.hide(), 50);
 									} else {
 										const oldPassInput =

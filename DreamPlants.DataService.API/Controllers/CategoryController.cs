@@ -58,14 +58,14 @@ namespace DreamPlants.DataService.API.Controllers
     }
 
     [HttpPost("Add")]
-    public async Task<ActionResult> AddCategory([FromBody] RenameDTO dto)
+    public async Task<ActionResult> AddCategory([FromBody] string dto)
     {
       try
       {
         var user = await ValidateAdminAsync();
         if (user == null) return Unauthorized();
 
-        string name = dto.NewName.Trim();
+        string name = dto.Trim();
 
         bool exists = await _context.Categories
           .AnyAsync(c => c.CategoryName.ToLower() == name.ToLower());

@@ -1,6 +1,5 @@
-import CategoryTree from './components/category-tree/category-tree';
 import PageHTML from './page-all-products.html';
-import * as bootstrap from 'bootstrap';
+import CategoryTree from './components/category-tree/category-tree';
 
 export default class PageAllProducts {
 	//--------------------------------------------------
@@ -29,11 +28,6 @@ export default class PageAllProducts {
 		);
 		const clearCatFilter = args.target.querySelector('#clearCatFilter');
 
-		// Toastie
-		const toastLiveExample = document.getElementById('liveToast');
-		const toastTitle = document.getElementById('toastTitle');
-		const toastBody = document.getElementById('toastBody');
-
 		//offCanva
 		const mobileCategorieTree = document.querySelector(
 			'#mobileCategorieTree'
@@ -47,6 +41,7 @@ export default class PageAllProducts {
 			app: args.app,
 			checkbox: false,
 			click: () => {
+				this.#currentPage = 1;
 				// Sync to mobile
 				this.#mobileTree.selectedCat = [
 					...this.#categorieTree.selectedCat,
@@ -63,6 +58,7 @@ export default class PageAllProducts {
 			app: args.app,
 			checkbox: false,
 			click: () => {
+				this.#currentPage = 1;
 				// Use spread to copy the selectedCat array values from mobileTree
 				// into a new array, avoiding shared reference - find more documentation
 				this.#categorieTree.selectedCat = [
@@ -188,7 +184,7 @@ export default class PageAllProducts {
 
 		div.innerHTML = `
 			<div class="card text-center text-decoration-none h-100">
-                <a href="">
+                <a href="#individual-product?stockUid=${stock.stockUid}">
 				    <img src="${imageUrl}" class="card-img-top" alt="${product.name}" />
                 </a>
 				<div class="card-body">
@@ -258,7 +254,7 @@ export default class PageAllProducts {
 					}
 				}
 			} catch (e) {
-				console.warn('Invalid shopcart JSON');
+				console.warn('Invalid shopcart JSON' + e);
 			}
 		}
 

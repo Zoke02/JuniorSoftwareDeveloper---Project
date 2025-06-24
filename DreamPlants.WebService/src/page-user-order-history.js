@@ -8,49 +8,55 @@ export default class PageUserOrderHistory {
 	#args = null;
 	#currentPage = 1;
 	#totalPages = 1;
+	#clickLock = false;
+	#boundClickHandler = null;
 
 	//--------------------------------------------------
 	// Constructor
 	//--------------------------------------------------
 	constructor(args) {
 		this.#args = args;
+		this.#clickLock = false;
 		args.target.innerHTML = PageHTML;
-		//more then 1 button so lissen to event and take the
 
-		// INIT
 		this.#fetchOrders();
 
-		// EVENTS
+		// 👇 Attach to local wrapper instead of <main>
+		const container = args.target.querySelector('#userOrderHistoryPage');
 
-		// change later to 2 separat
-		this.#args.target.addEventListener('click', (e) => {
-			const btn = e.target.closest('button');
+		if (!this.#boundClickHandler) {
+			this.#boundClickHandler = this.#handleClick.bind(this);
+			container.addEventListener('click', this.#boundClickHandler);
+		}
+	}
 
-			if (!btn || !this.#args.target.contains(btn)) return;
+	#handleClick = (e) => {
+		if (this.#clickLock) return;
+		this.#clickLock = true;
+		console.log('Click TRUE');
+		setTimeout(() => (this.#clickLock = false), 10);
 
-			// Cancel button
-			if (btn.classList.contains('btnCancelOrder')) {
-				e.preventDefault();
+		const btn = e.target.closest('button');
+		if (!btn || !this.#args.target.contains(btn)) return;
+
+		e.preventDefault();
+
+		switch (true) {
+			case btn.classList.contains('btnCancelOrder'): {
 				const orderId = btn.dataset.orderId;
 				if (confirm('Are you sure you want to cancel this order?')) {
 					this.#cancelOrder(orderId);
 				}
-				return;
+				break;
 			}
-
-			// Reorder button
-			if (btn.classList.contains('btnReorder')) {
-				e.preventDefault();
+			case btn.classList.contains('btnReorder'): {
 				const orderId = btn.dataset.orderId;
 				if (confirm('Reorder this same order?')) {
 					this.#reorder(orderId);
 				}
-				return;
+				break;
 			}
-
-			// Save Status button
-			if (btn.classList.contains('btnSaveStatus')) {
-				e.preventDefault();
+			case btn.classList.contains('btnSaveStatus'): {
 				const orderId = parseInt(btn.dataset.orderId);
 				const select = this.#args.target.querySelector(
 					`.status-dropdown[data-order-id="${orderId}"]`
@@ -59,9 +65,12 @@ export default class PageUserOrderHistory {
 				if (!isNaN(orderId) && !isNaN(statusId)) {
 					this.#updateOrderStatus(orderId, statusId);
 				}
+				break;
 			}
-		});
-	}
+			default:
+				break;
+		}
+	};
 
 	//--------------------------------------------------
 	// Public Methods
@@ -98,8 +107,10 @@ export default class PageUserOrderHistory {
 
 		for (const order of orders) {
 			const status = order.status.toLowerCase();
-			const canCancel = ['pending', 'confirmed'].includes(status);
-			const isFinal = ['shipped', 'delivered'].includes(status);
+			const canCancel = ['pending', 'confirmed', 'shipped'].includes(
+				status
+			);
+			const isFinal = ['delivered'].includes(status);
 			const isOwnOrder =
 				order.firstName === this.#args.app.user.firstName;
 

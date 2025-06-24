@@ -45,7 +45,7 @@
     "Parameters": [
       {
         "Name": "dto",
-        "Type": "DreamPlants.DataService.API.Models.DTO.RenameDTO",
+        "Type": "System.String",
         "IsRequired": true
       }
     ],

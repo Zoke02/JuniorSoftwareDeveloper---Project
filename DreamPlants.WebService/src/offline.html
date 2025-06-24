@@ -1,0 +1,240 @@
+<html lang="en" data-bs-theme="dark">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="manifest" href="assets/manifest.0f12352f4b062e42c62b.json" />
+		<meta name="theme-color" content="#053336" />
+
+		<title>Dream Plants</title>
+		<script defer="" src="vendors.js"></script>
+		<script defer="" src="app.js"></script>
+		<link href="vendors.css" rel="stylesheet" />
+		<link href="app.css" rel="stylesheet" />
+	</head>
+	<body>
+		<header>
+			<nav
+				class="navbar navbar-expand bg-dark-green border-accent-bottom py-2"
+			>
+				<div
+					class="container d-flex justify-content-between align-items-center position-relative"
+				>
+					<!-- LEFT -->
+					<div class="d-flex align-items-center">
+						<div
+							class="nav-item d-none"
+							data-bs-toggle="offcanvas"
+							data-bs-target="#mobileCategoryCanvas"
+							id="mobileCategoryIcon"
+						>
+							<i class="bi bi-list fs-1"></i>
+						</div>
+						<div class="nav-item ps-3" id="lightDarkMode">
+							<i class="bi bi-moon-stars-fill fs-5"></i>
+						</div>
+					</div>
+
+					<!-- CENTER (absolute logo) -->
+					<a
+						href="#home"
+						class="position-absolute top-50 start-50 translate-middle"
+					>
+						<img
+							class="navbar-logo"
+							src="http://localhost:5501/dist/dev/assets/Logo%20(DarkMode).c12f65c9851e43e5cdac.svg"
+							alt="Dream Plants Logo"
+						/>
+					</a>
+
+					<!-- RIGHT -->
+					<div class="d-flex align-items-center">
+						<div class="d-none d-lg-flex pe-3" id="userName">
+							Welcome, Yana
+						</div>
+
+						<a
+							href="#"
+							class="nav-item pe-3"
+							data-bs-toggle="dropdown"
+							aria-expanded="true"
+							id="loginMenu"
+						>
+							<i class="bi fs-1 bi-person-gear" id="userIcon"></i>
+						</a>
+
+						<a
+							href="#"
+							class="nav-item position-relative d-inline-block"
+						>
+							<i class="bi bi-cart2 fs-1"></i>
+							<span
+								class="badge badge-position bg-danger position-absolute rounded-pill"
+								style="font-size: 0.75rem"
+								id="shopCardsItemNumber"
+							></span>
+						</a>
+					</div>
+				</div>
+			</nav>
+		</header>
+		<main>
+			<div id="heroSection">
+				<div class="hero">
+					<!-- Hero Banner -->
+					<section class="hero-banner">
+						<img
+							class="hero-img border-accent-bottom"
+							src="http://localhost:5501/dist/dev/assets/hero-banner.d580aca72e86771912d7.webp"
+							alt=""
+						/>
+					</section>
+				</div>
+			</div>
+			<div id="cardsSection">
+				<div class="cards-section-wrapper container pb-5">
+					<div class="container px-4 mt-5">
+						<div class="row">
+							<div class="col-md-12 text-center mb-4">
+								<h2 class="text-uppercase fs-1">
+									New additions
+								</h2>
+								<a href="#all-products">
+									<button
+										class="btn btn-primary text-uppercase px-4 rounded fs-3 my-4"
+										type="button"
+									>
+										Show all
+									</button>
+								</a>
+							</div>
+						</div>
+						<div
+							class="row justify-content-center g-4"
+							id="cardsNewAdditions"
+						>
+							You Are Offline
+						</div>
+					</div>
+					<div class="container px-4 mt-5">
+						<div class="row">
+							<div class="col-md-12 text-center mb-4">
+								<h2 class="text-uppercase fs-1">Best Seller</h2>
+								<a href="#all-products">
+									<button
+										class="btn btn-primary text-uppercase rounded fs-3 my-4"
+										type="button"
+									>
+										Show all
+									</button>
+								</a>
+							</div>
+							<div
+								class="row justify-content-center g-4"
+								id="cardsBestSeller"
+							>
+								You Are Offline
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="plantCareSection">
+				<div class="container py-4">
+					<div class="row justify-content-center text-center">
+						<!-- Card -->
+						<div class="card col-12 col-sm-6 col-md-4 d-flex">
+							<i class="p-4 bi bi-truck"></i>
+							<div class="card-body">
+								<p class="card-text">Free Shipping</p>
+								<p class="card-text">
+									Within Austria and throughout Europe from
+									<span id="shippingPriceChange">150 €</span>
+									purchase value
+								</p>
+							</div>
+						</div>
+						<!-- Card -->
+						<div class="card col-12 col-sm-6 col-md-4 d-flex">
+							<i class="p-4 bi bi-flower3"></i>
+							<div class="card-body">
+								<p class="card-text">Latest plant trends</p>
+								<p class="card-text">
+									You can find the most beautiful and latest
+									houseplant trends here
+								</p>
+							</div>
+						</div>
+						<!-- Card -->
+						<div class="card col-12 col-sm-6 col-md-4 d-flex">
+							<i class="p-4 bi bi-star"></i>
+							<div class="card-body">
+								<p class="card-text">
+									Plants of the best quality
+								</p>
+								<p class="card-text">
+									Healthy plants in the best condition
+									including plant guarantee
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</main>
+		<footer>
+			<div class="container py-4 mt-5 mb-3 border-top-gold">
+				<div class="row justify-content-between">
+					<!-- Left: Navigation -->
+					<div class="col-12 col-sm-6 text text-center text-sm-start">
+						<ul class="list-unstyled mb-0">
+							<li>
+								<a href="#home" class="text-decoration-none"
+									>Home</a
+								>
+							</li>
+							<li>
+								<a href="#shop" class="text-decoration-none"
+									>Shop</a
+								>
+							</li>
+							<li>
+								<a href="#about" class="text-decoration-none"
+									>About Us</a
+								>
+							</li>
+							<li>
+								<a href="#contact" class="text-decoration-none"
+									>Contact</a
+								>
+							</li>
+						</ul>
+					</div>
+
+					<!-- Right: Legal -->
+					<div class="col-12 col-sm-6 text-center text-sm-end">
+						<ul class="list-unstyled">
+							<li>
+								<a
+									href="#impressum"
+									class="text-decoration-none"
+									>Impressum</a
+								>
+							</li>
+							<li>
+								<a href="#privacy" class="text-decoration-none"
+									>Privacy Policy</a
+								>
+							</li>
+							<li>
+								<a href="#terms" class="text-decoration-none"
+									>Terms &amp; Conditions</a
+								>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="text-center">Copyright</div>
+			</div>
+		</footer>
+	</body>
+</html>

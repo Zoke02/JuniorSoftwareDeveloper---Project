@@ -6,61 +6,72 @@ export default class PageCategoryDetail {
 	//--------------------------------------------------
 	#args = null;
 	#actionLock = false; // DEV
+	#boundClickHandler = null;
 
 	//--------------------------------------------------
 	// Constructor
 	//--------------------------------------------------
 	constructor(args) {
 		this.#args = args;
+		this.#actionLock = false;
 		args.target.innerHTML = PageHTML;
 
-		// INIT
 		this.#fetchCategories((categories) => {
 			const container =
 				this.#args.target.querySelector('#containerCategory');
 			container.innerHTML = this.#renderCategoryTree(categories);
 		});
 
-		// EVENTS
-		this.#args.target.addEventListener('click', (e) => {
-			const icon = e.target.closest('i[data-action]');
-			if (!icon) return;
+		const container = this.#args.target.querySelector(
+			'#pageCategoryDetail'
+		);
+		// COpy paste
+		if (!this.#boundClickHandler) {
+			this.#boundClickHandler = this.#handleClick.bind(this);
+			container.addEventListener('click', this.#boundClickHandler);
+		}
+	}
+	#handleClick(e) {
+		const icon = e.target.closest('i[data-action]');
+		if (!icon) return;
 
-			const action = icon.dataset.action;
-			const id = parseInt(icon.dataset.id);
+		const action = icon.dataset.action;
+		const id = parseInt(icon.dataset.id);
 
-			if (this.#actionLock) return;
-			this.#actionLock = true;
+		if (this.#actionLock) return;
+		this.#actionLock = true;
 
-			switch (action) {
-				case 'add-subcat':
-					this.#promptAndAddSubcategory(id);
-					break;
-				case 'rename-cat':
-					this.#promptAndRename('Category', 'Category/Rename', id);
-					break;
-				case 'rename-subcat':
-					this.#promptAndRename(
-						'Subcategory',
-						'Category/Subcategory/Rename',
-						id
-					);
-					break;
-				case 'delete-cat':
-					this.#confirmAndDelete('Category', `Category/Delete/${id}`);
-					break;
-				case 'delete-subcat':
-					this.#confirmAndDelete(
-						'Subcategory',
-						`Category/Subcategory/Delete/${id}`
-					);
-					break;
-			}
+		switch (action) {
+			case 'add-cat':
+				this.#promptAndAddCategory();
+				break;
+			case 'add-subcat':
+				this.#promptAndAddSubcategory(id);
+				break;
+			case 'rename-cat':
+				this.#promptAndRename('Category', 'Category/Rename', id);
+				break;
+			case 'rename-subcat':
+				this.#promptAndRename(
+					'Subcategory',
+					'Category/Subcategory/Rename',
+					id
+				);
+				break;
+			case 'delete-cat':
+				this.#confirmAndDelete('Category', `Category/Delete/${id}`);
+				break;
+			case 'delete-subcat':
+				this.#confirmAndDelete(
+					'Subcategory',
+					`Category/Subcategory/Delete/${id}`
+				);
+				break;
+		}
 
-			setTimeout(() => {
-				this.#actionLock = false;
-			}, 300); // DEV
-		});
+		setTimeout(() => {
+			this.#actionLock = false;
+		}, 300);
 	}
 
 	#fetchCategories(callback) {
@@ -124,6 +135,7 @@ export default class PageCategoryDetail {
 
 		return html;
 	}
+
 	#promptAndRename(type, url, id) {
 		const newName = prompt(`Enter new ${type} name:`)?.trim();
 		if (!newName) return;
@@ -136,6 +148,20 @@ export default class PageCategoryDetail {
 			(err) => alert(err.message || `Error renaming ${type}.`),
 			url,
 			{ id, newName }
+		);
+	}
+	#promptAndAddCategory() {
+		const name = prompt('Enter Category name:')?.trim();
+		if (!name) return;
+		console.log(name);
+		this.#args.app.apiNewSomethingPOST(
+			(res) => {
+				if (res.success) this.#refreshCategoryList();
+				else alert(res.message || 'Failed to Category.');
+			},
+			(err) => alert(err.message || 'Error adding Category.'),
+			'Category/Add',
+			name
 		);
 	}
 	#promptAndAddSubcategory(categoryId) {

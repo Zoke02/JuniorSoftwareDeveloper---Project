@@ -130,7 +130,7 @@ a i {
 /* Hero Section */
 .hero-img {
 	width: 100%;
-	height: 75dvh;
+	height: 55dvh;
 	object-fit: cover;
 	display: block;
 }
@@ -349,5 +349,8 @@ a i {
 }
 .popover-warning {
 	background-color: #969623 !important;
+}
+.navBarSpace {
+	height: 81px;
 }
 

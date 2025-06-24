@@ -11,6 +11,7 @@
 	"license": "ISC",
 	"devDependencies": {
 		"autoprefixer": "^10.4.21",
+		"copy-webpack-plugin": "^13.0.0",
 		"css-loader": "^7.1.2",
 		"eslint": "^9.21.0",
 		"eslint-webpack-plugin": "^5.0.0",

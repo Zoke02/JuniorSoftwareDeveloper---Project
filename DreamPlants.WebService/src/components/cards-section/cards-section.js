@@ -26,7 +26,6 @@ export default class CardsSection {
 				if (!cart.hasOwnProperty(stockUid)) {
 					cart[stockUid] = (cart[stockUid] || 0) + 1;
 					localStorage.setItem('shopcart', JSON.stringify(cart));
-					console.log(`Added ${stockUid} to cart with quantity 1`);
 				}
 				this.#updateShopCartTotalQuantity('shopCardsItemNumber');
 			}
@@ -43,7 +42,6 @@ export default class CardsSection {
 				container.innerHTML = '';
 				this.#products.forEach((product) => {
 					const card = this.#createProductCard(product);
-					console.log(product);
 					container.appendChild(card);
 				});
 			},
@@ -89,7 +87,9 @@ export default class CardsSection {
 
 		div.innerHTML = `
 			<div class="card text-center text-decoration-none h-100">
-				<img src="${imageUrl}" class="card-img-top" alt="${product.name}" />
+			    <a href="#individual-product?stockUid=${stock.stockUid}">
+					<img src="${imageUrl}" class="card-img-top" alt="${product.name}" />
+				</a>
 				<div class="card-body">
 					<p class="card-text">${product.name} - ${product.stocks[0].variantSize}</p>
 					<p class="card-text">${stock.price.toFixed(2)} €</p>
@@ -113,7 +113,7 @@ export default class CardsSection {
 					}
 				}
 			} catch (e) {
-				console.warn('Invalid shopcart JSON');
+				console.warn('Invalid shopcart JSON' + e);
 			}
 		}
 

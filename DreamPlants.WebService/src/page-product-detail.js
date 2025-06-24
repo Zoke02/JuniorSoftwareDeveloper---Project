@@ -70,7 +70,6 @@ export default class PageProductDetail {
 
 		// Accordion panels
 		const accordionItem2 = args.target.querySelector('#accordionItem2');
-		const accordionItem3 = args.target.querySelector('#accordionItem3');
 
 		// Stock buttons and info
 		const buttonAddStock = args.target.querySelector('#buttonAddStock');
@@ -186,7 +185,7 @@ export default class PageProductDetail {
 		// Events
 		//--------------------------------------------------
 		textPrice.addEventListener('input', (e) => {
-			let val = e.target.value
+			const val = e.target.value
 				.replace(',', '.') // convert comma to dot
 				.replace(/[^0-9.]/g, '') // remove non-numeric and non-dot
 				.replace(/(\..*?)\..*/g, '$1'); // allow only one dot check later if you doin 1.000,29 stuff https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet
@@ -221,7 +220,7 @@ export default class PageProductDetail {
 			const payload = await this.#prepareProductPayload();
 			if (!this.#validateProductFields()) return;
 
-			// CASE: CREATE NEW PRODUCT
+			// CREATE NEW PRODUCT
 			if ((!this.#product && !this.#args.stockUid) || !this.#stockUid) {
 				args.app.apiNewSomethingPOST(
 					(r) => {
@@ -235,9 +234,12 @@ export default class PageProductDetail {
 							toastBootstrap.show();
 							this.#stockUid = r.stockUid;
 							accordionItem2.classList.remove('d-none');
-							if (r.stockUid) {
-								window.location.hash = `product-detail?stockUid=${r.stockUid}`;
-							}
+
+							setTimeout(() => {
+								if (r.stockUid) {
+									window.location.hash = `product-detail?stockUid=${r.stockUid}`;
+								}
+							}, 2500);
 						} else {
 							toastTitle.innerText = 'Validation Error';
 							toastBody.innerText = r.message;
@@ -258,7 +260,7 @@ export default class PageProductDetail {
 					payload
 				);
 			}
-			// CASE: EDIT EXISTING PRODUCT
+			// EDIT EXISTING PRODUCT
 			else if (this.#args.stockUid || this.#stockUid) {
 				args.app.apiNewSomethingPOST(
 					(r) => {

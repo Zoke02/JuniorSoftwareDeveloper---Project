@@ -312,6 +312,19 @@ namespace DreamPlants.DataService.API.Controllers
         if (product == null)
           return Ok(new { success = false, message = "Product not found." });
 
+        // Check if any of the product's stocks are in order_products
+        var isInOrder = await _context.OrderProducts
+          .AnyAsync(op => product.Stocks.Select(s => s.StockId).Contains(op.StockId));
+
+        if (isInOrder)
+        {
+          return Ok(new
+          {
+            success = false,
+            message = "Cannot delete product: It is used in at least one order."  // soft delete if u got time later
+          });
+        }
+
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
 
@@ -325,7 +338,8 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500);
 #endif
       }
-    } // DeleteProduct
+    }
+    // DeleteProduct
 
     // GET: Products/Category/5
     [HttpGet("Category/{id}")]

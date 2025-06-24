@@ -12,6 +12,7 @@ export default class PageLogin {
 	#phone = null;
 	#toastMessage = null;
 	#toastMessageBody = null;
+	#actionLock = false; // DEV
 
 	constructor(args) {
 		this.#args = args;
@@ -103,43 +104,52 @@ export default class PageLogin {
 		});
 
 		// Enter key submit - FINISHED
-		args.target.addEventListener('keydown', (e) => {
+		args.target.addEventListener('keyup', (e) => {
 			if (e.key === 'Enter') {
-				e.preventDefault();
-				buttonSubmit.click();
-			}
-		});
-		// Submit - NEEDS WORK
-		buttonSubmit.addEventListener('click', () => {
-			if (!this.#validateAuthForm()) return;
+				const isTextField = e.target.matches('input, textarea');
+				if (!isTextField) return;
 
-			const isRegister = registerTab.classList.contains('active');
-			if (isRegister) {
-				this.#handleRegister(args);
-				if (!this.#checkboxRemember.checked) {
-					localStorage.removeItem('email');
-				}
-				if (localStorage.getItem('firstName'))
-					localStorage.removeItem('firstName');
-				if (localStorage.getItem('lastName'))
-					localStorage.removeItem('lastName');
-				if (localStorage.getItem('phone'))
-					localStorage.removeItem('phone');
-			} else {
-				this.#handleLogin(args);
-				if (!this.#checkboxRemember.checked) {
-					if (localStorage.getItem('email'))
-						localStorage.removeItem('email');
-				}
-				if (localStorage.getItem('firstName'))
-					localStorage.removeItem('firstName');
-				if (localStorage.getItem('lastName'))
-					localStorage.removeItem('lastName');
-				if (localStorage.getItem('phone'))
-					localStorage.removeItem('phone');
+				e.preventDefault();
+				if (!this.#actionLock) this.#handleSubmit();
 			}
 		});
+
+		// Submit - NEEDS WORK
+		buttonSubmit.addEventListener('click', () => this.#handleSubmit());
 	}
+	// Login Handler - WOKRING ON
+	#handleSubmit() {
+		if (this.#actionLock) return;
+		if (!this.#validateAuthForm()) return;
+
+		this.#actionLock = true;
+		setTimeout(() => (this.#actionLock = false), 500); //  lock
+
+		const isRegister = this.#registerTab.classList.contains('active');
+		if (isRegister) {
+			this.#handleRegister(this.#args);
+			if (!this.#checkboxRemember.checked) {
+				localStorage.removeItem('email');
+			}
+			if (localStorage.getItem('firstName'))
+				localStorage.removeItem('firstName');
+			if (localStorage.getItem('lastName'))
+				localStorage.removeItem('lastName');
+			if (localStorage.getItem('phone')) localStorage.removeItem('phone');
+		} else {
+			this.#handleLogin(this.#args);
+			if (!this.#checkboxRemember.checked) {
+				if (localStorage.getItem('email'))
+					localStorage.removeItem('email');
+			}
+			if (localStorage.getItem('firstName'))
+				localStorage.removeItem('firstName');
+			if (localStorage.getItem('lastName'))
+				localStorage.removeItem('lastName');
+			if (localStorage.getItem('phone')) localStorage.removeItem('phone');
+		}
+	}
+
 	// Login Handler - FINISHED
 	#handleLogin(args) {
 		const loginData = new FormData();

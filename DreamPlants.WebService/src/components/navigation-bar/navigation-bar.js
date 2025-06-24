@@ -146,7 +146,7 @@ export default class NavigationBar {
 					}
 				}
 			} catch (e) {
-				console.warn('Invalid shopcart JSON');
+				console.warn('Invalid shopcart JSON' + e);
 			}
 		}
 
