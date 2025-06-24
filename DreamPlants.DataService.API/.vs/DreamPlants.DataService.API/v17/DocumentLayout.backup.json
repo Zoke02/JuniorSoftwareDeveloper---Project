@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\juniorsoftwaredeveloper---project\\dreamplants.dataservice.api\\controllers\\pagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\pagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\juniorsoftwaredeveloper---project\\dreamplants.dataservice.api\\controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\ordercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -23,10 +27,6 @@
       "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\userscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\juniorsoftwaredeveloper---project\\dreamplants.dataservice.api\\controllers\\pagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\pagecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|c:\\dreamplants\\juniorsoftwaredeveloper---project\\dreamplants.dataservice.api\\controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{3B5A44D1-5154-452D-A15C-8A60E64F2A11}|DreamPlants.DataService.API.csproj|solutionrelative:controllers\\categorycontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -38,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -46,7 +46,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "UsersController.cs",
               "DocumentMoniker": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\Controllers\\UsersController.cs",
               "RelativeDocumentMoniker": "Controllers\\UsersController.cs",
@@ -54,38 +54,37 @@
               "RelativeToolTip": "Controllers\\UsersController.cs",
               "ViewState": "AgIAABoAAAAAAAAAAAAuwIcAAAA0AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-24T11:08:19.696Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-24T11:08:19.696Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 0,
               "Title": "PageController.cs",
               "DocumentMoniker": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\Controllers\\PageController.cs",
               "RelativeDocumentMoniker": "Controllers\\PageController.cs",
               "ToolTip": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\Controllers\\PageController.cs",
               "RelativeToolTip": "Controllers\\PageController.cs",
-              "ViewState": "AgIAAHUBAAAAAAAAAAAuwJcBAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAIIAAAAAAAAAAAA0wOwAAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-24T11:07:40.569Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "OrderController.cs",
               "DocumentMoniker": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\Controllers\\OrderController.cs",
               "RelativeDocumentMoniker": "Controllers\\OrderController.cs",
               "ToolTip": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\Controllers\\OrderController.cs",
               "RelativeToolTip": "Controllers\\OrderController.cs",
-              "ViewState": "AgIAAF0BAAAAAAAAAAAtwGUBAAAsAAAAAAAAAA==",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAAAEEBAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-06-24T11:03:59.747Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "CreditCardsController.cs",
               "DocumentMoniker": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\Controllers\\CreditCardsController.cs",
               "RelativeDocumentMoniker": "Controllers\\CreditCardsController.cs",
@@ -93,8 +92,7 @@
               "RelativeToolTip": "Controllers\\CreditCardsController.cs",
               "ViewState": "AgIAABEAAAAAAAAAAAAAADoAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-24T11:02:32.194Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-24T11:02:32.194Z"
             },
             {
               "$type": "Document",
@@ -106,12 +104,11 @@
               "RelativeToolTip": "Controllers\\CategoryController.cs",
               "ViewState": "AgIAAAcBAAAAAAAAAAAkwB4BAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-24T11:00:07.094Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-24T11:00:07.094Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "ProductsController.cs",
               "DocumentMoniker": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\Controllers\\ProductsController.cs",
               "RelativeDocumentMoniker": "Controllers\\ProductsController.cs",
@@ -119,12 +116,11 @@
               "RelativeToolTip": "Controllers\\ProductsController.cs",
               "ViewState": "AgIAAL4AAAAAAAAAAAA5wI0BAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-24T10:57:54.912Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-24T10:57:54.912Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "AddressController.cs",
               "DocumentMoniker": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\Controllers\\AddressController.cs",
               "RelativeDocumentMoniker": "Controllers\\AddressController.cs",
@@ -132,8 +128,7 @@
               "RelativeToolTip": "Controllers\\AddressController.cs",
               "ViewState": "AgIAAEoAAAAAAAAAAAAUwJUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-06-24T10:56:13.308Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-06-24T10:56:13.308Z"
             }
           ]
         }

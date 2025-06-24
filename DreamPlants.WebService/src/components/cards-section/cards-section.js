@@ -10,7 +10,7 @@ export default class CardsSection {
 
 		// INIT
 		this.#fetchLatestProducts('cardsNewAdditions', 'newest');
-		this.#fetchLatestProducts('cardsBestSellers', 'asc');
+		this.#fetchLatestProducts('cardsBestSellers', 'bestseller');
 
 		// EVENTS
 		args.target.addEventListener('click', (e) => {

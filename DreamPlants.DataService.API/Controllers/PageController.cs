@@ -301,6 +301,27 @@ namespace DreamPlants.DataService.API.Controllers
             includeFullCats.Contains(p.Subcategory.Category.CategoryId));
         }
 
+        // DEV - Missing DTO
+        if (sortBy == "bestseller")
+        {
+          // grorup all producs in order 
+          var bestsellerQuery = _context.OrderProducts
+            .GroupBy(op => op.Stock.ProductId)
+            .Select(g => new
+            {
+              ProductId = g.Key,
+              TotalSold = g.Sum(op => op.Quantity)
+            });
+
+          query = query
+            .GroupJoin(bestsellerQuery,
+              p => p.ProductId,
+              b => b.ProductId,
+              (p, b) => new { Product = p, TotalSold = b.Select(x => x.TotalSold).FirstOrDefault() })
+            .OrderByDescending(x => x.TotalSold)
+            .Select(x => x.Product);
+        } else  // DEV
+
         // Sort
         if (sortBy == "newest")
         {
