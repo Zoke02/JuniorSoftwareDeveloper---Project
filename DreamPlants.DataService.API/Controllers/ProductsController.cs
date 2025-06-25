@@ -22,56 +22,53 @@ namespace DreamPlants.DataService.API.Controllers
       _context = context;
     }
 
-    // GET: Products/5
     [HttpGet("{id}")]
     public async Task<ActionResult<ProductDTO>> GetProduct(string id)
     {
       try
       {
-
-          var product = await _context.Products
-          .Include(sc => sc.Subcategory)
-              .ThenInclude(c => c.Category)
-          .Include(s => s.Stocks)
-          .Where(s => s.Stocks.Any(s => s.StockUid == id))
-          .Select(p => new ProductDTO
+        var product = await _context.Products
+        .Include(sc => sc.Subcategory)
+            .ThenInclude(c => c.Category)
+        .Include(s => s.Stocks)
+        .Where(s => s.Stocks.Any(s => s.StockUid == id))
+        .Select(p => new ProductDTO
+        {
+          Name = p.Name,
+          CategoryId = p.Subcategory.Category.CategoryId,
+          CategoryName = p.Subcategory.Category.CategoryName,
+          SubcategoryId = p.Subcategory.SubcategoryId,
+          SubcategoryName = p.Subcategory.SubcategoryName,
+          Stocks = p.Stocks
+          .Where(s => s.StockUid == id)
+          .Select(s => new StockDTO
           {
-            Name = p.Name,
-            CategoryId = p.Subcategory.Category.CategoryId,
-            CategoryName = p.Subcategory.Category.CategoryName,
-            SubcategoryId = p.Subcategory.SubcategoryId,
-            SubcategoryName = p.Subcategory.SubcategoryName,
-            Stocks = p.Stocks
-            .Where(s => s.StockUid == id)
-            .Select(s => new StockDTO
-            {
-              StockUid = s.StockUid,
-              VariantSize = s.VariantSize,
-              VariantColor = s.VariantColor,
-              VariantText = s.VariantText,
-              Price = s.Price,
-              Quantity = s.Quantity,
-              StockNumber = s.StockNumber,
-              Note = s.Note,
-              CreatedBy = s.CreatedBy,
-            }).ToList(),
-            Files = p.Files.Select(f => new FileDTO
-            {
-              FileId = f.FileId,
-              FileName = f.FileName,
-              FileType = f.FileType,
-              FileData = f.FileData
-            }).ToList()
-
-          })
-          .FirstOrDefaultAsync();
-
-          if (product == null)
+            StockUid = s.StockUid,
+            VariantSize = s.VariantSize,
+            VariantColor = s.VariantColor,
+            VariantText = s.VariantText,
+            Price = s.Price,
+            Quantity = s.Quantity,
+            StockNumber = s.StockNumber,
+            Note = s.Note,
+            CreatedBy = s.CreatedBy,
+          }).ToList(),
+          Files = p.Files.Select(f => new FileDTO
           {
-            return Ok(new { success = false, message = "Product not found!" });
-          }
-          return Ok(new { success = true, message = "Login successful!", product });
-        //}
+            FileId = f.FileId,
+            FileName = f.FileName,
+            FileType = f.FileType,
+            FileData = f.FileData
+          }).ToList()
+
+        })
+        .FirstOrDefaultAsync();
+
+        if (product == null)
+        {
+          return Ok(new { success = false, message = "Product not found!" });
+        }
+        return Ok(new { success = true, message = "Login successful!", product });
       }
       catch (Exception ex)
       {
@@ -81,7 +78,7 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500);
 #endif
       }
-    }// GET: id
+    }
 
     [HttpPost("AddProduct")]
     public async Task<ActionResult> AddProduct([FromBody] ProductDTO dto)
@@ -98,19 +95,14 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized(new { success = false, message = "Unauthorized User" });
 
-        // check if Name is empty
         if (string.IsNullOrWhiteSpace(dto.Name))
         {
           return Ok(new { success = false, message = "Product name needed." });
         }
-        //check for duplicate product name
+
         bool nameExists = await _context.Products
             .AnyAsync(p => p.Name.ToLower() == dto.Name.ToLower());
 
-
-        // Variant Validation if i have time i have it in frontend
-
-        // check price format (assuming one stock per product for now) CHECK PREDICATE 
         if (dto.Stocks.Any(s =>
             s.Price <= 0 ||                      // must be greater than 0
             s.Price > 9999999.99m ||             // must be within allowed range
@@ -126,7 +118,6 @@ namespace DreamPlants.DataService.API.Controllers
           return Ok(new { success = false, message = "You must select a subcategory." });
         }
 
-        // validate stock number uniqueness
         bool stockNumberExists = await _context.Stocks
             .AnyAsync(s => s.StockNumber == dto.Stocks[0].StockNumber);
         if (stockNumberExists)
@@ -134,7 +125,6 @@ namespace DreamPlants.DataService.API.Controllers
           return Ok(new { success = false, message = "Stock number already exists." });
         }
 
-        // get category from subcategory
         var subcategory = await _context.Subcategories
             .Include(sc => sc.Category)
             .FirstOrDefaultAsync(sc => sc.SubcategoryId == dto.SubcategoryId);
@@ -185,14 +175,13 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500);
 #endif
       }
-    } // AddProduct - has Trans
+    }
 
     [HttpPost("UpdateProduct/{stockUid}")]
     public async Task<ActionResult> UpdateProduct(string stockUid, [FromBody] ProductDTO dto)
 
     {
       await using var transaction = await _context.Database.BeginTransactionAsync();
-
       try
       {
         string token = Request.Cookies["LoginToken"];
@@ -239,12 +228,9 @@ namespace DreamPlants.DataService.API.Controllers
         if (product == null)
           return NotFound(new { success = false, message = "Product not found." });
 
-
-        // Update product
         product.Name = dto.Name;
         product.SubcategoryId = dto.SubcategoryId;
 
-        // Update stock
         var stock = product.Stocks.FirstOrDefault(s => s.StockUid == stockUid);
         if (stock != null)
         {
@@ -257,7 +243,6 @@ namespace DreamPlants.DataService.API.Controllers
           stock.Note = dto.Stocks[0].Note;
         }
 
-        // Replace files
         _context.Files.RemoveRange(product.Files);
         product.Files = dto.Files.Select(f => new Models.Generated.File
         {
@@ -281,13 +266,12 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500);
 #endif
       }
-    } // UpdateProduct - has Trans
+    }
 
     [HttpDelete("DeleteProduct/{stockUid}")]
     public async Task<ActionResult> DeleteProduct(string stockUid)
     {
       await using var transaction = await _context.Database.BeginTransactionAsync();
-
       try
       {
         string token = Request.Cookies["LoginToken"];
@@ -306,7 +290,6 @@ namespace DreamPlants.DataService.API.Controllers
         if (product == null)
           return Ok(new { success = false, message = "Product not found." });
 
-        // Check if any of the product's stocks are in order_products
         var isInOrder = await _context.OrderProducts
           .AnyAsync(op => product.Stocks.Select(s => s.StockId).Contains(op.StockId));
 
@@ -315,14 +298,13 @@ namespace DreamPlants.DataService.API.Controllers
           return Ok(new
           {
             success = false,
-            message = "Cannot delete product: It is used in at least one order."  // soft delete if u got time later
+            message = "Cannot delete product: It is used in at least one order."
           });
         }
 
         _context.Products.Remove(product);
         await _context.SaveChangesAsync();
         await transaction.CommitAsync();
-
 
         return Ok(new { success = true, message = "Product deleted." });
       }
@@ -336,15 +318,13 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500);
 #endif
       }
-    } // DeleteProduct - has Trans
+    }
 
-    // GET: Products/Category/5
     [HttpGet("Category/{id}")]
     public async Task<ActionResult<List<ProductDTO>>> GetProductByCategory(int id)
     {
       try
       {
-        // Security check for the API.
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
         {
@@ -354,7 +334,7 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null || user.LoginTokenTimeout < DateTime.Now)
         {
           return Unauthorized();
-        } // Security End.
+        }
         else
         {
           var product = await _context.Products
@@ -393,15 +373,13 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500);
 #endif
       }
-    }// GET: Category/id
+    }
 
-    // Products/Filter
     [HttpGet("Filter")]
     public async Task<ActionResult<List<ProductDTO>>> FilterProducts([FromQuery] string catIds = "", [FromQuery] string subcatIds = "")
     {
       try
       {
-        // Security check
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
           return Unauthorized();
@@ -410,7 +388,6 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null || user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized();
 
-        // Parse ID strings to int lists
         var catIdList = catIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
                               .Select(int.Parse)
                               .ToList();
@@ -419,14 +396,12 @@ namespace DreamPlants.DataService.API.Controllers
                                      .Select(int.Parse)
                                      .ToList();
 
-        // Base query
         var query = _context.Products
           .Include(p => p.Subcategory)
             .ThenInclude(c => c.Category)
           .Include(p => p.Stocks)
           .AsQueryable();
 
-        // Apply filters
         if (catIdList.Any())
         {
           query = query.Where(p => catIdList.Contains(p.Subcategory.Category.CategoryId));
@@ -465,10 +440,8 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500);
 #endif
       }
-    } // FILTER
+    }
 
-
-    // STOCK
     [HttpPost("AdjustStock/{adjust}")]
     public async Task<ActionResult> AdjustStock(string adjust, [FromBody] AdjustStockDTO dto)
     {
@@ -517,7 +490,6 @@ namespace DreamPlants.DataService.API.Controllers
       }
     }
 
-    // IMAGE
     [HttpDelete("DeleteFile/{fileId}")]
     public async Task<ActionResult> DeleteFile(int fileId)
     {
@@ -549,7 +521,5 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     }
-
-
   }
 }

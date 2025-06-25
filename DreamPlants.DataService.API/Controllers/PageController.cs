@@ -25,21 +25,17 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
-        // Check later why u dont need a Uri escape string here? wtf does the enitty framework do it for you?
-        // 1. Auth check
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
-          return BadRequest(new { success = false, message = "Unauthorized Token" });
+          return BadRequest(new { success = false, message = "Unauthorized" });
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
         if (user == null)
-          return BadRequest(new { success = false, message = "Unauthorized User" });
+          return BadRequest(new { success = false, message = "Unauthorized" });
 
-
-        // NICE! 
         if (user.LoginTokenTimeout < DateTime.Now)
         {
-          return Ok(new { success = false, message = "Token Timeout" });
+          return Ok(new { success = false, message = "Token Timeout. Please login again." });
         }
 
         if (!user.UserStatus)
@@ -48,7 +44,6 @@ namespace DreamPlants.DataService.API.Controllers
           return Ok(new { success = false, message = "User Status: Disabled" });
         }
 
-        // Dara Transfer Object - 
         UserDTO userDTO = new UserDTO
         {
           FirstName = user.FirstName,
@@ -70,15 +65,14 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500);
 #endif
       }
-    } // ApiGet (Init)
+    }
 
     [HttpGet("product&categorieslist")]
     public async Task<ActionResult<User>> PageProdCatList()
     {
       try
       {
-        // Dara Transfer Object - 
-        var categoriesList = await _context.Categories
+        List<CategoryDTO> categoriesList = await _context.Categories
         .Include(sc => sc.Subcategories).Select(c => new CategoryDTO
         {
           CategoryId = c.CategoryId,
@@ -125,14 +119,13 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500);
 #endif
       }
-    } // apiGet (product&categorieslist)
+    }
 
     [HttpGet("product&categorieslist/Filter")]
     public async Task<ActionResult<List<ProductDTO>>> FilterProducts([FromQuery] string catIds = "", [FromQuery] string subcatIds = "")
     {
       try
       {
-        // Security check
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
           return Unauthorized();
@@ -141,7 +134,6 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null)
           return Unauthorized();
 
-        // Parse query params into ID lists
         var catIdList = catIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
                     .Select(int.Parse)
                     .ToList();
@@ -168,7 +160,6 @@ namespace DreamPlants.DataService.API.Controllers
         }
         else if (catIdList.Any() && subcatIdList.Any())
         {
-          // Get subcats grouped by category
           var catToSubcatMap = _context.Categories
             .Include(c => c.Subcategories)
             .Where(c => catIdList.Contains(c.CategoryId))
@@ -177,7 +168,6 @@ namespace DreamPlants.DataService.API.Controllers
               c => c.Subcategories.Select(s => s.SubcategoryId).ToList()
             );
 
-          // Find subcategories that belong to selected categories but have NONE selected
           var includeFullCats = new List<int>();
 
           foreach (var catId in catIdList)
@@ -225,9 +215,8 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500);
 #endif
       }
-    } // apiGet (product&categorieslist/Filter)
+    }
 
-    // PAGINATION
     [HttpGet("product&categorieslist/Paginated")]
     public async Task<ActionResult> GetPaginatedProducts(
     [FromQuery] int page = 1,
@@ -240,7 +229,6 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
-        // Parse filter params
         var catIdList = catIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
           .Select(int.Parse).ToList();
 
@@ -252,10 +240,9 @@ namespace DreamPlants.DataService.API.Controllers
             .ThenInclude(c => c.Category)
           .Include(p => p.Stocks)
           .Include(p => p.Files)
-          .Where(p => p.Stocks.Any()) // Initial base filter
+          .Where(p => p.Stocks.Any())
           .AsQueryable();
 
-        // If filtering by stockUids
         if (!string.IsNullOrEmpty(stockUids))
         {
           var uidList = stockUids
@@ -266,7 +253,6 @@ namespace DreamPlants.DataService.API.Controllers
           query = query.Where(p => p.Stocks.Any(s => uidList.Contains(s.StockUid)));
         }
 
-        // Additional filtering
         if (catIdList.Any() && !subcatIdList.Any())
         {
           query = query.Where(p => catIdList.Contains(p.Subcategory.Category.CategoryId));
@@ -301,10 +287,8 @@ namespace DreamPlants.DataService.API.Controllers
             includeFullCats.Contains(p.Subcategory.Category.CategoryId));
         }
 
-        // DEV - Missing DTO
         if (sortBy == "bestseller")
         {
-          // grorup all producs in order 
           var bestsellerQuery = _context.OrderProducts
             .GroupBy(op => op.Stock.ProductId)
             .Select(g => new
@@ -320,10 +304,7 @@ namespace DreamPlants.DataService.API.Controllers
               (p, b) => new { Product = p, TotalSold = b.Select(x => x.TotalSold).FirstOrDefault() })
             .OrderByDescending(x => x.TotalSold)
             .Select(x => x.Product);
-        } else  // DEV
-
-        // Sort
-        if (sortBy == "newest")
+        } else if (sortBy == "newest")
         {
           query = query.OrderByDescending(p => p.Stocks.FirstOrDefault().StockId);
         }
@@ -336,7 +317,6 @@ namespace DreamPlants.DataService.API.Controllers
           query = query.OrderByDescending(p => p.Name);
         }
 
-        // Paginate
         var totalCount = await query.CountAsync();
         var products = await query
           .Skip((page - 1) * pageSize)
@@ -382,7 +362,7 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500);
 #endif
       }
-    } // PAGINATION
+    }
 
     [HttpGet("shopcart/pricing")]
     public async Task<ActionResult<ShopCartPricingDTO>> GetShopCartPricing()
@@ -395,8 +375,6 @@ namespace DreamPlants.DataService.API.Controllers
         var standard = shippingTaxEntries.FirstOrDefault(p => p.Label?.ToLower() == "standard");
         var rapid = shippingTaxEntries.FirstOrDefault(p => p.Label?.ToLower() == "express");
         var free = shippingTaxEntries.FirstOrDefault(p => p.Label?.ToLower() == "free");
-
-
 
         if (tax == null || standard == null || rapid == null || free == null)
           return Ok(new { success = false, message = "Pricing data incomplete." });
@@ -420,9 +398,5 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     }
-
-
-
-
-  } // Class
-} // Namespace
+  }
+}

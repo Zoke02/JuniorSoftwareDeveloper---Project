@@ -14,7 +14,6 @@ namespace DreamPlants.DataService.API.Controllers
 
     private readonly DreamPlantsContext _context;
 
-    // Always initialize in the constructor or els you will get a null reference exception.
     public CategoryController(DreamPlantsContext context)
     {
       _context = context;
@@ -25,9 +24,7 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
-        // no securty for alter one as filter. FromQuery
-
-        var categoriesDTO = await _context.Categories
+        List<CategoryDTO> categoriesDTO = await _context.Categories
           .Include(c => c.Subcategories)
           .OrderBy(c => c.CategoryId)
           .Select(c => new CategoryDTO
@@ -55,25 +52,27 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500, new { success = false, message = "Failed to load categories." });
 #endif
       }
-    }
+    } // List of Categorieswith Subcategories
 
     [HttpPost("Add")]
     public async Task<ActionResult> AddCategory([FromBody] string dto)
     {
       try
       {
-        var user = await ValidateAdminAsync();
+        User user = await ValidateAdminAsync();
         if (user == null) return Unauthorized();
 
         string name = dto.Trim();
+        if (string.IsNullOrWhiteSpace(name))
+          return Ok(new { success = false, message = "Category name cannot be empty." });
 
         bool exists = await _context.Categories
           .AnyAsync(c => c.CategoryName.ToLower() == name.ToLower());
-
         if (exists)
           return Ok(new { success = false, message = "Category name already exists." });
 
-        var category = new Category { CategoryName = name };
+        Category category = new Category { CategoryName = name };
+
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
 
@@ -105,7 +104,6 @@ namespace DreamPlants.DataService.API.Controllers
         if (string.IsNullOrWhiteSpace(name))
           return BadRequest(new { success = false, message = "Name cannot be empty." });
 
-        // Check for duplicate name
         bool exists = await _context.Categories
           .AnyAsync(c => c.CategoryId != dto.Id && c.CategoryName.ToLower() == name.ToLower());
 
@@ -173,7 +171,7 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500, new { success = false, message = "Failed to delete category." });
 #endif
       }
-    } // - has Trans
+    }
 
     [HttpPost("Subcategory/Add")]
     public async Task<ActionResult> AddSubcategory([FromBody] AddSubcategoryDTO dto)
@@ -223,14 +221,12 @@ namespace DreamPlants.DataService.API.Controllers
         var user = await ValidateAdminAsync();
         if (user == null) return Unauthorized();
 
-        // Load sub to get its CategoryId
         var sub = await _context.Subcategories.FindAsync(dto.Id);
         if (sub == null)
           return NotFound(new { success = false, message = "Subcategory not found." });
 
         string name = dto.NewName.Trim();
 
-        // Check for duplicate in the same category
         bool exists = await _context.Subcategories
           .AnyAsync(s =>
             s.CategoryId == sub.CategoryId &&
@@ -288,7 +284,7 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500, new { success = false, message = "Failed to delete subcategory." });
 #endif
       }
-    } // - has Trans
+    }
 
     private async Task<User> ValidateAdminAsync()
     {

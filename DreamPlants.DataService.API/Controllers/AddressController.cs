@@ -27,15 +27,14 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
-        // 1 - Is there a token cookie
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
           return Unauthorized(new { success = false, message = "Unauthorized" });
-        // 2 - Is the token same as the DataBank one or if user status is Disabled(false) - I already check this in init!
+
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
         if (user == null || user.UserStatus == false)
           return Unauthorized(new { success = false, message = "Unauthorized" });
-        // 3 - Is user lastlog of token < DateTime.Now
+
         if (user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized(new { success = false, message = "Unauthorized - Login token expired. Please login again. " });
 
@@ -55,12 +54,10 @@ namespace DreamPlants.DataService.API.Controllers
             })
             .ToListAsync();
 
-        // 4 - if no adresses send ok with a message (Check if you need to send notfound) 
         if (addressesDTO == null || addressesDTO.Count == 0)
           return Ok(new { success = false, message = "User doesnt have any adresses saved." });
 
-        // Last - Return Adresses
-        return Ok(new { success = true, message = "Address found!", addressesDTO });
+        return Ok(new { success = true, message = "Addresses found!", addressesDTO });
       }
       catch (Exception ex)
       {
@@ -82,8 +79,9 @@ namespace DreamPlants.DataService.API.Controllers
           return Unauthorized(new { success = false, message = "Unauthorized" });
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null)
+        if (user == null || user.UserStatus == false)
           return Unauthorized(new { success = false, message = "Unauthorized" });
+
         if (user.LoginTokenTimeout < DateTime.Now)
           return Unauthorized(new { success = false, message = "Unauthorized - Login token expired. Please login again. " });
 
@@ -118,7 +116,6 @@ namespace DreamPlants.DataService.API.Controllers
           PostalCode = postalCode,
         };
 
-        // Add user to the database
         _context.Addresses.Add(newAddress);
         await _context.SaveChangesAsync();
 
@@ -144,16 +141,18 @@ namespace DreamPlants.DataService.API.Controllers
         if (string.IsNullOrEmpty(token))
           return Unauthorized(new { success = false, message = "Unauthorized" });
 
-        var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
-        if (user == null || user.LoginTokenTimeout < DateTime.Now)
+        User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
+        if (user == null || user.UserStatus == false)
           return Unauthorized(new { success = false, message = "Unauthorized" });
 
+        if (user.LoginTokenTimeout < DateTime.Now)
+          return Unauthorized(new { success = false, message = "Unauthorized - Login token expired. Please login again. " });
 
         var address = await _context.Addresses.FirstOrDefaultAsync(a => a.UserId == user.UserId && a.AddressId == id);
         if (address == null)
           return Ok(new { success = false, message = "Address not found or does not belong to user." });
 
-        // Better is a try catch - find out how to catch any or specific exceptions - fix later
+
         bool isInUse = await _context.Orders.AnyAsync(o => o.AddressId == id);
         if (isInUse)
         {
@@ -183,6 +182,6 @@ namespace DreamPlants.DataService.API.Controllers
     return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    }    // DelAddress - has trans
+    } // DelAddress with Transaction
   }
 }

@@ -23,15 +23,14 @@ namespace DreamPlants.DataService.API.Controllers
     {
       try
       {
-        // 1 - Is there a token cookie
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
           return Unauthorized(new { success = false, message = "Unauthorized Token" });
-        // 2 - Is the token same as the DataBank one. 
+
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
         if (user == null)
           return Unauthorized(new { success = false, message = "Unauthorized User" });
-        // 3 - with user.UserId find user adresses
+
         List<CreditCardDTO> creditCardsDTO = await _context.CreditCards
             .Where(a => a.UserId == user.UserId && !a.Deleted)
             .Select(a => new CreditCardDTO
@@ -41,11 +40,9 @@ namespace DreamPlants.DataService.API.Controllers
             })
             .ToListAsync();
 
-        // 4 - if no adresses send ok with a message (Check if you need to send notfound) 
         if (creditCardsDTO == null || creditCardsDTO.Count == 0)
           return Ok(new { success = false, message = "User doesnt have any Credit Cards saved." });
 
-        // Last - Return Adresses
         return Ok(new { success = true, message = "Cards saved!", creditCardsDTO });
       }
       catch (Exception ex)
@@ -56,7 +53,7 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // GetCards
+    }
 
     [HttpPost("NewCard")]
     public async Task<ActionResult> NewCard()
@@ -101,7 +98,7 @@ namespace DreamPlants.DataService.API.Controllers
           return Ok(new { success = false, message = "Invalid expiry month." });
         }
 
-        if (cardCVV.Length > 4 || !int.TryParse(cardCVV, out _)) // with _ u can discard
+        if (cardCVV.Length > 4 || !int.TryParse(cardCVV, out _)) // with _ u can discard (check if you need manual discard)
         {
           return Ok(new { success = false, message = "Invalid CVV. Must be numeric and max 4 digits." });
         }
@@ -129,7 +126,7 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // NewCard
+    }
 
     [HttpDelete("DelCard/{id}")]
     public async Task<ActionResult> DelCard(int id)
@@ -145,12 +142,11 @@ namespace DreamPlants.DataService.API.Controllers
         var user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
         if (user == null)
           return Unauthorized(new { success = false, message = "Unauthorized" });
-        //  checkback later to return Ok success false and pront messages for user from backend as validation
+
         var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.UserId == user.UserId && c.CardId == id);
         if (card == null)
           return Ok(new { success = false, message = "Card not found or does not belong to user." });
 
-        // same as adresses
         bool isInUse = await _context.Orders.AnyAsync(o => o.CardId == id);
 
         if (isInUse)
@@ -181,7 +177,7 @@ namespace DreamPlants.DataService.API.Controllers
     return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // - has Trans
-    // DelAddress
+    }
+
   }
 }

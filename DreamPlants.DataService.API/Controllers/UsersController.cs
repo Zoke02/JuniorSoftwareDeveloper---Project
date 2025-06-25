@@ -20,8 +20,6 @@ namespace DreamPlants.DataService.API.Controllers
   public class UsersController : ControllerBase
   {
     private readonly DreamPlantsContext _context;
-
-    // Always initialize in the constructor or els you will get a null reference exception.
     public UsersController(DreamPlantsContext context)
     {
         _context = context;
@@ -49,7 +47,7 @@ namespace DreamPlants.DataService.API.Controllers
         if (!user.UserStatus)
         {
           this.Response.Cookies.Delete("LoginToken");
-          return Ok(new { success = false, message = "User Status: Disabled!" }); // check init aswell if user gets disabled while logged in.
+          return Ok(new { success = false, message = "User Status: Disabled!" });
         }
 
         SHA512 sha = SHA512.Create();
@@ -63,7 +61,6 @@ namespace DreamPlants.DataService.API.Controllers
         {
           user.LoginTokenTimeout = DateTime.Now.AddDays(1);
         }
-
 
         this.Response.Cookies.Append("LoginToken", user.LoginToken, new CookieOptions
         {
@@ -95,7 +92,6 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     }
-    // Login
 
     [HttpPost("Logout")]
     public async Task<ActionResult> Logout()
@@ -110,10 +106,8 @@ namespace DreamPlants.DataService.API.Controllers
           user.LoginToken = null;
           user.LoginTokenTimeout = null;
 
-          // DSouble Check? ...why sometimes gives error only the entity god knows
           _context.Entry(user).Property(u => u.LoginToken).IsModified = true;
           _context.Entry(user).Property(u => u.LoginTokenTimeout).IsModified = true;
-        // save
           await _context.SaveChangesAsync();
         }
 
@@ -130,14 +124,12 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     }
-    // Logout
 
     [HttpPost("Register")]
     public async Task<ActionResult<User>> Register()
     {
       try
       {
-        // Varriables
         var email = Request.Form["email"].ToString();
         var password = Request.Form["password"].ToString();
         var firstName = Request.Form["firstName"].ToString();
@@ -146,8 +138,6 @@ namespace DreamPlants.DataService.API.Controllers
         var remember = Request.Form["remember"].ToString() == "true";
         var days = remember ? 30 : 1;
 
-
-        // Basic validation
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(firstName) || string.IsNullOrWhiteSpace(lastName) || string.IsNullOrWhiteSpace(phone))
           return Ok(new { success = false, message = "All fields must be filled." });
 
@@ -157,7 +147,6 @@ namespace DreamPlants.DataService.API.Controllers
         if ( _context.Users.Any(u => u.Email == email))
           return Ok(new { success = false, message = "Email already registered." });
 
-        // Create user
         User newUser = new User
         {
           Email = email,
@@ -170,13 +159,11 @@ namespace DreamPlants.DataService.API.Controllers
           UserStatus = true
         };
 
-        // SetPassword new Method
         newUser.setPassword(password);
 
-        // Login Token
         SHA512 sha = SHA512.Create();
         newUser.LoginToken = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes($"{newUser.Email} {DateTime.Now:yyyyMMddHHmmssfff}")));
-        // Now set the cookie to the users browser.
+
         this.Response.Cookies.Append("LoginToken", newUser.LoginToken, new CookieOptions()
         {
           Expires = newUser.LoginTokenTimeout.Value,
@@ -184,11 +171,9 @@ namespace DreamPlants.DataService.API.Controllers
           Secure = true
         });
 
-        // Add user to the database
         _context.Users.Add(newUser);
         await _context.SaveChangesAsync();
 
-        // Dara Transfer Object 
         UserDTO userDTO = new UserDTO
         {
           FirstName = newUser.FirstName,
@@ -198,7 +183,6 @@ namespace DreamPlants.DataService.API.Controllers
           RoleId = newUser.RoleId,
         };
 
-        // Success response
         return Ok(new { success = true, message = "Registration successful!", user = userDTO });
       }
       catch (Exception ex)
@@ -209,7 +193,7 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // Register
+    }
 
     [HttpPost("ValidatePassword")]
     public async Task<ActionResult<User>> ValidatePassword()
@@ -241,25 +225,23 @@ namespace DreamPlants.DataService.API.Controllers
 		return StatusCode(500, new { message = "An error occurred." });
 #endif
       }
-    } // ValidatePassword
+    }
 
     [HttpPut("UpdateUser")]
     public async Task<ActionResult<User>> UpdateUser([FromForm] UserDTO dto)
     {
       try
       {
-        // if no TOKEN
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
           return Ok(new { success = false, message = "Unauthorized!" });
 
         User user = await _context.Users.FirstOrDefaultAsync(u => u.LoginToken == token);
 
-        // if Disabled
         if (!user.UserStatus)
         {
           this.Response.Cookies.Delete("LoginToken");
-          return Ok(new { success = false, message = "User Status: Disabled!" }); // check init aswell if user gets disabled while logged in.
+          return Ok(new { success = false, message = "User Status: Disabled!" });
         }
 
         if (user != null)
@@ -302,14 +284,13 @@ namespace DreamPlants.DataService.API.Controllers
         return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // UpdateUser
+    }
 
     [HttpPost("UploadPicture")]
     public async Task<ActionResult> UploadPicture()
     {
       try
       {
-        // 1. Auth check
         string token = Request.Cookies["LoginToken"];
         if (string.IsNullOrEmpty(token))
           return BadRequest(new { success = false, message = "Unauthorized Token" });
@@ -318,24 +299,20 @@ namespace DreamPlants.DataService.API.Controllers
         if (user == null)
           return BadRequest(new { success = false, message = "Unauthorized User" });
 
-        // 2. Extract form data
         var imageBase64 = Request.Form["image64Bit"].ToString();
         var imageType = Request.Form["imageType"].ToString();
 
-        // 3. Validate size like 3 mb
         int estimatedBytes = (int)(imageBase64.Length * 0.75);
         if (estimatedBytes > 3 * 1024 * 1024) 
         {
           return BadRequest(new { success = false, message = "Image is too large. Max 3MB allowed." });
         }
 
-        // 4. Validate file extension
         if (imageType != "png" && imageType != "jpg" && imageType != "jpeg")
         {
           return BadRequest(new { success = false, message = "Only .png, .jpg, or .jpeg allowed." });
         }
 
-        // 5. Convert base64 to byte[]
         byte[] imageBytes;
         try
         {
@@ -346,10 +323,8 @@ namespace DreamPlants.DataService.API.Controllers
           return BadRequest(new { success = false, message = "Invalid base64 image data." });
         }
 
-        // 6. Check if replacing existing image
         bool isReplacing = user.AvatarBase64 != null;
 
-        // 7. Save to DB
         user.AvatarBase64 = imageBytes;
         user.AvatarFileType = imageType;
 
@@ -358,7 +333,7 @@ namespace DreamPlants.DataService.API.Controllers
         return Ok(new
         {
           success = true,
-          message = isReplacing ? "Profile image updated." : "Profile image uploaded." // is it upload or new add?
+          message = isReplacing ? "Profile image updated." : "Profile image uploaded."
         });
       }
       catch (Exception ex)
@@ -369,9 +344,8 @@ namespace DreamPlants.DataService.API.Controllers
     return StatusCode(500, new { success = false, message = "An error occurred." });
 #endif
       }
-    } // UploadPicture
+    }
 
-    // DEV
     [HttpPost("UpdateUserAdmin")]
     public async Task<ActionResult> UpdateUserAdmin([FromBody] UpdateUserAdminDTO dto)
     {
@@ -468,7 +442,5 @@ namespace DreamPlants.DataService.API.Controllers
 #endif
       }
     }
-
-
   }
 }

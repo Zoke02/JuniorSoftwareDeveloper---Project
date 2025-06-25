@@ -10,7 +10,6 @@ export default class PageIndividualProduct {
 
 		const plantCareSection = args.target.querySelector('#plantCareSection');
 		this.#fetchProductDetails(args.stockUid);
-		// END LOAD
 		new PlantCareSection({
 			target: plantCareSection,
 			app: args.app,
