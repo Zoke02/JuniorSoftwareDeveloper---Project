@@ -10,16 +10,16 @@ It implements key concepts like modular architecture, backend logic, PWA feature
 --------------------------------------------------------------------------------------------------------------------
 
 🖼️ Screenshots
-Homepage ->
-BestSellerSection ->
-Login/Register ->
-ShopCart ->
-UserProfile ->
-UserOrderHistory ->
-UsersManagement -> 
-AdminCategoryManagement ->
-AdminProductsManagement ->
-AdminProductDetails ->
+Homepage -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/home_page.png
+BestSellerSection -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/best_seller_section_dark_mode.png
+Login/Register -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/login_register.png
+ShopCart -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/shop_cart.png
+UserProfile -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/user_profile.png
+UserOrderHistory -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/user_order_history.png
+UsersManagement -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/user_management.png
+AdminCategoryManagement -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/categories_management.png
+AdminProductsManagement -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/products_management.png
+AdminProductDetails -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/products_add_edit.png
 
 --------------------------------------------------------------------------------------------------------------------
 
