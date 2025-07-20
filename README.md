@@ -79,4 +79,32 @@ separation of concerns.
 
 --------------------------------------------------------------------------------------------------------------------
 
-Screenshots
+### 🚀 Installation & Setup
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/Zoke02/JuniorSoftwareDeveloper-Project.git
+   ```
+
+2. **Open the Solution**
+   - Use **Visual Studio 2022**
+   - Open `DreamPlants.WebService.sln`
+
+3. **Set Up the Database (PostgreSQL)**
+   - Ensure PostgreSQL is installed and running.
+   - Update the connection string in `appsettings.json` if needed.
+        "ConnectionStrings": {
+        "DefaultConnection": "Database=dreamPlants;User Id=dreamPlants;Password=dreamPlants;Host=localhost;Port=5432"
+        }
+   - Use Entity Framework migrations to create the schema.
+
+4. **Run the Backend (API)**
+   - Press `F5` or click **Start** to launch the API
+
+5. **Run the Frontend**
+   - Open `index.html` from the `DreamPlants.WebService/dist/dev` folder
+   - Or use a static server (e.g. **Live Server** in VS Code)
+
+6. **Login & Roles**
+   - You can register a new user via the frontend.
+   - Roles (`Admin`, `Employee`, `Customer`) must be adjusted manually in the database for testing.
