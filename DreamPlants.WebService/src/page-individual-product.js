@@ -41,7 +41,7 @@ export default class PageIndividualProduct {
 
 		const imageUrl = file
 			? `data:${file.fileType};base64,${file.fileData}`
-			: './images/Logo (DarkMode).svg';
+			: './assets/Logo (DarkMode).c12f65c9851e43e5cdac.svg';
 
 		// Fill elements by ID
 		document.getElementById('productImage').src = imageUrl;

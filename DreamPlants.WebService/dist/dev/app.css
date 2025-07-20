@@ -351,6 +351,16 @@ a i {
 	background-color: #969623 !important;
 }
 .navBarSpace {
-	margin-top: 80px;
+	padding-top: 80px;
+}
+
+a {
+	color: var(--lightGreen);
+}
+
+.product-card-img {
+	width: 100%;
+	height: 300px; /* Adjust this to your desired uniform height */
+	object-fit: cover; /* Ensures images fill the space without distortion */
 }
 

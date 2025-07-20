@@ -20,7 +20,7 @@ namespace DreamPlants.DataService.API.Controllers
     public AddressController(DreamPlantsContext context)
     {
       _context = context;
-    }
+    } // Constructor
 
     [HttpGet("GetAddresses")]
     public async Task<ActionResult> GetAddresses()

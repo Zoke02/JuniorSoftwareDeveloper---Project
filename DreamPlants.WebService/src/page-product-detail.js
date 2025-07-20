@@ -93,9 +93,13 @@ export default class PageProductDetail {
 		const inputFile = args.target.querySelector('#inputFile');
 		const containerFiles = args.target.querySelector('#containerFiles');
 		this.#containerFiles = containerFiles;
+
+		// DEV
+		// const productName = args.target.querySelector('#productName');
 		//--------------------------------------------------
 		// Init
-
+		if (this.#args.stockUid) {
+		}
 		const random8Digit = Math.floor(10000000 + Math.random() * 90000000);
 		if (this.#product == null) this.#textNumber.value = random8Digit;
 

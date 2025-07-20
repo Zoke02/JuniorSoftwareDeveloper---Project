@@ -69,14 +69,14 @@ export default class CardsSection {
 		<button class="btn btn-outline-secondary" disabled>
 			<i class="bi bi-cart-x me-2"></i>Add to cart
 		</button>
-		<p class="my-2 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Out of Stock</p>
+		<p class="mt-2 text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Out of Stock</p>
 		`;
 		} else if (stock.quantity < 6) {
 			buttonHtml = `
 		<button class="btn btn-primary addToCart" data-stock-uid="${stock.stockUid}">
 			<i class="bi bi-cart-plus me-2"></i>Add to cart
 		</button>
-		<p class="my-2 text-warning"><i class="bi bi-exclamation-square me-2"></i>Limited Stock</p>
+		<p class="mt-2 text-warning"><i class="bi bi-exclamation-square me-2"></i>Limited Stock</p>
 		`;
 		} else {
 			buttonHtml = `
@@ -88,7 +88,9 @@ export default class CardsSection {
 		div.innerHTML = `
 			<div class="card text-center text-decoration-none h-100">
 			    <a href="#individual-product?stockUid=${stock.stockUid}">
-					<img src="${imageUrl}" class="card-img-top" alt="${product.name}" />
+					<img src="${imageUrl}" class="card-img-top product-card-img" alt="${
+			product.name
+		}" />
 				</a>
 				<div class="card-body">
 					<p class="card-text">${product.name} - ${product.stocks[0].variantSize}</p>
