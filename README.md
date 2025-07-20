@@ -10,16 +10,19 @@ It implements key concepts like modular architecture, backend logic, PWA feature
 --------------------------------------------------------------------------------------------------------------------
 
 🖼️ Screenshots
-Homepage -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/home_page.png
-BestSellerSection -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/best_seller_section_dark_mode.png
-Login/Register -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/login_register.png
-ShopCart -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/shop_cart.png
-UserProfile -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/user_profile.png
-UserOrderHistory -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/user_order_history.png
-UsersManagement -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/user_management.png
-AdminCategoryManagement -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/categories_management.png
-AdminProductsManagement -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/products_management.png
-AdminProductDetails -> https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/products_add_edit.png
+| Feature                                | Preview                                                                                                                                                    |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Homepage**                        | [home\_page.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/home_page.png)                                            |
+| **Best Seller Section (Dark Mode)** | [best\_seller\_section\_dark\_mode.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/best_seller_section_dark_mode.png) |
+| **Login / Register**                | [login\_register.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/login_register.png)                                  |
+| **Shopping Cart**                   | [shop\_cart.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/shop_cart.png)                                            |
+| **User Profile**                    | [user\_profile.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/user_profile.png)                                      |
+| **User Order History**              | [user\_order\_history.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/user_order_history.png)                         |
+| **User Management (Admin)**      | [user\_management.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/user_management.png)                                |
+| **Category Management (Admin)**     | [categories\_management.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/categories_management.png)                    |
+| **Product Management (Admin)**      | [products\_management.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/products_management.png)                        |
+| **Add / Edit Products (Admin)**     | [products\_add\_edit.png](https://github.com/Zoke02/JuniorSoftwareDeveloper-Project/blob/main/Screenshots/products_add_edit.png)                           |
+
 
 --------------------------------------------------------------------------------------------------------------------
 
