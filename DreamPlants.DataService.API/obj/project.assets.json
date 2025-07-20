@@ -6625,11 +6625,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
+      "projectUniqueName": "C:\\DreamPlants\\JuniorSoftwareDeveloper-Project\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
       "projectName": "DreamPlants.DataService.API",
-      "projectPath": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
+      "projectPath": "C:\\DreamPlants\\JuniorSoftwareDeveloper-Project\\DreamPlants.DataService.API\\DreamPlants.DataService.API.csproj",
       "packagesPath": "C:\\Users\\nedel\\.nuget\\packages\\",
-      "outputPath": "C:\\DreamPlants\\JuniorSoftwareDeveloper---Project\\DreamPlants.DataService.API\\obj\\",
+      "outputPath": "C:\\DreamPlants\\JuniorSoftwareDeveloper-Project\\DreamPlants.DataService.API\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
