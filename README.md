@@ -9,6 +9,20 @@ It implements key concepts like modular architecture, backend logic, PWA feature
 
 --------------------------------------------------------------------------------------------------------------------
 
+🖼️ Screenshots
+Homepage ->
+BestSellerSection ->
+Login/Register ->
+ShopCart ->
+UserProfile ->
+UserOrderHistory ->
+UsersManagement -> 
+AdminCategoryManagement ->
+AdminProductsManagement ->
+AdminProductDetails ->
+
+--------------------------------------------------------------------------------------------------------------------
+
 🌐 Technologies Used  
 **Languages & Frameworks**  
 C#, ASP.NET Core (Web API), Entity Framework Core, JavaScript (for frontend logic), HTML5, CSS3
