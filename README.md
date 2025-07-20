@@ -1,1 +1,1 @@
-# JuniorSoftwareDeveloper---Project
+# JuniorSoftwareDeveloper - Project
